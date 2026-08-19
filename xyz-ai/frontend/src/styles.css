@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#FFFFFF] dark:bg-[#0A0D12] text-[#292A2E] dark:text-[#F0F6FC] min-h-screen transition-colors duration-200;
+    font-family: 'Charlie Text', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  /* Headings typography */
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Charlie Display', 'Plus Jakarta Sans', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: 0px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #8FB8F6;
+    border-radius: 9999px;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #30363D;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #1868DB;
+  }
+}
+
+@layer components {
+  /* Button Styles */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 h-10 rounded-full text-sm font-normal text-white bg-[#1868DB] hover:bg-[#1455B3] hover:opacity-95 active:scale-[0.98] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 h-10 rounded-full text-sm font-normal text-[#292A2E] dark:text-[#F0F6FC] bg-[#FFFFFF] dark:bg-[#161D27] border border-[#E9F2FE] dark:border-white/10 hover:bg-[#E9F2FE] dark:hover:bg-[#1E293B] hover:border-[#8FB8F6] dark:hover:border-white/20 active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 h-10 rounded-full text-sm font-normal text-[#292A2E] dark:text-[#F0F6FC] bg-transparent hover:bg-[#1868DB]/10 dark:hover:bg-[#388BFD]/15 hover:border-[#1868DB] border border-transparent active:bg-[#1868DB]/20 transition-all;
+  }
+
+  /* Cards & Containers (44px border radius) */
+  .card-standard {
+    @apply bg-[#FFFFFF] dark:bg-[#161D27] text-[#292A2E] dark:text-[#F0F6FC] rounded-[44px] p-6 sm:p-9 shadow-sm dark:shadow-2xl border border-transparent dark:border-white/10 hover:shadow-xl dark:hover:border-[#388BFD]/30 transition-all duration-200;
+  }
+
+  .card-featured {
+    @apply bg-[#CFE1FD] dark:bg-[#12233F] text-[#292A2E] dark:text-[#F0F6FC] rounded-[44px] p-6 sm:p-9 border-[3px] border-[#8FB8F6] dark:border-[#388BFD]/60 transition-all duration-200 shadow-sm dark:shadow-2xl;
+  }
+
+  .card-blue {
+    @apply bg-[#E9F2FE] dark:bg-[#101C2E] text-[#292A2E] dark:text-[#F0F6FC] rounded-[44px] p-6 sm:p-9 border border-transparent dark:border-[#388BFD]/25 transition-all duration-200;
+  }
+
+  .card-purple {
+    @apply bg-[#F8EEFE] dark:bg-[#1F122B] text-[#292A2E] dark:text-[#F0F6FC] rounded-[44px] p-6 sm:p-9 border border-transparent dark:border-[#BF63F3]/25 transition-all duration-200;
+  }
+
+  /* Input Fields */
+  .input-loom {
+    @apply h-12 rounded-[14px] px-4 py-3 bg-[#FFFFFF] dark:bg-[#0D1117] text-[#292A2E] dark:text-[#F0F6FC] border border-[#7D818A] dark:border-white/15 text-sm placeholder:text-[#8C8F97] dark:placeholder:text-[#6E7681] focus:outline-none focus:border-[#1868DB] dark:focus:border-[#388BFD] focus:border-2 focus:ring-4 focus:ring-[#1868DB]/10 dark:focus:ring-[#388BFD]/20 transition-all;
+  }
+
+  /* Badges & Tags */
+  .badge-primary {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-xs font-bold text-white bg-[#1868DB];
+  }
+
+  .badge-secondary {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-xs font-bold text-[#1868DB] dark:text-[#8FB8F6] bg-[#E9F2FE] dark:bg-[#162744] border border-[#8FB8F6] dark:border-[#388BFD]/40;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-xs font-bold text-white bg-[#FFA900];
+  }
+
+  .badge-purple {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-[12px] text-xs font-bold text-[#48245D] dark:text-[#E2B7FF] bg-[#F8EEFE] dark:bg-[#2B153D] border border-[#BF63F3]/40;
+  }
+}
+
+/* Custom Markdown Content inside chat bubbles */
+.prose-loom {
+  @apply text-[#292A2E] dark:text-[#E6EDF3] text-sm leading-relaxed;
+}
+.prose-loom p {
+  @apply mb-2 last:mb-0;
+}
+.prose-loom ul, .prose-loom ol {
+  @apply my-2 pl-4 list-disc space-y-1 text-[#292A2E] dark:text-[#E6EDF3];
+}
+.prose-loom strong {
+  @apply font-bold text-[#101214] dark:text-[#FFFFFF];
+}
+.prose-loom code {
+  @apply font-mono bg-[#E9F2FE] dark:bg-[#1E293B] text-[#1868DB] dark:text-[#58A6FF] px-1.5 py-0.5 rounded text-xs;
+}

@@ -1,0 +1,9 @@
+id,username,name,role,language,classId,studentIds
+s1,Rahul,"Rahul Sharma",student,en,c1,
+s2,Priya,"Priya Patel",student,en,c1,
+s3,Aarav,"Aarav Singh",student,hi,c2,
+s4,Ananya,"Ananya Roy",student,ta,c1,
+p1,Meera,"Meera Sharma",parent,en,,s1
+p2,Arjun,"Arjun Patel",parent,en,,s2
+t1,AnanyaS,"Ananya Sharma",teacher,en,,"c1,c2"
+m1,Rajesh,"Rajesh Kumar",principal,en,,
