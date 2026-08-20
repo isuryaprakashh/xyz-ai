@@ -33,7 +33,7 @@ export async function apiRequest(endpoint, options = {}) {
 }
 
 export const api = {
-  // Auth
+  // Auth & Profile
   login: (username, password = "demo") =>
     apiRequest("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password }) }),
   register: (payload) =>
@@ -42,7 +42,17 @@ export const api = {
   updateProfile: (profile) =>
     apiRequest("/api/auth/profile", { method: "PUT", body: JSON.stringify(profile) }),
   getDemoUsers: () => apiRequest("/api/auth/demo-users"),
-  getUsersByRole: (role) => apiRequest(`/api/users?role=${role}`),
+
+  // User Management (CRUD for Principal / Admin)
+  getUsersByRole: (role) => apiRequest(role ? `/api/users?role=${role}` : "/api/users"),
+  getUser: (id) => apiRequest(`/api/users/${id}`),
+  createUser: (payload) =>
+    apiRequest("/api/users", { method: "POST", body: JSON.stringify(payload) }),
+  updateUser: (id, payload) =>
+    apiRequest(`/api/users/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+  deleteUser: (id) =>
+    apiRequest(`/api/users/${id}`, { method: "DELETE" }),
+  getAllClasses: () => apiRequest("/api/users/classes/all"),
 
   // Chat
   sendMessage: ({ message, sessionId, language, userId }) =>
@@ -56,13 +66,33 @@ export const api = {
       body: JSON.stringify({ message, sessionId, language, userId }),
     }),
 
+  // Timetables
+  getMyTimetable: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return apiRequest(`/api/timetable/my${q ? `?${q}` : ""}`);
+  },
+  getClassTimetable: (classId) => apiRequest(`/api/timetable/class/${classId}`),
+  getTeacherTimetable: (teacherId) => apiRequest(`/api/timetable/teacher/${teacherId}`),
+  getAllTimetables: () => apiRequest("/api/timetable/all"),
+  updateClassTimetable: (classId, schedule) =>
+    apiRequest(`/api/timetable/class/${classId}`, {
+      method: "PUT",
+      body: JSON.stringify({ schedule }),
+    }),
+
   // Attendance
   getStudentAttendance: (studentId) => apiRequest(`/api/attendance/student/${studentId}`),
   getSchoolAnalytics: () => apiRequest("/api/attendance/analytics"),
+  getClassRoster: (classId) => apiRequest(`/api/attendance/class/${classId}`),
   markAttendance: ({ studentId, date = "today", status = "present" }) =>
     apiRequest("/api/attendance/mark", {
       method: "POST",
       body: JSON.stringify({ studentId, date, status }),
+    }),
+  markClassAttendance: ({ classId, date = "today", studentStatuses = [] }) =>
+    apiRequest("/api/attendance/mark-class", {
+      method: "POST",
+      body: JSON.stringify({ classId, date, studentStatuses }),
     }),
 
   // Escalations
@@ -78,7 +108,7 @@ export const api = {
       body: JSON.stringify({ status }),
     }),
 
-  // Audit Logs
+  // Audit Logs (Principal / Admin)
   getAuditLogs: () => apiRequest("/api/audit/logs"),
 
   // Health

@@ -49,11 +49,12 @@ export function createGeminiLLM() {
 
 CRITICAL RULES:
 1. You are operating in an educational ERP system.
-2. Available Intents:
+5. Intent Schema:
    - "get_own_attendance": Student asking for their own attendance.
    - "get_child_attendance": Parent asking for their child's attendance (extract entity: studentName).
    - "mark_attendance": Teacher marking attendance (extract entities: studentName, status ("present"/"absent"), date ("today", "yesterday", or YYYY-MM-DD)).
    - "get_school_attendance_analytics": Principal asking for school-wide or class attendance metrics/analytics.
+   - "get_timetable": User asking about timetable, daily periods, classes, schedule, or next class (extract entities: day ("Monday", "Tuesday", etc. or "today"), targetClass ("c1", "c2", etc.)).
    - "escalate": User wants to contact, talk to, or raise a complaint/ticket with a teacher or school management (extract entities: targetRole ("teacher" or "management"), reason).
    - "confirm_escalation": User answering "yes", "proceed", "sure", "please do" to a pending escalation confirmation.
    - "general_query": Greeting, general school advice, question, or clarification.
@@ -69,11 +70,13 @@ CRITICAL RULES:
 4. Output Format:
 You MUST ALWAYS respond with ONLY a valid JSON object matching this schema (no markdown fences, no preamble):
 {
-  "intent": "get_own_attendance" | "get_child_attendance" | "mark_attendance" | "get_school_attendance_analytics" | "escalate" | "confirm_escalation" | "general_query",
+  "intent": "get_own_attendance" | "get_child_attendance" | "mark_attendance" | "get_school_attendance_analytics" | "get_timetable" | "escalate" | "confirm_escalation" | "general_query",
   "entities": {
     "studentName": "string or null",
     "status": "present | absent | null",
     "date": "string or null",
+    "day": "string or null",
+    "targetClass": "string or null",
     "targetRole": "teacher | management | null",
     "reason": "string or null"
   },

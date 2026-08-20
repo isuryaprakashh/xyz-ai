@@ -163,6 +163,87 @@ export function createAgent() {
         return analytics;
       }
 
+      case "get_timetable": {
+        const todayDayName = new Date().toLocaleDateString("en-US", { weekday: "long" });
+        const validDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+        const day = (!entities.day || entities.day === "today" || !validDays.includes(entities.day)) ? (validDays.includes(todayDayName) ? todayDayName : "Monday") : entities.day;
+
+        if (role === "student") {
+          const classId = userProfile.classId || "c1";
+          const tt = await dataService.getTimetableForClass(classId);
+          logToolCall({ userId, role, action: intent, target: classId, success: true });
+          const daySched = tt?.schedule?.find((s) => s.day === day) || tt?.schedule?.[0];
+          return {
+            role: "student",
+            className: tt?.className || "Class 1A",
+            day: daySched?.day || day,
+            periods: daySched?.periods || [],
+          };
+        }
+
+        if (role === "parent") {
+          let sid = (userProfile.studentIds && userProfile.studentIds[0]) || "jeevan";
+          if (entities.studentName) {
+            const allUsers = await dataService.getAllUsers("student");
+            const match = allUsers.find((u) => u.name.toLowerCase().includes(entities.studentName.toLowerCase()));
+            if (match && userProfile.studentIds?.includes(match.userId)) {
+              sid = match.userId;
+            }
+          }
+
+          const student = await dataService.getUser(sid);
+          const classId = student?.classId || "c1";
+          const tt = await dataService.getTimetableForClass(classId);
+          logToolCall({ userId, role, action: intent, target: sid, success: true });
+          const daySched = tt?.schedule?.find((s) => s.day === day) || tt?.schedule?.[0];
+          return {
+            role: "parent",
+            studentName: student?.name || "Your Child",
+            className: tt?.className || "Class 1A",
+            day: daySched?.day || day,
+            periods: daySched?.periods || [],
+          };
+        }
+
+        if (role === "teacher") {
+          const teacherSchedule = await dataService.getTimetableForTeacher(userProfile.username || userId);
+          logToolCall({ userId, role, action: intent, target: userId, success: true });
+          const daySched = teacherSchedule?.schedule?.find((s) => s.day === day) || teacherSchedule?.schedule?.[0];
+          return {
+            role: "teacher",
+            teacherName: userProfile.name,
+            day: daySched?.day || day,
+            periods: daySched?.periods || [],
+          };
+        }
+
+        if (role === "principal" || role === "admin") {
+          const classMap = {
+            "1a": "c1", "1b": "c2", "1": "c1",
+            "2a": "c3", "2b": "c4", "2": "c3",
+            "3a": "c5", "3b": "c6", "3": "c5",
+            "4a": "c7", "4b": "c8", "4": "c7",
+            "5a": "c9", "5b": "c10", "5": "c9",
+            "c1": "c1", "c2": "c2", "c3": "c3", "c4": "c4", "c5": "c5",
+            "c6": "c6", "c7": "c7", "c8": "c8", "c9": "c9", "c10": "c10",
+          };
+          const rawClass = (entities.targetClass || "c1").toLowerCase().replace(/^c/, "");
+          const targetClass = classMap[entities.targetClass?.toLowerCase()] || classMap[rawClass] || "c1";
+
+          const tt = await dataService.getTimetableForClass(targetClass);
+          logToolCall({ userId, role, action: intent, target: targetClass, success: true });
+          const daySched = tt?.schedule?.find((s) => s.day === day) || tt?.schedule?.[0];
+          return {
+            role: "principal",
+            className: tt?.className || "Class 1A",
+            day: daySched?.day || day,
+            periods: daySched?.periods || [],
+          };
+        }
+
+        return null;
+      }
+
       case "escalate": {
         // Step 1: Store pending escalation in session, prompt confirmation
         session.state.pendingEscalation = {

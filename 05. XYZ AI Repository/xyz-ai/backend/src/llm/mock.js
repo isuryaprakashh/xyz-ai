@@ -1,4 +1,4 @@
-// Enhanced Mock LLM with 11 languages, clarification handling, and robust NLU
+// Enhanced Mock LLM with 11 languages, timetable resolution, clarification handling, and robust NLU
 
 const MULTILINGUAL_TEMPLATES = {
   en: {
@@ -7,11 +7,19 @@ const MULTILINGUAL_TEMPLATES = {
     child_attendance: (name, pct) => `**${name}** currently has **${pct}%** attendance. Let me know if you would like recent daily records or to speak with their class teacher.`,
     mark_success: (name, date, status, pct) => `✅ Attendance successfully marked: **${name}** is marked **${status.toUpperCase()}** for **${date}**. Updated attendance percentage is **${pct}%**.`,
     analytics: (avg, breakdown) => `📊 **School-Wide Attendance Overview**\n- **Overall Average:** **${avg}%**\n\n**Class-Level Breakdown:**\n` + breakdown.map((c) => `• **${c.className}**: ${c.average}% (${c.studentCount} students)`).join("\n"),
+    timetable: (className, day, periods) => {
+      if (!periods || periods.length === 0) return `📅 No classes scheduled for **${className}** on **${day}**.`;
+      return `📅 **Schedule for ${className} (${day}):**\n` + periods.map((p) => `• **Period ${p.periodNumber}** (${p.time}): **${p.subject}** (${p.teacherName || "Faculty"}, ${p.room || "Room"})`).join("\n");
+    },
+    teacher_timetable: (teacherName, day, periods) => {
+      if (!periods || periods.length === 0) return `📅 No teaching sessions scheduled for **${teacherName}** on **${day}**.`;
+      return `📅 **Teaching Schedule for ${teacherName} (${day}):**\n` + periods.map((p) => `• **Period ${p.periodNumber}** (${p.time}): **${p.subject}** in **${p.className || p.classId}** (${p.room || "Room"})`).join("\n");
+    },
     escalate_ask: (target, reason) => `I understand your concern: *"${reason}"*.\n\nWould you like me to raise an official callback request to the **${target}**? Please reply **"Yes, proceed"** to confirm.`,
     escalate_done: (ticketId, target) => `✅ Your callback ticket (**#${ticketId}**) has been officially submitted to the **${target}**. They will get in touch with you shortly.`,
     clarify_student: "Which student would you like me to check? Please provide the student's name.",
     forbidden: "⚠️ Access Denied: Your account role does not have permission for this specific action.",
-    general_fallback: "I'm your XYZ AI School Assistant. You can ask me to check attendance, view school analytics, mark attendance, or escalate queries to teachers.",
+    general_fallback: "I'm your XYZ AI School Assistant. You can ask me to check attendance, view schedules & timetables, mark attendance, or escalate queries to teachers.",
   },
   hi: {
     greeting: "नमस्ते! मैं XYZ हूँ, आपका AI स्कूल सहायक। मैं आज आपकी क्या मदद कर सकता हूँ?",
@@ -19,11 +27,13 @@ const MULTILINGUAL_TEMPLATES = {
     child_attendance: (name, pct) => `**${name}** की वर्तमान उपस्थिति **${pct}%** है। यदि आप शिक्षक से बात करना चाहते हैं तो मुझे बताएं।`,
     mark_success: (name, date, status, pct) => `✅ उपस्थिति दर्ज की गई: **${name}** को **${date}** के लिए **${status === "present" ? "उपस्थित" : "अनुपस्थित"}** चिह्नित किया गया है। अद्यतन उपस्थिति **${pct}%** है।`,
     analytics: (avg, breakdown) => `📊 **स्कूल उपस्थिति विश्लेषण**\n- **औसत उपस्थिति:** **${avg}%**\n\n` + breakdown.map((c) => `• **${c.className}**: ${c.average}%`).join("\n"),
+    timetable: (className, day, periods) => `📅 **${className} की समय सारणी (${day}):**\n` + (periods || []).map((p) => `• **पीरियड ${p.periodNumber}** (${p.time}): **${p.subject}** (${p.teacherName})`).join("\n"),
+    teacher_timetable: (teacherName, day, periods) => `📅 **${teacherName} का शिक्षण कार्यक्रम (${day}):**\n` + (periods || []).map((p) => `• **पीरियड ${p.periodNumber}** (${p.time}): **${p.subject}** (${p.className})`).join("\n"),
     escalate_ask: (target) => `क्या आप चाहते हैं कि मैं **${target === "teacher" ? "अध्यापक" : "प्रबंधन"}** से संपर्क करने के लिए अनुरोध दर्ज करूँ? कृपया पुष्टि के लिए **"हाँ"** कहें।`,
     escalate_done: (ticketId, target) => `✅ आपका अनुरोध टिकट (**#${ticketId}**) **${target === "teacher" ? "अध्यापक" : "प्रबंधन"}** को भेज दिया गया है।`,
     clarify_student: "आप किस छात्र की उपस्थिति देखना चाहते हैं? कृपया नाम बताएं।",
     forbidden: "⚠️ इस कार्रवाई के लिए आपके पास अनुमति नहीं है।",
-    general_fallback: "मैं आपका AI स्कूल सहायक हूँ। आप मुझसे उपस्थिति जांचने, एनालिटिक्स देखने या शिक्षक से संपर्क करने के लिए कह सकते हैं।",
+    general_fallback: "मैं आपका AI स्कूल सहायक हूँ। आप मुझसे उपस्थिति जांचने, समय सारणी देखने या शिक्षक से संपर्क करने के लिए कह सकते हैं।",
   },
   ta: {
     greeting: "வணக்கம்! நான் XYZ, உங்கள் பள்ளி AI உதவியாளர். இன்று உங்களுக்கு எவ்வாறு உதவ முடியும்?",
@@ -31,11 +41,13 @@ const MULTILINGUAL_TEMPLATES = {
     child_attendance: (name, pct) => `**${name}** இன் தற்போதைய வருகை **${pct}%** ஆகும்.`,
     mark_success: (name, date, status, pct) => `✅ வருகை பதிவு செய்யப்பட்டது: **${name}** - **${status}** (${date}). புதுப்பிக்கப்பட்ட வருகை: **${pct}%**.`,
     analytics: (avg, breakdown) => `📊 **பள்ளி வருகை பகுப்பாய்வு**: சராசரி **${avg}%**\n` + breakdown.map((c) => `• **${c.className}**: ${c.average}%`).join("\n"),
+    timetable: (className, day, periods) => `📅 **${className} பாடவேளை அட்டவணை (${day}):**\n` + (periods || []).map((p) => `• **காலம் ${p.periodNumber}**: **${p.subject}** (${p.teacherName})`).join("\n"),
+    teacher_timetable: (teacherName, day, periods) => `📅 **${teacherName} கற்பித்தல் அட்டவணை (${day}):**\n` + (periods || []).map((p) => `• **காலம் ${p.periodNumber}**: **${p.subject}** (${p.className})`).join("\n"),
     escalate_ask: (target) => `நான் **${target}** உடன் தொடர்பு கொள்ள டிக்கெட் பதிவு செய்ய வேண்டுமா? தயவுசெய்து **"ஆம்"** என உறுதிப்படுத்தவும்.`,
     escalate_done: (ticketId) => `✅ உங்கள் கோரிக்கை எண் (**#${ticketId}**) வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது.`,
     clarify_student: "எந்த மாணவரின் வருகையை சரிபார்க்க விரும்புகிறீர்கள்?",
     forbidden: "⚠️ இந்த செயலைச் செய்ய உங்களுக்கு அனுமதி இல்லை.",
-    general_fallback: "நான் உங்கள் AI பள்ளி உதவியாளர். வருகை மற்றும் தகவல்களை அறிய கேட்கலாம்.",
+    general_fallback: "நான் உங்கள் AI பள்ளி உதவியாளர்.",
   },
   te: {
     greeting: "నమస్కారం! నేను XYZ, మీ స్కూల్ AI అసిస్టెంట్. నేను మీకు ఎలా సహాయపడగలను?",
@@ -43,6 +55,8 @@ const MULTILINGUAL_TEMPLATES = {
     child_attendance: (name, pct) => `**${name}** ప్రస్తుత హాజరు **${pct}%**.`,
     mark_success: (name, date, status, pct) => `✅ హాజరు నమోదు చేయబడింది: **${name}** **${status}** (**${date}**). ప్రస్తుత హాజరు: **${pct}%**.`,
     analytics: (avg, breakdown) => `📊 **స్కూల్ హాజరు వివరాలు**: సగటు **${avg}%**\n` + breakdown.map((c) => `• **${c.className}**: ${c.average}%`).join("\n"),
+    timetable: (className, day, periods) => `📅 **${className} టైమ్‌టేబుల్ (${day}):**\n` + (periods || []).map((p) => `• **పీరియడ్ ${p.periodNumber}**: **${p.subject}** (${p.teacherName})`).join("\n"),
+    teacher_timetable: (teacherName, day, periods) => `📅 **${teacherName} టైమ్‌టేబుల్ (${day}):**\n` + (periods || []).map((p) => `• **పీరియడ్ ${p.periodNumber}**: **${p.subject}** (${p.className})`).join("\n"),
     escalate_ask: (target) => `మీరు **${target}**తో మాట్లాడటానికి రిక్వెస్ట్ పంపించమంటారా? దయచేసి **"అవును"** అని చెప్పండి.`,
     escalate_done: (ticketId) => `✅ మీ టికెట్ (**#${ticketId}**) విజయవంతంగా నమోదు చేయబడింది.`,
     clarify_student: "మీరు ఏ విద్యార్థి హాజరు చూడాలనుకుంటున్నారు?",
@@ -79,10 +93,30 @@ export function createMockLLM() {
         };
       }
 
-      // 3. Mark attendance (Teacher)
-      if (/mark|present|absent|attendance/i.test(msg) && userRole === "teacher") {
+      // 3. Timetable / Schedule queries
+      if (/timetable|time.table|schedule|routine|classes|period|periods|what class|which class|next class|समय सारणी/i.test(msg)) {
+        let day = "today";
+        if (/monday/i.test(msg)) day = "Monday";
+        else if (/tuesday/i.test(msg)) day = "Tuesday";
+        else if (/wednesday/i.test(msg)) day = "Wednesday";
+        else if (/thursday/i.test(msg)) day = "Thursday";
+        else if (/friday/i.test(msg)) day = "Friday";
+
+        let targetClass = null;
+        const classMatch = msg.match(/class\s*([1-5][a-b]?)/i);
+        if (classMatch) targetClass = `c${classMatch[1].toLowerCase()}`;
+
+        return {
+          intent: "get_timetable",
+          entities: { day, targetClass },
+          needsClarification: false,
+        };
+      }
+
+      // 4. Mark attendance (Teacher)
+      if (/mark|present|absent/i.test(msg) && userRole === "teacher") {
         let studentName = null;
-        const nameMatch = msg.match(/\b(rahul|priya|aarav|ananya)\b/i);
+        const nameMatch = msg.match(/\b(jeevan|aarav|diya|vivaan|ananya|kabir|saanvi|aditya|ishita|rohan)\b/i);
         if (nameMatch) studentName = nameMatch[1];
 
         const status = /absent/i.test(msg) ? "absent" : "present";
@@ -104,7 +138,7 @@ export function createMockLLM() {
         };
       }
 
-      // 4. Student check own attendance
+      // 5. Student check own attendance
       if (userRole === "student" && (/my\s*(attendance|percentage|records|status)/i.test(msg) || /attendance/i.test(msg) || /उपस्थिति/i.test(msg))) {
         return {
           intent: "get_own_attendance",
@@ -113,22 +147,22 @@ export function createMockLLM() {
         };
       }
 
-      // 5. Parent check child attendance
+      // 6. Parent check child attendance
       if (userRole === "parent") {
         let studentName = null;
-        const nameMatch = msg.match(/\b(rahul|priya|aarav|ananya)\b/i);
+        const nameMatch = msg.match(/\b(jeevan|aarav|diya|vivaan|ananya|kabir|saanvi|aditya|ishita|rohan)\b/i);
         if (nameMatch) studentName = nameMatch[1];
 
         if (studentName || /attendance|percentage|child|son|daughter|kid/i.test(msg)) {
           return {
             intent: "get_child_attendance",
-            entities: { studentName: studentName || "child" },
+            entities: { studentName: studentName || "jeevan" },
             needsClarification: false,
           };
         }
       }
 
-      // 6. Principal Analytics
+      // 7. Principal Analytics
       if (userRole === "principal" && (/analytics|overall|school|average|stats|breakdown|attendance/i.test(msg) || /विश्लेषण/i.test(msg))) {
         return {
           intent: "get_school_attendance_analytics",
@@ -137,7 +171,7 @@ export function createMockLLM() {
         };
       }
 
-      // 7. General query / greetings
+      // 8. General query / greetings
       if (/hi|hello|hey|namaste|vanakkam|good\s*(morning|afternoon|evening)/i.test(msg)) {
         const templates = MULTILINGUAL_TEMPLATES[lang] || MULTILINGUAL_TEMPLATES.en;
         return {
@@ -157,7 +191,11 @@ export function createMockLLM() {
       };
     },
 
-    async generateNaturalReply({ userRole, language = "en", intent, toolResult, userProfile }) {
+    async generateNaturalReply(params) {
+      return this.generateReply(params);
+    },
+
+    async generateReply({ userRole, language = "en", intent, toolResult, userProfile }) {
       const templates = MULTILINGUAL_TEMPLATES[language] || MULTILINGUAL_TEMPLATES.en;
 
       if (!toolResult) return templates.general_fallback;
@@ -184,6 +222,12 @@ export function createMockLLM() {
 
         case "get_school_attendance_analytics":
           return templates.analytics(toolResult.schoolAvg, toolResult.classBreakdown || []);
+
+        case "get_timetable":
+          if (toolResult.role === "teacher") {
+            return templates.teacher_timetable(toolResult.teacherName || "Teacher", toolResult.day, toolResult.periods);
+          }
+          return templates.timetable(toolResult.className || "Class", toolResult.day, toolResult.periods);
 
         case "escalate":
           return templates.escalate_ask(toolResult.targetRole || "teacher", toolResult.reason || "attendance concern");

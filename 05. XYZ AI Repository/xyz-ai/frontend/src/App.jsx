@@ -7,6 +7,8 @@ import { InputForm } from "./components/InputForm";
 import { AvatarSection } from "./components/AvatarSection";
 import { LanguageSelector } from "./components/LanguageSelector";
 import { Dashboard } from "./components/Dashboard";
+import { TimetableView } from "./components/TimetableView";
+import { ManagementView } from "./components/ManagementView";
 import { EscalationsView } from "./components/EscalationsView";
 import { AuditLogsView } from "./components/AuditLogsView";
 import { useVoice } from "./hooks/useVoice";
@@ -14,6 +16,8 @@ import { api } from "./utils/api";
 import {
   MessageSquare,
   LayoutDashboard,
+  Calendar,
+  Building,
   PhoneCall,
   ShieldCheck,
   LogOut,
@@ -25,9 +29,6 @@ import {
   Menu,
   X,
   Sparkles,
-  Search,
-  Bell,
-  Settings,
   Bot,
 } from "lucide-react";
 
@@ -64,8 +65,9 @@ function MainApp() {
 
   const prevUserIdRef = useRef(null);
 
+  // If user role changes and they are not principal/admin, don't stay on audit or management tab
   useEffect(() => {
-    if (activeTab === "audit" && user?.role !== "principal" && user?.role !== "admin") {
+    if ((activeTab === "audit" || activeTab === "management") && user?.role !== "principal" && user?.role !== "admin") {
       setActiveTab("chat");
     }
   }, [user, activeTab]);
@@ -94,13 +96,13 @@ function MainApp() {
     if (!u) return "Welcome to XYZ AI. How may I assist you today?";
     switch (u.role) {
       case "student":
-        return `Hello ${u.name}! 👋 I'm your Academic Assistant. Ask me about your attendance, subject schedules, or connect with your teachers!`;
+        return `Hello ${u.name}! 👋 I'm your Academic Assistant. Ask me about your attendance, timetable, or connect with your class teachers!`;
       case "parent":
-        return `Namaste ${u.name} 🙏 I'm your Parent Support Assistant. I can help you check your child's attendance and schedule teacher callbacks.`;
+        return `Namaste ${u.name} 🙏 I'm your Parent Support Assistant. I can help you check your child's attendance & timetable, and schedule teacher callbacks.`;
       case "teacher":
-        return `Good day, ${u.name} 👩‍🏫 I'm your Teaching Assistant. Tell me to mark attendance or query class compliance — I'm here to help.`;
+        return `Good day, ${u.name} 👩‍🏫 I'm your Teaching Assistant. View your weekly schedule, mark class attendance, or review student requests.`;
       case "principal":
-        return `Welcome, ${u.name} 🏛️ I'm your Executive Assistant. I can generate school-wide analytics, inspect compliance, and review audit logs.`;
+        return `Welcome, ${u.name} 🏛️ I'm your Executive Assistant. Manage students & faculty, view school-wide analytics, inspect timetables, and monitor audit logs.`;
       default:
         return `Welcome ${u.name}! How may I help you today?`;
     }
@@ -190,8 +192,14 @@ function MainApp() {
   const navItems = [
     { id: "chat", label: "AI Assistant", icon: MessageSquare },
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "timetable", label: "Timetable", icon: Calendar },
     { id: "escalations", label: "Escalations", icon: PhoneCall },
-    ...(isPrincipalOrAdmin ? [{ id: "audit", label: "Audit Log", icon: ShieldCheck }] : []),
+    ...(isPrincipalOrAdmin
+      ? [
+          { id: "management", label: "Management", icon: Building },
+          { id: "audit", label: "Audit Log", icon: ShieldCheck },
+        ]
+      : []),
   ];
 
   const personas = [
@@ -241,7 +249,7 @@ function MainApp() {
             </div>
             <div className="leading-tight">
               <span className="font-bold text-[15px] text-text-primary block">XYZ AI</span>
-              <span className="text-[11px] text-text-tertiary">School ERP Assistant</span>
+              <span className="text-[11px] text-text-tertiary">School ERP Ecosystem</span>
             </div>
           </div>
           <button
@@ -277,7 +285,7 @@ function MainApp() {
 
           <div className="pt-4">
             <p className="px-3 mb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
-              Settings
+              Settings & Tools
             </p>
             <button
               onClick={() => setAutoVoiceReply(!autoVoiceReply)}
@@ -394,19 +402,27 @@ function MainApp() {
                 {activeTab === "chat"
                   ? `Hello, ${user.name} 👋`
                   : activeTab === "dashboard"
-                  ? "Dashboard"
+                  ? "Dashboard & Attendance"
+                  : activeTab === "timetable"
+                  ? "Academic Timetable"
+                  : activeTab === "management"
+                  ? "Institutional Management"
                   : activeTab === "escalations"
-                  ? "Escalations"
-                  : "Audit Log"}
+                  ? "Escalation Hub"
+                  : "Security Audit Log"}
               </h1>
               <p className="text-[12px] text-text-tertiary hidden sm:block">
                 {activeTab === "chat"
                   ? "Your AI school assistant is ready to help."
                   : activeTab === "dashboard"
-                  ? "Attendance analytics and school metrics."
+                  ? "Classroom rosters and institutional attendance analytics."
+                  : activeTab === "timetable"
+                  ? "Class schedules, period timings, and faculty assignments."
+                  : activeTab === "management"
+                  ? "Administrative CRUD for Students, Faculty, and Classrooms."
                   : activeTab === "escalations"
                   ? "Support tickets and teacher callbacks."
-                  : "Security and RBAC audit trail."}
+                  : "Zero-Trust RBAC and security audit trail."}
               </p>
             </div>
           </div>
@@ -459,6 +475,15 @@ function MainApp() {
           )}
 
           {activeTab === "dashboard" && <Dashboard user={user} />}
+          {activeTab === "timetable" && (
+            <TimetableView
+              user={user}
+              onNavigateToAttendance={() => setActiveTab("dashboard")}
+            />
+          )}
+          {activeTab === "management" && isPrincipalOrAdmin && (
+            <ManagementView user={user} />
+          )}
           {activeTab === "escalations" && <EscalationsView user={user} />}
           {activeTab === "audit" && isPrincipalOrAdmin && <AuditLogsView />}
         </main>

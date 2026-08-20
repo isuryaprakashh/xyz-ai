@@ -17,31 +17,31 @@ export function ChatArea({ messages, isLoading, onSpeak, onQuickPrompt, user }) 
     switch (user?.role) {
       case "student":
         return [
+          { text: "What is my timetable today?", icon: "📅" },
           { text: "What is my overall attendance percentage?", icon: "📊" },
-          { text: "Check my attendance records for this month", icon: "📅" },
           { text: "I want to speak with my class teacher", icon: "👨‍🏫" },
         ];
       case "parent":
         return [
+          { text: "What is Jeevan's timetable today?", icon: "📅" },
           { text: "How is Jeevan's attendance this term?", icon: "📈" },
           { text: "Request a callback from the class teacher", icon: "📞" },
-          { text: "Show me recent attendance breakdown", icon: "📋" },
         ];
       case "teacher":
         return [
-          { text: "Mark Jeevan absent for today", icon: "📝" },
-          { text: "Mark Aarav present today", icon: "✅" },
+          { text: "What is my teaching schedule today?", icon: "📅" },
+          { text: "Mark Jeevan present today", icon: "✅" },
           { text: "Show attendance summary for Class 1A", icon: "👥" },
         ];
       case "principal":
         return [
+          { text: "Show timetable for Class 1A", icon: "📅" },
           { text: "School-wide attendance overview", icon: "📊" },
           { text: "Section-wise attendance breakdown", icon: "🏫" },
-          { text: "Which classes have attendance below 85%?", icon: "⚠️" },
         ];
       default:
         return [
-          { text: "What can you help me with?", icon: "💡" },
+          { text: "What is the schedule for today?", icon: "📅" },
           { text: "Check attendance records", icon: "📊" },
         ];
     }

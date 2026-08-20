@@ -3,6 +3,7 @@ import { User } from "./models/User.js";
 import { Attendance } from "./models/Attendance.js";
 import { Escalation } from "./models/Escalation.js";
 import { SchoolClass } from "./models/Class.js";
+import { Timetable } from "./models/Timetable.js";
 import { connectDB, isDbConnected } from "./connection.js";
 
 // Full In-Memory & MongoDB Dataset: Classes 1-5, 10 Teachers, 1 Principal, 30 Students, 30 Parents + Custom 4 Users
@@ -96,36 +97,20 @@ export const memoryStore = {
   },
 
   classes: {
-    c1: { id: "c1", classId: "c1", name: "Class 1A", grade: "Grade 1", teacherId: "t1", teacherName: "Priya Nair", studentIds: ["jeevan", "s1", "s2", "s3"] },
-    c2: { id: "c2", classId: "c2", name: "Class 1B", grade: "Grade 1", teacherId: "t2", teacherName: "Sunita Rao", studentIds: ["s4", "s5", "s6"] },
-    c3: { id: "c3", classId: "c3", name: "Class 2A", grade: "Grade 2", teacherId: "t3", teacherName: "Ananya Sharma", studentIds: ["s7", "s8", "s9"] },
-    c4: { id: "c4", classId: "c4", name: "Class 2B", grade: "Grade 2", teacherId: "t4", teacherName: "Vikram Roy", studentIds: ["s10", "s11", "s12"] },
-    c5: { id: "c5", classId: "c5", name: "Class 3A", grade: "Grade 3", teacherId: "t5", teacherName: "Deepa Kulkarni", studentIds: ["s13", "s14", "s15"] },
-    c6: { id: "c6", classId: "c6", name: "Class 3B", grade: "Grade 3", teacherId: "t6", teacherName: "Suresh Verma", studentIds: ["s16", "s17", "s18"] },
-    c7: { id: "c7", classId: "c7", name: "Class 4A", grade: "Grade 4", teacherId: "t7", teacherName: "Neha Deshmukh", studentIds: ["s19", "s20", "s21"] },
-    c8: { id: "c8", classId: "c8", name: "Class 4B", grade: "Grade 4", teacherId: "t8", teacherName: "Amit Patel", studentIds: ["s22", "s23", "s24"] },
-    c9: { id: "c9", classId: "c9", name: "Class 5A", grade: "Grade 5", teacherId: "t9", teacherName: "Pooja Iyer", studentIds: ["s25", "s26", "s27"] },
-    c10: { id: "c10", classId: "c10", name: "Class 5B", grade: "Grade 5", teacherId: "t10", teacherName: "Rahul Sengupta", studentIds: ["s28", "s29", "s30"] },
+    c1: { id: "c1", classId: "c1", name: "Class 1A", grade: "Grade 1", teacherId: "surya", teacherName: "Surya Prakash", studentIds: ["jeevan", "s1", "s2", "s3"], roomNumber: "Room 101" },
+    c2: { id: "c2", classId: "c2", name: "Class 1B", grade: "Grade 1", teacherId: "t2", teacherName: "Sunita Rao", studentIds: ["s4", "s5", "s6"], roomNumber: "Room 102" },
+    c3: { id: "c3", classId: "c3", name: "Class 2A", grade: "Grade 2", teacherId: "t3", teacherName: "Ananya Sharma", studentIds: ["s7", "s8", "s9"], roomNumber: "Room 201" },
+    c4: { id: "c4", classId: "c4", name: "Class 2B", grade: "Grade 2", teacherId: "t4", teacherName: "Vikram Roy", studentIds: ["s10", "s11", "s12"], roomNumber: "Room 202" },
+    c5: { id: "c5", classId: "c5", name: "Class 3A", grade: "Grade 3", teacherId: "t5", teacherName: "Deepa Kulkarni", studentIds: ["s13", "s14", "s15"], roomNumber: "Room 301" },
+    c6: { id: "c6", classId: "c6", name: "Class 3B", grade: "Grade 3", teacherId: "t6", teacherName: "Suresh Verma", studentIds: ["s16", "s17", "s18"], roomNumber: "Room 302" },
+    c7: { id: "c7", classId: "c7", name: "Class 4A", grade: "Grade 4", teacherId: "t7", teacherName: "Neha Deshmukh", studentIds: ["s19", "s20", "s21"], roomNumber: "Room 401" },
+    c8: { id: "c8", classId: "c8", name: "Class 4B", grade: "Grade 4", teacherId: "t8", teacherName: "Amit Patel", studentIds: ["s22", "s23", "s24"], roomNumber: "Room 402" },
+    c9: { id: "c9", classId: "c9", name: "Class 5A", grade: "Grade 5", teacherId: "t9", teacherName: "Pooja Iyer", studentIds: ["s25", "s26", "s27"], roomNumber: "Room 501" },
+    c10: { id: "c10", classId: "c10", name: "Class 5B", grade: "Grade 5", teacherId: "t10", teacherName: "Rahul Sengupta", studentIds: ["s28", "s29", "s30"], roomNumber: "Room 502" },
   },
 
   attendance: {},
-
-  parentStudentMap: {
-    yashwanth: ["jeevan", "s1"],
-    p1: ["s1"], p2: ["s2"], p3: ["s3"], p4: ["s4"], p5: ["s5"],
-    p6: ["s6"], p7: ["s7"], p8: ["s8"], p9: ["s9"], p10: ["s10"],
-    p11: ["s11"], p12: ["s12"], p13: ["s13"], p14: ["s14"], p15: ["s15"],
-    p16: ["s16"], p17: ["s17"], p18: ["s18"], p19: ["s19"], p20: ["s20"],
-    p21: ["s21"], p22: ["s22"], p23: ["s23"], p24: ["s24"], p25: ["s25"],
-    p26: ["s26"], p27: ["s27"], p28: ["s28"], p29: ["s29"], p30: ["s30"],
-  },
-
-  teacherClassMap: {
-    surya: ["c1", "c2"],
-    surya_short: ["c1", "c2"],
-    t1: ["c1"], t2: ["c2"], t3: ["c3"], t4: ["c4"], t5: ["c5"],
-    t6: ["c6"], t7: ["c7"], t8: ["c8"], t9: ["c9"], t10: ["c10"],
-  },
+  timetables: {},
 
   escalations: [
     {
@@ -157,11 +142,195 @@ export const memoryStore = {
   ],
 };
 
+// Generate Timetables for Classes 1A to 5B
+function generateTimetables() {
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const periodTimes = [
+    "08:30 - 09:15",
+    "09:15 - 10:00",
+    "10:15 - 11:00",
+    "11:00 - 11:45",
+    "12:30 - 01:15",
+    "01:15 - 02:00",
+  ];
+
+  const classConfigs = [
+    {
+      classId: "c1",
+      className: "Class 1A",
+      grade: "Grade 1",
+      room: "Room 101",
+      subjects: [
+        { name: "Mathematics", teacherId: "surya", teacherName: "Surya Prakash" },
+        { name: "English Literature", teacherId: "t1", teacherName: "Priya Nair" },
+        { name: "General Science", teacherId: "surya", teacherName: "Surya Prakash" },
+        { name: "Environmental Studies", teacherId: "t1", teacherName: "Priya Nair" },
+        { name: "Physical Education", teacherId: "t6", teacherName: "Suresh Verma" },
+        { name: "Art & Creativity", teacherId: "t7", teacherName: "Neha Deshmukh" },
+      ],
+    },
+    {
+      classId: "c2",
+      className: "Class 1B",
+      grade: "Grade 1",
+      room: "Room 102",
+      subjects: [
+        { name: "English Literature", teacherId: "t2", teacherName: "Sunita Rao" },
+        { name: "Mathematics", teacherId: "surya", teacherName: "Surya Prakash" },
+        { name: "General Science", teacherId: "surya", teacherName: "Surya Prakash" },
+        { name: "Social Studies", teacherId: "t2", teacherName: "Sunita Rao" },
+        { name: "Physical Education", teacherId: "t6", teacherName: "Suresh Verma" },
+        { name: "Music & Rhythm", teacherId: "t5", teacherName: "Deepa Kulkarni" },
+      ],
+    },
+    {
+      classId: "c3",
+      className: "Class 2A",
+      grade: "Grade 2",
+      room: "Room 201",
+      subjects: [
+        { name: "English Language", teacherId: "t3", teacherName: "Ananya Sharma" },
+        { name: "Mathematics", teacherId: "t8", teacherName: "Amit Patel" },
+        { name: "Science", teacherId: "t3", teacherName: "Ananya Sharma" },
+        { name: "Social Studies", teacherId: "t4", teacherName: "Vikram Roy" },
+        { name: "Computer Literacy", teacherId: "t4", teacherName: "Vikram Roy" },
+        { name: "Library & Reading", teacherId: "t1", teacherName: "Priya Nair" },
+      ],
+    },
+    {
+      classId: "c4",
+      className: "Class 2B",
+      grade: "Grade 2",
+      room: "Room 202",
+      subjects: [
+        { name: "Science", teacherId: "t4", teacherName: "Vikram Roy" },
+        { name: "Mathematics", teacherId: "t8", teacherName: "Amit Patel" },
+        { name: "English", teacherId: "t3", teacherName: "Ananya Sharma" },
+        { name: "Computer Literacy", teacherId: "t4", teacherName: "Vikram Roy" },
+        { name: "Physical Education", teacherId: "t6", teacherName: "Suresh Verma" },
+        { name: "Arts & Crafts", teacherId: "t7", teacherName: "Neha Deshmukh" },
+      ],
+    },
+    {
+      classId: "c5",
+      className: "Class 3A",
+      grade: "Grade 3",
+      room: "Room 301",
+      subjects: [
+        { name: "Mathematics", teacherId: "t5", teacherName: "Deepa Kulkarni" },
+        { name: "Science Lab", teacherId: "t5", teacherName: "Deepa Kulkarni" },
+        { name: "English", teacherId: "t9", teacherName: "Pooja Iyer" },
+        { name: "Social Studies", teacherId: "t7", teacherName: "Neha Deshmukh" },
+        { name: "Physical Education", teacherId: "t6", teacherName: "Suresh Verma" },
+        { name: "Robotics Intro", teacherId: "t10", teacherName: "Rahul Sengupta" },
+      ],
+    },
+    {
+      classId: "c6",
+      className: "Class 3B",
+      grade: "Grade 3",
+      room: "Room 302",
+      subjects: [
+        { name: "Hindi / Language", teacherId: "t6", teacherName: "Suresh Verma" },
+        { name: "Mathematics", teacherId: "t5", teacherName: "Deepa Kulkarni" },
+        { name: "Science", teacherId: "t5", teacherName: "Deepa Kulkarni" },
+        { name: "English", teacherId: "t9", teacherName: "Pooja Iyer" },
+        { name: "Social Studies", teacherId: "t7", teacherName: "Neha Deshmukh" },
+        { name: "Sports & Yoga", teacherId: "t6", teacherName: "Suresh Verma" },
+      ],
+    },
+    {
+      classId: "c7",
+      className: "Class 4A",
+      grade: "Grade 4",
+      room: "Room 401",
+      subjects: [
+        { name: "Social Studies", teacherId: "t7", teacherName: "Neha Deshmukh" },
+        { name: "Mathematics", teacherId: "t8", teacherName: "Amit Patel" },
+        { name: "Science", teacherId: "t10", teacherName: "Rahul Sengupta" },
+        { name: "English Literature", teacherId: "t9", teacherName: "Pooja Iyer" },
+        { name: "Computer Science", teacherId: "t4", teacherName: "Vikram Roy" },
+        { name: "Art & Culture", teacherId: "t7", teacherName: "Neha Deshmukh" },
+      ],
+    },
+    {
+      classId: "c8",
+      className: "Class 4B",
+      grade: "Grade 4",
+      room: "Room 402",
+      subjects: [
+        { name: "Mathematics", teacherId: "t8", teacherName: "Amit Patel" },
+        { name: "Social Studies", teacherId: "t7", teacherName: "Neha Deshmukh" },
+        { name: "English", teacherId: "t9", teacherName: "Pooja Iyer" },
+        { name: "Science", teacherId: "t10", teacherName: "Rahul Sengupta" },
+        { name: "Physical Education", teacherId: "t6", teacherName: "Suresh Verma" },
+        { name: "Coding & Logic", teacherId: "t4", teacherName: "Vikram Roy" },
+      ],
+    },
+    {
+      classId: "c9",
+      className: "Class 5A",
+      grade: "Grade 5",
+      room: "Room 501",
+      subjects: [
+        { name: "English Masterclass", teacherId: "t9", teacherName: "Pooja Iyer" },
+        { name: "Advanced Mathematics", teacherId: "t8", teacherName: "Amit Patel" },
+        { name: "Physics & Chemistry", teacherId: "t10", teacherName: "Rahul Sengupta" },
+        { name: "Biology & Ecology", teacherId: "t5", teacherName: "Deepa Kulkarni" },
+        { name: "History & Civics", teacherId: "t7", teacherName: "Neha Deshmukh" },
+        { name: "AI & Innovation Lab", teacherId: "t10", teacherName: "Rahul Sengupta" },
+      ],
+    },
+    {
+      classId: "c10",
+      className: "Class 5B",
+      grade: "Grade 5",
+      room: "Room 502",
+      subjects: [
+        { name: "Physics & Chemistry", teacherId: "t10", teacherName: "Rahul Sengupta" },
+        { name: "Advanced Mathematics", teacherId: "t8", teacherName: "Amit Patel" },
+        { name: "English Masterclass", teacherId: "t9", teacherName: "Pooja Iyer" },
+        { name: "History & Civics", teacherId: "t7", teacherName: "Neha Deshmukh" },
+        { name: "AI & Innovation Lab", teacherId: "t10", teacherName: "Rahul Sengupta" },
+        { name: "Physical Education", teacherId: "t6", teacherName: "Suresh Verma" },
+      ],
+    },
+  ];
+
+  classConfigs.forEach((cfg) => {
+    const schedule = days.map((day, dIdx) => {
+      const periods = periodTimes.map((time, pIdx) => {
+        const subIdx = (dIdx * 2 + pIdx) % cfg.subjects.length;
+        const sub = cfg.subjects[subIdx];
+        return {
+          periodNumber: pIdx + 1,
+          time,
+          subject: sub.name,
+          teacherId: sub.teacherId,
+          teacherName: sub.teacherName,
+          room: cfg.room,
+        };
+      });
+      return { day, periods };
+    });
+
+    memoryStore.timetables[cfg.classId] = {
+      classId: cfg.classId,
+      className: cfg.className,
+      grade: cfg.grade,
+      academicYear: "2026",
+      schedule,
+    };
+  });
+}
+
+generateTimetables();
+
 // Generate 90 Calendar Days for all students including 'jeevan'
 function generateComprehensiveAttendance() {
   const studentIds = ["jeevan", ...Array.from({ length: 30 }, (_, i) => `s${i + 1}`)];
   const targetRates = {
-    jeevan: 0.940,
+    jeevan: 0.954,
     s1: 0.945, s2: 0.912, s3: 0.880, s4: 0.960, s5: 0.784,
     s6: 0.920, s7: 0.955, s8: 0.893, s9: 0.932, s10: 0.910,
     s11: 0.840, s12: 0.971, s13: 0.948, s14: 0.904, s15: 0.935,
@@ -171,7 +340,7 @@ function generateComprehensiveAttendance() {
   };
 
   const today = new Date();
-  const daysToGenerate = 90; // past 3 months
+  const daysToGenerate = 90;
 
   studentIds.forEach((sid, idx) => {
     const targetRate = targetRates[sid] || 0.92;
@@ -183,7 +352,7 @@ function generateComprehensiveAttendance() {
       const d = new Date(today);
       d.setDate(d.getDate() - dIdx);
       const dateStr = d.toISOString().split("T")[0];
-      const dayOfWeek = d.getDay(); // 0 = Sun, 6 = Sat
+      const dayOfWeek = d.getDay();
 
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         records.push({ date: dateStr, status: "weekend" });
@@ -222,13 +391,14 @@ export async function seedDatabase() {
   }
 
   try {
-    console.log("🌱 Seeding MongoDB collections with custom users (jeevan, surya, yashwanth, akhil) + Classes 1-5 dataset...");
+    console.log("🌱 Seeding MongoDB collections with custom users (jeevan, surya, yashwanth, akhil) + Classes 1-5 & Timetables...");
 
-    // Clean existing collection to avoid any duplicate key index conflict
+    // Clean existing collections to avoid duplicate key index conflict
     await User.deleteMany({});
     await SchoolClass.deleteMany({});
     await Attendance.deleteMany({});
     await Escalation.deleteMany({});
+    await Timetable.deleteMany({});
 
     // 1. Prepare User Docs (pre-hashed with bcrypt)
     const userDocs = Object.values(memoryStore.users).map((u) => {
@@ -255,6 +425,7 @@ export async function seedDatabase() {
       teacherId: c.teacherId,
       teacherName: c.teacherName,
       studentIds: c.studentIds,
+      roomNumber: c.roomNumber,
     }));
     await SchoolClass.insertMany(classDocs);
 
@@ -275,7 +446,11 @@ export async function seedDatabase() {
     // 4. Prepare Escalation Docs
     await Escalation.insertMany(memoryStore.escalations);
 
-    console.log("✅ MongoDB seeding completed: jeevan, surya, yashwanth, akhil + 30 Students & Classes live!");
+    // 5. Prepare Timetable Docs
+    const timetableDocs = Object.values(memoryStore.timetables);
+    await Timetable.insertMany(timetableDocs);
+
+    console.log("✅ MongoDB seeding completed: jeevan, surya, yashwanth, akhil + 30 Students, 10 Classes & Timetables live!");
     return memoryStore;
   } catch (err) {
     console.error("Error during database seed:", err);

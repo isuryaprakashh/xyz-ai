@@ -8,6 +8,7 @@ import escalationRoutes from "./routes/escalation.js";
 import userRoutes from "./routes/users.js";
 import demoRoutes from "./routes/demo.js";
 import auditRoutes from "./routes/audit.js";
+import timetableRoutes from "./routes/timetable.js";
 import { createAgent } from "./orchestrator/agent.js";
 import { config } from "./config.js";
 import { connectDB, isDbConnected } from "./db/connection.js";
@@ -40,6 +41,7 @@ app.use("/api/escalation", escalationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/demo", demoRoutes);
 app.use("/api/audit", auditRoutes);
+app.use("/api/timetable", timetableRoutes);
 
 app.get("/api/health", (req, res) =>
   res.json({

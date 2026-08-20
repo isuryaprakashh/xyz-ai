@@ -46,6 +46,34 @@ router.get("/student/:studentId", auth, async (req, res) => {
   });
 });
 
+// GET /api/attendance/class/:classId — Fetch student roster for a specific classroom
+router.get("/class/:classId", auth, async (req, res) => {
+  const { classId } = req.params;
+  const reqUser = req.user;
+
+  // Authorization: teacher must be assigned to class, or principal/admin
+  if (reqUser.role === "teacher") {
+    const userClassIds = reqUser.classIds || [];
+    if (!userClassIds.includes(classId)) {
+      logToolCall({ userId: reqUser.userId || reqUser.id, role: reqUser.role, action: "get_class_roster", target: classId, success: false });
+      return res.status(403).json({ error: "forbidden", message: `You are not assigned to teach ${classId.toUpperCase()}.` });
+    }
+  } else if (reqUser.role !== "principal" && reqUser.role !== "admin") {
+    return res.status(403).json({ error: "forbidden", message: "Unauthorized role for class roster." });
+  }
+
+  const roster = await dataService.getClassRoster(classId);
+  const classInfo = await dataService.getClass(classId);
+
+  logToolCall({ userId: reqUser.userId || reqUser.id, role: reqUser.role, action: "get_class_roster", target: classId, success: true });
+
+  res.json({
+    classId,
+    className: classInfo?.name || classId.toUpperCase(),
+    roster,
+  });
+});
+
 // GET /api/attendance/analytics — Principal & Admin only
 router.get("/analytics", auth, requireRole("principal", "admin"), async (req, res) => {
   try {
@@ -58,9 +86,15 @@ router.get("/analytics", auth, requireRole("principal", "admin"), async (req, re
   }
 });
 
-// POST /api/attendance/mark — Teacher only
-router.post("/mark", auth, requireRole("teacher"), async (req, res) => {
+// POST /api/attendance/mark — Single Student Mark (Teacher & Principal)
+router.post("/mark", auth, async (req, res) => {
   const { studentId, date = "today", status = "present" } = req.body;
+  const reqUser = req.user;
+
+  if (reqUser.role !== "teacher" && reqUser.role !== "principal" && reqUser.role !== "admin") {
+    return res.status(403).json({ error: "forbidden", message: "Only faculty and administration can mark attendance." });
+  }
+
   if (!studentId || !status) {
     return res.status(400).json({ error: "missing_fields", message: "studentId and status are required." });
   }
@@ -68,25 +102,27 @@ router.post("/mark", auth, requireRole("teacher"), async (req, res) => {
   const student = await dataService.getUser(studentId);
   if (!student) return res.status(404).json({ error: "student_not_found", message: "Student not found." });
 
-  const hasClassPermission = await checkTeacherClass(studentId, req.user);
-  if (!hasClassPermission) {
-    logToolCall({ userId: req.user.userId || req.user.id, role: "teacher", action: "mark_attendance", target: studentId, success: false });
-    return res.status(403).json({
-      error: "forbidden",
-      message: `You can only mark attendance for students in your assigned classes. ${student.name} is in class ${student.classId}.`,
-    });
+  if (reqUser.role === "teacher") {
+    const hasClassPermission = await checkTeacherClass(studentId, reqUser);
+    if (!hasClassPermission) {
+      logToolCall({ userId: reqUser.userId || reqUser.id, role: "teacher", action: "mark_attendance", target: studentId, success: false });
+      return res.status(403).json({
+        error: "forbidden",
+        message: `You can only mark attendance for students in your assigned classes. ${student.name} is in class ${student.classId}.`,
+      });
+    }
   }
 
   const result = await dataService.markAttendance({
     studentId,
     date,
     status,
-    markedBy: req.user.userId || req.user.id,
+    markedBy: reqUser.userId || reqUser.id,
   });
 
   logToolCall({
-    userId: req.user.userId || req.user.id,
-    role: "teacher",
+    userId: reqUser.userId || reqUser.id,
+    role: reqUser.role,
     action: "mark_attendance",
     target: studentId,
     success: true,
@@ -100,6 +136,46 @@ router.post("/mark", auth, requireRole("teacher"), async (req, res) => {
       studentName: student.name,
     },
   });
+});
+
+// POST /api/attendance/mark-class — Bulk Class Attendance Posting (Teacher & Principal)
+router.post("/mark-class", auth, async (req, res) => {
+  const { classId, date = "today", studentStatuses = [] } = req.body;
+  const reqUser = req.user;
+
+  if (reqUser.role !== "teacher" && reqUser.role !== "principal" && reqUser.role !== "admin") {
+    return res.status(403).json({ error: "forbidden", message: "Only faculty and administration can mark class attendance." });
+  }
+
+  if (!classId || !studentStatuses.length) {
+    return res.status(400).json({ error: "missing_fields", message: "classId and studentStatuses are required." });
+  }
+
+  if (reqUser.role === "teacher") {
+    const userClassIds = reqUser.classIds || [];
+    if (!userClassIds.includes(classId)) {
+      logToolCall({ userId: reqUser.userId || reqUser.id, role: "teacher", action: "mark_class_attendance", target: classId, success: false });
+      return res.status(403).json({ error: "forbidden", message: `You are not assigned to mark attendance for ${classId.toUpperCase()}.` });
+    }
+  }
+
+  const result = await dataService.markClassAttendance({
+    classId,
+    date,
+    studentStatuses,
+    markedBy: reqUser.userId || reqUser.id,
+  });
+
+  logToolCall({
+    userId: reqUser.userId || reqUser.id,
+    role: reqUser.role,
+    action: "mark_class_attendance",
+    target: classId,
+    success: true,
+    details: `${date}: ${studentStatuses.length} students marked`,
+  });
+
+  res.json({ success: true, result });
 });
 
 export default router;
