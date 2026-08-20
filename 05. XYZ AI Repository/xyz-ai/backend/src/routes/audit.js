@@ -5,11 +5,10 @@ import { requireRole } from "../middleware/rbac.js";
 
 const router = Router();
 
-// GET /api/audit/logs — Principal & Admin only (or authenticated users viewing their logs)
-router.get("/logs", auth, async (req, res) => {
+// GET /api/audit/logs — Restricted to Principal & Management Admin ONLY
+router.get("/logs", auth, requireRole("principal", "admin"), async (req, res) => {
   try {
-    const query = req.user.role === "principal" || req.user.role === "admin" ? {} : { userId: req.user.userId || req.user.id };
-    const logs = await AuditLog.find(query).sort({ timestamp: -1 }).limit(100).lean();
+    const logs = await AuditLog.find({}).sort({ timestamp: -1 }).limit(100).lean();
     res.json({ logs, count: logs.length });
   } catch (err) {
     console.error("Failed to fetch audit logs:", err);

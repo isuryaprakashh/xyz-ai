@@ -8,7 +8,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
   
   // Login state
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("demo");
+  const [password, setPassword] = useState("");
   
   // Register state
   const [regName, setRegName] = useState("");
@@ -17,7 +17,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
   const [regPassword, setRegPassword] = useState("");
   const [regRole, setRegRole] = useState("student");
   const [regClassId, setRegClassId] = useState("c1");
-  const [regStudentId, setRegStudentId] = useState("s1");
+  const [regStudentId, setRegStudentId] = useState("jeevan");
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -64,10 +64,10 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
     }
   };
 
-  const handleDemoQuickLogin = (uname) => {
+  const handleDemoQuickLogin = (uname, pwd = uname) => {
     setUsername(uname);
-    setPassword("demo");
-    onLogin(uname, "demo");
+    setPassword(pwd);
+    onLogin(uname, pwd);
   };
 
   return (
@@ -98,7 +98,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
         <div className="lg:col-span-7 space-y-4">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] text-xs font-mono">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>School ERP Copilot • Classes 1–5 • Gemini 2.5 NLU</span>
+            <span>School ERP Copilot • MongoDB Atlas Live • Gemini 2.5 NLU</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-[#FFFFFF] leading-tight">
@@ -106,7 +106,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
           </h1>
 
           <p className="text-xs sm:text-sm text-[#808080] leading-relaxed max-w-xl">
-            Conversational attendance lookup, automated teacher rosters, parent communication hubs, and executive analytics powered by Google Gemini NLU and MongoDB Atlas.
+            Conversational attendance lookup, automated faculty rosters, parent communication hubs, and executive analytics powered by Google Gemini NLU and MongoDB Atlas.
           </p>
 
           {/* Feature Highlights Grid */}
@@ -127,7 +127,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
                 <span>Zero-Trust Server-Side RBAC</span>
               </div>
               <p className="text-[11px] text-[#808080]">
-                Strict role authorization boundaries for students, parents, teachers, and principals.
+                Strict role authorization boundaries with Principal-only audit logs.
               </p>
             </div>
           </div>
@@ -137,23 +137,22 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
             <p className="text-[11px] font-mono text-[#808080] uppercase tracking-wider mb-2">
               1-Click Instant Persona Sign-In:
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-w-xl">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-2xl">
               {[
-                { u: "AaravN", label: "Aarav Nair", role: "Student (1A)" },
-                { u: "MeeraS", label: "Meera Sharma", role: "Parent (Aditya 2A)" },
-                { u: "PriyaN", label: "Priya Nair", role: "Teacher (Class 1A)" },
-                { u: "AnanyaS", label: "Ananya Sharma", role: "Teacher (Class 2A)" },
-                { u: "Rajesh", label: "Dr. Rajesh Menon", role: "Principal" },
+                { u: "jeevan", label: "jeevan", role: "Student (Class 1A)" },
+                { u: "surya", label: "surya prakash", role: "Faculty / Teacher" },
+                { u: "yashwanth", label: "yashwanth", role: "Parent (Jeevan)" },
+                { u: "akhil", label: "akhil", role: "Principal (Admin)" },
               ].map((p) => (
                 <button
                   key={p.u}
                   onClick={() => handleDemoQuickLogin(p.u)}
-                  className="p-2.5 rounded-[6px] bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#3FCF8E]/50 text-left transition-all group cursor-pointer"
+                  className="p-3 rounded-[6px] bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#3FCF8E] text-left transition-all group cursor-pointer"
                 >
-                  <span className="font-semibold text-xs text-[#FFFFFF] group-hover:text-[#3FCF8E] block truncate">
+                  <span className="font-semibold text-xs text-[#FFFFFF] group-hover:text-[#3FCF8E] block truncate font-mono">
                     {p.label}
                   </span>
-                  <span className="text-[10px] font-mono text-[#808080] block">
+                  <span className="text-[10px] font-mono text-[#808080] block mt-0.5">
                     {p.role}
                   </span>
                 </button>
@@ -210,7 +209,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. AaravN, MeeraS, PriyaN, Rajesh"
+                    placeholder="e.g. jeevan, surya, yashwanth, akhil"
                     className="input-supabase w-full"
                     required
                   />
@@ -226,7 +225,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
                     className="input-supabase w-full"
                     required
                   />
-                  <span className="text-[10px] font-mono text-[#808080] mt-1 block">Default demo password: demo</span>
+                  <span className="text-[10px] font-mono text-[#808080] mt-1 block">Credentials: username & password are identical</span>
                 </div>
 
                 <button

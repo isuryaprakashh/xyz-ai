@@ -58,6 +58,13 @@ function MainApp() {
 
   const prevUserIdRef = useRef(null);
 
+  // If user role changes and they are not principal/admin, don't stay on audit tab
+  useEffect(() => {
+    if (activeTab === "audit" && user?.role !== "principal" && user?.role !== "admin") {
+      setActiveTab("chat");
+    }
+  }, [user, activeTab]);
+
   // Sync language with user profile preference
   useEffect(() => {
     if (user?.language) setLanguage(user.language);
@@ -98,9 +105,9 @@ function MainApp() {
       case "parent":
         return `Namaste ${u.name}. 🙏 I am your Parent Support Assistant. I can help you monitor your child's attendance and connect with faculty.`;
       case "teacher":
-        return `Good day, ${u.name}. 👩‍🏫 I am your Teaching Assistant. You can tell me to mark attendance (e.g. "Mark Aarav present today") or view class compliance.`;
+        return `Good day, ${u.name}. 👩‍🏫 I am your Teaching Assistant. You can tell me to mark attendance (e.g. "Mark Jeevan absent today") or query class compliance.`;
       case "principal":
-        return `Greetings, Dr. ${u.name.replace(/^Dr\.\s*/, "")}. 🏛️ I am your Executive Management Assistant. I can generate institutional attendance analytics and highlight risk alerts.`;
+        return `Greetings, ${u.name}. 🏛️ I am your Executive Management Assistant. I can generate institutional attendance analytics, inspect class compliance, and view security audit logs.`;
       default:
         return `Welcome ${u.name}! How may I help you today?`;
     }
@@ -203,12 +210,13 @@ function MainApp() {
     );
   }
 
-  // Navigation tab items
+  // Navigation tab items — Audit Log shown to Principal & Admin ONLY
+  const isPrincipalOrAdmin = user.role === "principal" || user.role === "admin";
   const tabs = [
     { id: "chat", label: "AI Assistant", icon: MessageSquare },
     { id: "dashboard", label: "Workspace", icon: LayoutDashboard },
     { id: "escalations", label: "Escalations", icon: PhoneCall },
-    { id: "audit", label: "Audit Log", icon: ShieldCheck },
+    ...(isPrincipalOrAdmin ? [{ id: "audit", label: "Audit Log", icon: ShieldCheck }] : []),
   ];
 
   return (
@@ -301,7 +309,7 @@ function MainApp() {
             </button>
 
             {/* Dropdown Menu on Hover / Focus */}
-            <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#1C1C1C] border border-[#2E2E2E] rounded-[6px] shadow-supabase p-3 space-y-2.5 hidden group-hover:block group-focus-within:block z-30 animate-fade-in text-[#EDEDED]">
+            <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#1C1C1C] border border-[#2E2E2E] rounded-[6px] shadow-supabase p-3 space-y-2.5 hidden group-hover:block group-focus-within:block z-30 animate-fade-in text-[#EDEDED]">
               <div className="pb-2 border-b border-[#2E2E2E]">
                 <p className="text-xs font-semibold text-[#FFFFFF]">{user.name}</p>
                 <p className="text-[11px] font-mono text-[#808080]">@{user.username} • <span className="capitalize text-[#3FCF8E]">{user.role}</span></p>
@@ -310,15 +318,14 @@ function MainApp() {
 
               <div>
                 <p className="text-[10px] font-semibold text-[#808080] uppercase tracking-wider mb-1.5">
-                  Quick Switch Persona:
+                  Switch User:
                 </p>
                 <div className="space-y-1">
                   {[
-                    { u: "AaravN", label: "Aarav Nair", role: "Student (1A)" },
-                    { u: "MeeraS", label: "Meera Sharma", role: "Parent (Aditya 2A)" },
-                    { u: "PriyaN", label: "Priya Nair", role: "Teacher (Class 1A)" },
-                    { u: "AnanyaS", label: "Ananya Sharma", role: "Teacher (Class 2A)" },
-                    { u: "Rajesh", label: "Dr. Rajesh Menon", role: "Principal" },
+                    { u: "jeevan", label: "jeevan", role: "Student (Class 1A)" },
+                    { u: "surya", label: "surya prakash", role: "Faculty / Teacher" },
+                    { u: "yashwanth", label: "yashwanth", role: "Parent (Jeevan)" },
+                    { u: "akhil", label: "akhil", role: "Principal / Admin" },
                   ].map((p) => (
                     <button
                       key={p.u}
@@ -329,7 +336,7 @@ function MainApp() {
                           : "hover:bg-white/5 text-[#EDEDED]"
                       }`}
                     >
-                      <span className="truncate max-w-[140px]">{p.label}</span>
+                      <span className="truncate max-w-[130px] font-mono">{p.label}</span>
                       <span className="text-[10px] text-[#808080]">({p.role.split(" ")[0]})</span>
                     </button>
                   ))}
@@ -392,12 +399,12 @@ function MainApp() {
 
         {activeTab === "dashboard" && <Dashboard user={user} />}
         {activeTab === "escalations" && <EscalationsView user={user} />}
-        {activeTab === "audit" && <AuditLogsView />}
+        {activeTab === "audit" && isPrincipalOrAdmin && <AuditLogsView />}
       </main>
 
       {/* Supabase Footer */}
       <footer className="border-t border-[#2E2E2E] py-2.5 px-4 text-center text-xs text-[#808080] font-mono">
-        XYZ AI • Classes 1–5 MongoDB Atlas Connected • Gemini 2.5 Flash NLU • Zero-Trust RBAC
+        XYZ AI • MongoDB Atlas Connected • Gemini 2.5 Flash NLU • Zero-Trust RBAC
       </footer>
     </div>
   );

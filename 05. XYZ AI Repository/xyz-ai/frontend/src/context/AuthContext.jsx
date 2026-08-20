@@ -45,10 +45,10 @@ export function AuthProvider({ children }) {
     restoreSession();
   }, []);
 
-  const login = useCallback(async (username, password = "demo") => {
+  const login = useCallback(async (username, password = username) => {
     setLoading(true);
     try {
-      const res = await api.login(username, password);
+      const res = await api.login(username, password || username);
       if (res.token && res.user) {
         localStorage.setItem("xyz_token", res.token);
         localStorage.setItem("xyz_user", JSON.stringify(res.user));
@@ -85,7 +85,7 @@ export function AuthProvider({ children }) {
   }, [loadDemoUsers]);
 
   const switchRole = useCallback(async (username) => {
-    return await login(username, "demo");
+    return await login(username, username);
   }, [login]);
 
   const updateProfile = useCallback(async (data) => {

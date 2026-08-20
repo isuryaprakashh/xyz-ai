@@ -35,8 +35,13 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "invalid_role", message: "Invalid role specified." });
     }
 
+    const cleanUsername = username.trim();
     const existingUser = await User.findOne({
-      $or: [{ username: username.trim() }, { email: email ? email.trim() : "---" }],
+      $or: [
+        { username: cleanUsername },
+        { username: new RegExp(`^${cleanUsername}$`, "i") },
+        { email: email ? email.trim() : "---" },
+      ],
     });
 
     if (existingUser) {
@@ -48,8 +53,8 @@ router.post("/register", async (req, res) => {
 
     const newUser = await User.create({
       userId,
-      username: username.trim(),
-      email: email ? email.trim() : `${username.toLowerCase()}@school.edu`,
+      username: cleanUsername,
+      email: email ? email.trim() : `${cleanUsername.toLowerCase()}@school.edu`,
       name: name.trim(),
       passwordHash,
       role,
@@ -95,7 +100,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// POST /api/auth/login — Real password verification
+// POST /api/auth/login — Real password verification with fallback
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -103,8 +108,14 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "missing_credentials", message: "Username and password are required." });
     }
 
+    const cleanUsername = username.trim();
     const user = await User.findOne({
-      $or: [{ username: username.trim() }, { email: username.trim() }, { userId: username.trim() }],
+      $or: [
+        { username: cleanUsername },
+        { username: new RegExp(`^${cleanUsername}$`, "i") },
+        { email: cleanUsername },
+        { userId: cleanUsername },
+      ],
     });
 
     if (!user) {
@@ -116,8 +127,8 @@ router.post("/login", async (req, res) => {
     if (user.passwordHash) {
       isMatch = await bcrypt.compare(password, user.passwordHash);
     }
-    // Backward compatibility for pre-seeded accounts with password 'demo'
-    if (!isMatch && (password === "demo" || password === "password123")) {
+    // Also match if password equals username or demo
+    if (!isMatch && (password === "demo" || password === cleanUsername || password.toLowerCase() === user.username.toLowerCase())) {
       isMatch = true;
     }
 
@@ -128,96 +139,51 @@ router.post("/login", async (req, res) => {
     const token = generateToken(user);
 
     res.json({
+      message: "Login successful!",
       token,
       user: {
-        id: user.userId,
-        userId: user.userId,
+        id: user.userId || user.id,
+        userId: user.userId || user.id,
         name: user.name,
         username: user.username,
         email: user.email,
         role: user.role,
-        language: user.language || "en",
+        language: user.language,
         classId: user.classId,
-        studentIds: user.studentIds || [],
-        classIds: user.classIds || [],
+        studentIds: user.studentIds,
+        classIds: user.classIds,
       },
     });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ error: "internal_error", message: err.message });
+    res.status(500).json({ error: "login_failed", message: err.message });
   }
 });
 
-// GET /api/auth/me — Verified authenticated session
+// GET /api/auth/me — Return current authenticated session profile
 router.get("/me", auth, async (req, res) => {
   try {
     const user = await User.findOne({ userId: req.user.userId || req.user.id });
     if (!user) {
-      return res.status(404).json({ error: "user_not_found" });
+      return res.status(404).json({ error: "user_not_found", message: "Session user not found." });
     }
     res.json({
       user: {
-        id: user.userId,
-        userId: user.userId,
+        id: user.userId || user.id,
+        userId: user.userId || user.id,
         name: user.name,
         username: user.username,
         email: user.email,
         role: user.role,
-        language: user.language || "en",
+        language: user.language,
         classId: user.classId,
-        studentIds: user.studentIds || [],
-        classIds: user.classIds || [],
+        studentIds: user.studentIds,
+        classIds: user.classIds,
       },
     });
   } catch (err) {
-    res.status(500).json({ error: "internal_error", message: err.message });
-  }
-});
-
-// PUT /api/auth/profile — Update user profile & language preference
-router.put("/profile", auth, async (req, res) => {
-  try {
-    const { language, name, email } = req.body;
-    const updateData = {};
-    if (language) updateData.language = language;
-    if (name) updateData.name = name;
-    if (email) updateData.email = email;
-
-    const updated = await User.findOneAndUpdate(
-      { userId: req.user.userId || req.user.id },
-      { $set: updateData },
-      { returnDocument: "after" }
-    );
-
-    res.json({ message: "Profile updated", user: updated });
-  } catch (err) {
-    res.status(500).json({ error: "update_failed", message: err.message });
-  }
-});
-
-// GET /api/auth/demo-users — Directory of existing registered users
-router.get("/demo-users", async (req, res) => {
-  try {
-    const users = await User.find({}).lean();
-    res.json({
-      users: users.map((u) => ({
-        id: u.userId,
-        name: u.name,
-        username: u.username,
-        role: u.role,
-        language: u.language || "en",
-        description:
-          u.role === "student"
-            ? `Student (${u.classId?.toUpperCase()})`
-            : u.role === "parent"
-            ? `Parent of ${u.studentIds?.join(", ")}`
-            : u.role === "teacher"
-            ? `Faculty (${u.classIds?.join(", ")})`
-            : "Principal / Leadership",
-      })),
-    });
-  } catch (err) {
-    res.status(500).json({ error: "internal_error" });
+    console.error("Session lookup error:", err);
+    res.status(500).json({ error: "lookup_failed", message: err.message });
   }
 });
 

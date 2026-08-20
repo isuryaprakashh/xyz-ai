@@ -5,13 +5,20 @@ import { Escalation } from "./models/Escalation.js";
 import { SchoolClass } from "./models/Class.js";
 import { connectDB, isDbConnected } from "./connection.js";
 
-// Full In-Memory & MongoDB Dataset: Classes 1-5, 10 Teachers, 1 Principal, 30 Students, 30 Parents
+// Full In-Memory & MongoDB Dataset: Classes 1-5, 10 Teachers, 1 Principal, 30 Students, 30 Parents + Custom 4 Users
 export const memoryStore = {
   users: {
-    // 1 Principal
+    // 4 Custom Core Role Users
+    jeevan: { id: "jeevan", userId: "jeevan", username: "jeevan", name: "Jeevan", role: "student", language: "en", classId: "c1", studentIds: [], classIds: [] },
+    surya: { id: "surya", userId: "surya", username: "surya prakash", name: "Surya Prakash", role: "teacher", language: "en", classIds: ["c1", "c2"], studentIds: [] },
+    surya_short: { id: "surya_short", userId: "surya_short", username: "surya", name: "Surya Prakash", role: "teacher", language: "en", classIds: ["c1", "c2"], studentIds: [] },
+    yashwanth: { id: "yashwanth", userId: "yashwanth", username: "yashwanth", name: "Yashwanth", role: "parent", language: "en", studentIds: ["jeevan", "s1"], classIds: [] },
+    akhil: { id: "akhil", userId: "akhil", username: "akhil", name: "Akhil", role: "principal", language: "en", studentIds: [], classIds: ["c1","c2","c3","c4","c5","c6","c7","c8","c9","c10"] },
+
+    // Institutional Principal
     m1: { id: "m1", userId: "m1", username: "Rajesh", name: "Dr. Rajesh Menon", role: "principal", language: "en", studentIds: [], classIds: ["c1","c2","c3","c4","c5","c6","c7","c8","c9","c10"] },
 
-    // 10 Teachers
+    // 10 Faculty Leads
     t1: { id: "t1", userId: "t1", username: "PriyaN", name: "Priya Nair", role: "teacher", language: "en", classIds: ["c1"], studentIds: [] },
     t2: { id: "t2", userId: "t2", username: "SunitaR", name: "Sunita Rao", role: "teacher", language: "te", classIds: ["c2"], studentIds: [] },
     t3: { id: "t3", userId: "t3", username: "AnanyaS", name: "Ananya Sharma", role: "teacher", language: "en", classIds: ["c3"], studentIds: [] },
@@ -89,7 +96,7 @@ export const memoryStore = {
   },
 
   classes: {
-    c1: { id: "c1", classId: "c1", name: "Class 1A", grade: "Grade 1", teacherId: "t1", teacherName: "Priya Nair", studentIds: ["s1", "s2", "s3"] },
+    c1: { id: "c1", classId: "c1", name: "Class 1A", grade: "Grade 1", teacherId: "t1", teacherName: "Priya Nair", studentIds: ["jeevan", "s1", "s2", "s3"] },
     c2: { id: "c2", classId: "c2", name: "Class 1B", grade: "Grade 1", teacherId: "t2", teacherName: "Sunita Rao", studentIds: ["s4", "s5", "s6"] },
     c3: { id: "c3", classId: "c3", name: "Class 2A", grade: "Grade 2", teacherId: "t3", teacherName: "Ananya Sharma", studentIds: ["s7", "s8", "s9"] },
     c4: { id: "c4", classId: "c4", name: "Class 2B", grade: "Grade 2", teacherId: "t4", teacherName: "Vikram Roy", studentIds: ["s10", "s11", "s12"] },
@@ -104,6 +111,7 @@ export const memoryStore = {
   attendance: {},
 
   parentStudentMap: {
+    yashwanth: ["jeevan", "s1"],
     p1: ["s1"], p2: ["s2"], p3: ["s3"], p4: ["s4"], p5: ["s5"],
     p6: ["s6"], p7: ["s7"], p8: ["s8"], p9: ["s9"], p10: ["s10"],
     p11: ["s11"], p12: ["s12"], p13: ["s13"], p14: ["s14"], p15: ["s15"],
@@ -113,6 +121,8 @@ export const memoryStore = {
   },
 
   teacherClassMap: {
+    surya: ["c1", "c2"],
+    surya_short: ["c1", "c2"],
     t1: ["c1"], t2: ["c2"], t3: ["c3"], t4: ["c4"], t5: ["c5"],
     t6: ["c6"], t7: ["c7"], t8: ["c8"], t9: ["c9"], t10: ["c10"],
   },
@@ -120,13 +130,13 @@ export const memoryStore = {
   escalations: [
     {
       ticketId: "TKT-2001",
-      requesterId: "p5",
-      requesterName: "Bhavin Mehta",
+      requesterId: "yashwanth",
+      requesterName: "Yashwanth",
       role: "parent",
       targetRole: "teacher",
-      studentId: "s5",
-      studentName: "Kabir Mehta",
-      reason: "Requesting teacher callback regarding Kabir's recent sick leave and attendance regularisation.",
+      studentId: "jeevan",
+      studentName: "Jeevan",
+      reason: "Requesting teacher callback regarding Jeevan's recent mathematics worksheet progress.",
       status: "pending",
       priority: "high",
       createdAt: new Date(Date.now() - 3600 * 1000 * 2),
@@ -140,45 +150,18 @@ export const memoryStore = {
       studentId: "s18",
       studentName: "Dev Patel",
       reason: "Medical absence certificate submitted; requesting attendance threshold regularisation for Grade 3 evaluation.",
-      status: "in-progress",
+      status: "in_review",
       priority: "high",
       createdAt: new Date(Date.now() - 3600 * 1000 * 18),
-    },
-    {
-      ticketId: "TKT-2003",
-      requesterId: "p7",
-      requesterName: "Meera Sharma",
-      role: "parent",
-      targetRole: "teacher",
-      studentId: "s7",
-      studentName: "Aditya Sharma",
-      reason: "Mathematics Olympiad practice session timing clarification.",
-      status: "resolved",
-      priority: "low",
-      resolutionNotes: "Teacher Ananya Sharma confirmed session every Thursday at 3:30 PM.",
-      resolvedBy: "t3",
-      createdAt: new Date(Date.now() - 3600 * 1000 * 48),
-      resolvedAt: new Date(Date.now() - 3600 * 1000 * 6),
-    },
-    {
-      ticketId: "TKT-2004",
-      requesterId: "s25",
-      requesterName: "Isha Iyer",
-      role: "student",
-      targetRole: "teacher",
-      studentId: "s25",
-      studentName: "Isha Iyer",
-      reason: "Science exhibition project materials guidance with Pooja Ma'am.",
-      status: "pending",
-      priority: "medium",
-      createdAt: new Date(Date.now() - 3600 * 1000 * 5),
     },
   ],
 };
 
-// Generate 90 Calendar Days (past 3 months: June, July, August 2026) for all 30 students
+// Generate 90 Calendar Days for all students including 'jeevan'
 function generateComprehensiveAttendance() {
+  const studentIds = ["jeevan", ...Array.from({ length: 30 }, (_, i) => `s${i + 1}`)];
   const targetRates = {
+    jeevan: 0.940,
     s1: 0.945, s2: 0.912, s3: 0.880, s4: 0.960, s5: 0.784,
     s6: 0.920, s7: 0.955, s8: 0.893, s9: 0.932, s10: 0.910,
     s11: 0.840, s12: 0.971, s13: 0.948, s14: 0.904, s15: 0.935,
@@ -188,11 +171,10 @@ function generateComprehensiveAttendance() {
   };
 
   const today = new Date();
-  const daysToGenerate = 90; // past 3 months (~65-70 school working days)
+  const daysToGenerate = 90; // past 3 months
 
-  for (let i = 1; i <= 30; i++) {
-    const sid = `s${i}`;
-    const targetRate = targetRates[sid] || 0.90;
+  studentIds.forEach((sid, idx) => {
+    const targetRate = targetRates[sid] || 0.92;
     const records = [];
     let workingDays = 0;
     let presentDays = 0;
@@ -207,14 +189,13 @@ function generateComprehensiveAttendance() {
         records.push({ date: dateStr, status: "weekend" });
       } else {
         workingDays++;
-        // deterministic variation per student and day
-        const seedVal = ((i * 37 + dIdx * 19) % 1000) / 1000;
+        const seedVal = (((idx + 1) * 37 + dIdx * 19) % 1000) / 1000;
         const isPresent = seedVal < targetRate;
         if (isPresent) {
           presentDays++;
           records.push({ date: dateStr, status: "present", remarks: "On time" });
         } else {
-          records.push({ date: dateStr, status: "absent", remarks: "Excused/Unexcused absence" });
+          records.push({ date: dateStr, status: "absent", remarks: "Absence logged" });
         }
       }
     }
@@ -227,7 +208,7 @@ function generateComprehensiveAttendance() {
       presentDays,
       records,
     };
-  }
+  });
 }
 
 generateComprehensiveAttendance();
@@ -236,77 +217,65 @@ export async function seedDatabase() {
   await connectDB();
 
   if (!isDbConnected()) {
-    console.log("ℹ️ Using expanded in-memory dataset for Classes 1-5.");
+    console.log("ℹ️ Using expanded in-memory dataset.");
     return memoryStore;
   }
 
   try {
-    console.log("🌱 Seeding MongoDB collections with comprehensive Classes 1-5 dataset (10 Teachers, 30 Students, 30 Parents)...");
+    console.log("🌱 Seeding MongoDB collections with custom users (jeevan, surya, yashwanth, akhil) + Classes 1-5 dataset...");
 
-    const defaultPasswordHash = await bcrypt.hash("demo", 10);
+    // Clean existing collection to avoid any duplicate key index conflict
+    await User.deleteMany({});
+    await SchoolClass.deleteMany({});
+    await Attendance.deleteMany({});
+    await Escalation.deleteMany({});
 
-    // 1. Seed Users
-    for (const u of Object.values(memoryStore.users)) {
-      await User.findOneAndUpdate(
-        { userId: u.id },
-        {
-          userId: u.id,
-          username: u.username,
-          name: u.name,
-          role: u.role,
-          language: u.language,
-          classId: u.classId || null,
-          studentIds: u.studentIds || [],
-          classIds: u.classIds || [],
-          passwordHash: defaultPasswordHash,
-        },
-        { upsert: true, returnDocument: "after" }
-      );
-    }
+    // 1. Prepare User Docs (pre-hashed with bcrypt)
+    const userDocs = Object.values(memoryStore.users).map((u) => {
+      const passwordHash = bcrypt.hashSync(u.username, 8);
+      return {
+        userId: u.id,
+        username: u.username,
+        name: u.name,
+        role: u.role,
+        language: u.language,
+        classId: u.classId || null,
+        studentIds: u.studentIds || [],
+        classIds: u.classIds || [],
+        passwordHash,
+      };
+    });
+    await User.insertMany(userDocs);
 
-    // 2. Seed Classes
-    for (const c of Object.values(memoryStore.classes)) {
-      await SchoolClass.findOneAndUpdate(
-        { classId: c.id },
-        {
-          classId: c.id,
-          name: c.name,
-          grade: c.grade,
-          teacherId: c.teacherId,
-          teacherName: c.teacherName,
-          studentIds: c.studentIds,
-        },
-        { upsert: true, returnDocument: "after" }
-      );
-    }
+    // 2. Prepare Class Docs
+    const classDocs = Object.values(memoryStore.classes).map((c) => ({
+      classId: c.id,
+      name: c.name,
+      grade: c.grade,
+      teacherId: c.teacherId,
+      teacherName: c.teacherName,
+      studentIds: c.studentIds,
+    }));
+    await SchoolClass.insertMany(classDocs);
 
-    // 3. Seed Attendance (3 months of records)
-    for (const [studentId, att] of Object.entries(memoryStore.attendance)) {
+    // 3. Prepare Attendance Docs
+    const attDocs = Object.entries(memoryStore.attendance).map(([studentId, att]) => {
       const studentUser = memoryStore.users[studentId];
-      await Attendance.findOneAndUpdate(
-        { studentId },
-        {
-          studentId,
-          classId: studentUser ? studentUser.classId : null,
-          percentage: att.percentage,
-          totalWorkingDays: att.totalWorkingDays,
-          presentDays: att.presentDays,
-          records: att.records,
-        },
-        { upsert: true, returnDocument: "after" }
-      );
-    }
+      return {
+        studentId,
+        classId: studentUser ? studentUser.classId : null,
+        percentage: att.percentage,
+        totalWorkingDays: att.totalWorkingDays,
+        presentDays: att.presentDays,
+        records: att.records,
+      };
+    });
+    await Attendance.insertMany(attDocs);
 
-    // 4. Seed Escalation Tickets
-    for (const esc of memoryStore.escalations) {
-      await Escalation.findOneAndUpdate(
-        { ticketId: esc.ticketId },
-        esc,
-        { upsert: true, returnDocument: "after" }
-      );
-    }
+    // 4. Prepare Escalation Docs
+    await Escalation.insertMany(memoryStore.escalations);
 
-    console.log("✅ MongoDB seeding completed successfully: Classes 1-5, 10 Teachers, 30 Students, 30 Parents, 3-Month Daily Records & Tickets live!");
+    console.log("✅ MongoDB seeding completed: jeevan, surya, yashwanth, akhil + 30 Students & Classes live!");
     return memoryStore;
   } catch (err) {
     console.error("Error during database seed:", err);
