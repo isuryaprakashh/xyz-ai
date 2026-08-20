@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../utils/api";
-import { PhoneCall, Plus, Clock, CheckCircle2 } from "lucide-react";
+import { PhoneCall, Plus, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function EscalationsView({ user }) {
   const [tickets, setTickets] = useState([]);
@@ -63,136 +63,126 @@ export function EscalationsView({ user }) {
   };
 
   const filteredTickets = tickets.filter((t) => {
-    if (filter === "pending") return t.status === "pending" || t.status === "in_progress";
+    if (filter === "all") return true;
+    if (filter === "pending") return t.status === "pending" || t.status === "in-progress";
     if (filter === "resolved") return t.status === "resolved";
     return true;
   });
 
-  const isStaff = user.role === "teacher" || user.role === "principal" || user.role === "admin";
-
   return (
-    <div className="flex-1 overflow-y-auto p-6 sm:p-9 max-w-5xl mx-auto w-full space-y-8">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-5xl mx-auto w-full space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC] flex items-center gap-2">
-            <PhoneCall className="w-6 h-6 text-[#1868DB] dark:text-[#58A6FF]" />
-            <span>Escalation & Callback Desk</span>
+          <h2 className="text-xl font-display font-bold text-[#FFFFFF] flex items-center gap-2">
+            <PhoneCall className="w-5 h-5 text-[#3FCF8E]" />
+            <span>Human-In-The-Loop Escalation Hub</span>
           </h2>
-          <p className="text-sm text-[#6C6F77] dark:text-[#8B949E] mt-1">
-            Human-in-the-loop callback tickets raised for faculty and school leadership.
+          <p className="text-xs text-[#808080] mt-0.5">
+            Official teacher callback bookings and school management support tickets.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          {(user.role === "student" || user.role === "parent") && (
-            <button onClick={() => setShowModal(true)} className="btn-primary self-start sm:self-center">
-              <Plus className="w-4 h-4" />
-              <span>Raise Callback Ticket</span>
-            </button>
-          )}
-        </div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="btn-primary flex items-center gap-1.5 self-start sm:self-center"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span>New Support Ticket</span>
+        </button>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#E9F2FE] dark:border-white/10 pb-3">
-        {[
-          { id: "all", label: `All Tickets (${tickets.length})` },
-          { id: "pending", label: `Active (${tickets.filter((t) => t.status !== "resolved").length})` },
-          { id: "resolved", label: `Resolved (${tickets.filter((t) => t.status === "resolved").length})` },
-        ].map((tab) => (
+      <div className="flex items-center gap-2 border-b border-[#2E2E2E] pb-2">
+        {["all", "pending", "resolved"].map((f) => (
           <button
-            key={tab.id}
-            onClick={() => setFilter(tab.id)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              filter === tab.id
-                ? "bg-[#1868DB] text-white shadow-sm"
-                : "bg-[#FFFFFF] dark:bg-[#161D27] text-[#6C6F77] dark:text-[#8B949E] hover:text-[#1868DB] dark:hover:text-white hover:bg-[#E9F2FE] dark:hover:bg-[#1E293B]"
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-1 rounded-[4px] text-xs font-medium capitalize transition-all ${
+              filter === f
+                ? "bg-[#3FCF8E]/15 text-[#3FCF8E] font-semibold border border-[#3FCF8E]/30"
+                : "text-[#808080] hover:text-[#EDEDED]"
             }`}
           >
-            {tab.label}
+            {f} ({tickets.filter((t) => (f === "all" ? true : f === "pending" ? t.status !== "resolved" : t.status === "resolved")).length})
           </button>
         ))}
       </div>
 
+      {/* Tickets List */}
       {loading ? (
-        <div className="flex items-center justify-center p-12 text-[#6C6F77] dark:text-[#8B949E] text-sm">
-          <div className="w-5 h-5 border-2 border-[#1868DB] dark:border-[#58A6FF] border-t-transparent rounded-full animate-spin mr-2" />
-          <span>Loading active tickets...</span>
+        <div className="flex items-center justify-center p-12 text-xs text-[#808080] font-mono">
+          Loading ticket queue...
         </div>
       ) : filteredTickets.length === 0 ? (
-        <div className="card-standard p-12 text-center text-[#6C6F77] dark:text-[#8B949E]">
-          <Clock className="w-10 h-10 mx-auto text-[#7D818A] dark:text-[#8B949E] mb-3" />
-          <p className="font-bold text-[#292A2E] dark:text-[#F0F6FC] text-base">No {filter !== "all" ? filter : ""} callback tickets</p>
-          <p className="text-xs text-[#7D818A] dark:text-[#8B949E] mt-1">
-            When parents or students request teacher or management contact via AI chat or this desk, tickets will be listed here.
-          </p>
+        <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-8 text-center text-xs text-[#808080]">
+          No escalation tickets matching this filter.
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="space-y-3">
           {filteredTickets.map((t) => (
             <div
-              key={t.ticketId || t.id}
-              className={`card-standard p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-all ${
-                t.status === "resolved" ? "opacity-75 bg-[#F8FAFC] dark:bg-[#111722]" : ""
-              }`}
+              key={t.ticketId}
+              className="bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#3FCF8E]/40 rounded-[8px] p-4 transition-all duration-150"
             >
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-[#1868DB] dark:text-[#58A6FF]">#{t.ticketId || t.id}</span>
-                  <span
-                    className={`text-xs font-bold px-2.5 py-0.5 rounded-[12px] ${
-                      t.status === "resolved"
-                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700"
-                        : t.status === "in_progress"
-                        ? "bg-[#E9F2FE] dark:bg-[#162744] text-[#1868DB] dark:text-[#58A6FF] border border-[#8FB8F6] dark:border-[#388BFD]/40"
-                        : "bg-[#FFF4E5] dark:bg-[#2C1C0D] text-[#FFA900] border border-[#FFA900]/40"
-                    }`}
-                  >
-                    {t.status.toUpperCase()}
-                  </span>
-                  <span className="text-xs text-[#6C6F77] dark:text-[#8B949E]">
-                    Target: <strong className="text-[#292A2E] dark:text-[#F0F6FC] capitalize">{t.targetRole}</strong>
-                  </span>
-                  {t.studentName && (
-                    <span className="text-xs text-[#6C6F77] dark:text-[#8B949E]">
-                      Student: <strong className="text-[#292A2E] dark:text-[#F0F6FC]">{t.studentName}</strong>
-                    </span>
-                  )}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-xs text-[#FFFFFF]">#{t.ticketId}</span>
+                  <span className="text-xs text-[#808080]">•</span>
+                  <span className="text-xs font-semibold text-[#EDEDED]">{t.requesterName || "Requester"}</span>
+                  <span className="text-[10px] font-mono text-[#808080]">({t.role})</span>
                 </div>
 
-                <p className="text-base text-[#292A2E] dark:text-[#F0F6FC] font-semibold">{t.reason}</p>
-                <p className="text-xs text-[#7D818A] dark:text-[#8B949E]">
-                  Raised by {t.requesterName || t.requesterId} ({t.role}) • {new Date(t.createdAt).toLocaleString()}
-                </p>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold uppercase ${
+                      t.priority === "high"
+                        ? "bg-[#DC7B18]/20 text-[#F3BA63] border border-[#DC7B18]/40"
+                        : "bg-white/5 text-[#808080]"
+                    }`}
+                  >
+                    {t.priority}
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold uppercase ${
+                      t.status === "resolved"
+                        ? "bg-[#3FCF8E]/20 text-[#3FCF8E] border border-[#3FCF8E]/40"
+                        : t.status === "in-progress"
+                        ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40"
+                        : "bg-[#DC7B18]/20 text-[#F3BA63] border border-[#DC7B18]/40"
+                    }`}
+                  >
+                    {t.status}
+                  </span>
+                </div>
               </div>
 
-              {/* Action Buttons for Staff */}
-              <div className="shrink-0 flex items-center gap-2">
-                {isStaff ? (
-                  <div className="flex gap-2">
-                    {t.status !== "resolved" ? (
-                      <button
-                        onClick={() => handleStatusChange(t.ticketId || t.id, "resolved")}
-                        disabled={updatingId === (t.ticketId || t.id)}
-                        className="btn-primary text-xs py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Mark Resolved</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleStatusChange(t.ticketId || t.id, "pending")}
-                        disabled={updatingId === (t.ticketId || t.id)}
-                        className="btn-secondary text-xs py-1.5 px-3"
-                      >
-                        <span>Reopen</span>
-                      </button>
-                    )}
+              <p className="text-xs text-[#EDEDED] mt-1.5 leading-relaxed">{t.reason}</p>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-3 pt-3 border-t border-[#2E2E2E] text-[11px] font-mono text-[#808080]">
+                <div className="flex items-center gap-3">
+                  <span>Target: <strong className="text-[#EDEDED] capitalize">{t.targetRole}</strong></span>
+                  {t.studentName && <span>Student: <strong className="text-[#EDEDED]">{t.studentName}</strong></span>}
+                </div>
+
+                {/* Status action for Teachers & Principals */}
+                {(user.role === "teacher" || user.role === "principal" || user.role === "admin") && t.status !== "resolved" && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleStatusChange(t.ticketId, "in-progress")}
+                      disabled={updatingId === t.ticketId}
+                      className="px-2 py-1 bg-[#121212] border border-[#2E2E2E] hover:border-[#3FCF8E]/50 rounded-[4px] text-[11px] text-[#EDEDED]"
+                    >
+                      In Progress
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange(t.ticketId, "resolved")}
+                      disabled={updatingId === t.ticketId}
+                      className="px-2 py-1 bg-[#3FCF8E] text-[#000000] font-semibold rounded-[4px] text-[11px] hover:bg-[#16B674]"
+                    >
+                      Mark Resolved
+                    </button>
                   </div>
-                ) : (
-                  <span className="badge-secondary text-xs px-3 py-1.5">
-                    {t.status === "resolved" ? "Resolved by Staff" : "Under Faculty Review"}
-                  </span>
                 )}
               </div>
             </div>
@@ -200,65 +190,65 @@ export function EscalationsView({ user }) {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal for Creating New Ticket */}
       {showModal && (
-        <div className="fixed inset-0 bg-[#000000]/60 backdrop-blur-sm z-30 flex items-center justify-center p-4">
-          <div className="bg-[#FFFFFF] dark:bg-[#161D27] border border-[#E9F2FE] dark:border-white/10 rounded-[44px] shadow-loom-large max-w-md w-full p-8 space-y-5 text-[#292A2E] dark:text-[#F0F6FC]">
-            <h3 className="text-xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC]">Raise Callback Ticket</h3>
-            <p className="text-xs text-[#6C6F77] dark:text-[#8B949E]">
-              Submit an official request for a dedicated callback from a teacher or administrative management.
-            </p>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5 max-w-md w-full shadow-supabase space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#2E2E2E]">
+              <h3 className="font-display font-bold text-sm text-[#FFFFFF]">Create Faculty Support Ticket</h3>
+              <button onClick={() => setShowModal(false)} className="text-[#808080] hover:text-[#FFFFFF] text-sm">✕</button>
+            </div>
 
-            <form onSubmit={handleCreate} className="space-y-4">
+            <form onSubmit={handleCreate} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-[#292A2E] dark:text-[#F0F6FC] mb-1.5">Target Department</label>
+                <label className="text-[11px] font-mono text-[#808080] block mb-1">Target Department:</label>
                 <select
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
-                  className="w-full input-loom text-xs"
+                  className="input-supabase w-full"
                 >
-                  <option value="teacher">Class Teacher</option>
-                  <option value="management">School Management / Principal</option>
+                  <option value="teacher">Class Teacher / Subject Faculty</option>
+                  <option value="management">School Principal & Management</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#292A2E] dark:text-[#F0F6FC] mb-1.5">Priority</label>
+                <label className="text-[11px] font-mono text-[#808080] block mb-1">Priority Level:</label>
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
-                  className="w-full input-loom text-xs"
+                  className="input-supabase w-full"
                 >
-                  <option value="low">Low - General Question</option>
-                  <option value="medium">Medium - Standard Inquiry</option>
-                  <option value="high">High - Urgent Attendance / Medical</option>
+                  <option value="low">Low (General Inquiry)</option>
+                  <option value="medium">Medium (Standard Academic Matter)</option>
+                  <option value="high">High (Medical Absence / Threshold Regularisation)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#292A2E] dark:text-[#F0F6FC] mb-1.5">Concern / Reason</label>
+                <label className="text-[11px] font-mono text-[#808080] block mb-1">Reason / Description:</label>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="Describe your inquiry or reason for callback..."
+                  placeholder="Explain reason for callback or inquiry..."
                   rows={3}
+                  className="input-supabase w-full resize-none"
                   required
-                  className="w-full rounded-[14px] p-3 bg-[#FFFFFF] dark:bg-[#0D1117] border border-[#7D818A] dark:border-white/15 text-xs text-[#292A2E] dark:text-[#F0F6FC] focus:outline-none focus:border-[#1868DB] dark:focus:border-[#388BFD] focus:border-2 focus:ring-4 focus:ring-[#1868DB]/10 resize-none"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#2E2E2E]">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="btn-secondary text-xs"
+                  className="px-3 py-1.5 rounded-[4px] text-xs text-[#808080] hover:text-[#FFFFFF] bg-transparent"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting || !reason.trim()}
-                  className="btn-primary text-xs"
+                  disabled={submitting}
+                  className="btn-primary"
                 >
                   {submitting ? "Submitting..." : "Submit Ticket"}
                 </button>

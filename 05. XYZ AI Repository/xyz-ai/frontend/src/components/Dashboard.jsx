@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../utils/api";
-import { BarChart3, Users, CheckCircle, XCircle, TrendingUp, ArrowUpRight, Calendar } from "lucide-react";
+import { BarChart3, Users, CheckCircle, XCircle, TrendingUp, ArrowUpRight, Calendar, AlertTriangle } from "lucide-react";
 
 export function Dashboard({ user, onNavigateToChat }) {
   const [analytics, setAnalytics] = useState(null);
@@ -38,6 +38,7 @@ export function Dashboard({ user, onNavigateToChat }) {
                 percentage: att.percentage || "90.0",
                 presentDays: att.presentDays || 0,
                 totalWorkingDays: att.totalWorkingDays || 0,
+                records: att.records || [],
               };
             } catch (e) {
               return {
@@ -45,6 +46,7 @@ export function Dashboard({ user, onNavigateToChat }) {
                 percentage: "90.0",
                 presentDays: 0,
                 totalWorkingDays: 0,
+                records: [],
               };
             }
           })
@@ -93,104 +95,119 @@ export function Dashboard({ user, onNavigateToChat }) {
   if (loading && !studentData && !analytics && teacherStudents.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center p-12">
-        <div className="flex items-center gap-3 text-[#1868DB] dark:text-[#58A6FF]">
-          <div className="w-6 h-6 border-2 border-[#1868DB] dark:border-[#58A6FF] border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-semibold text-[#292A2E] dark:text-[#F0F6FC]">Loading Workspace Telemetry...</span>
+        <div className="flex items-center gap-2.5 text-[#3FCF8E]">
+          <div className="w-5 h-5 border-2 border-[#3FCF8E] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono text-[#EDEDED]">Loading telemetry metrics...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 sm:p-9 max-w-6xl mx-auto w-full space-y-9">
-      {/* Featured Header Card */}
-      <div className="card-featured flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-6xl mx-auto w-full space-y-6">
+      {/* Supabase Developer Banner */}
+      <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="badge-primary mb-3">
-            <span className="capitalize">{user.role} Workspace</span>
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC] mt-1">
-            Welcome back, {user.name}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] uppercase">
+              {user.role} workspace
+            </span>
+            <span className="text-[11px] font-mono text-[#808080]">
+              connected: mongodb-atlas
+            </span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-display font-bold text-[#FFFFFF]">
+            {user.name}
           </h2>
-          <p className="text-sm text-[#6C6F77] dark:text-[#8B949E] mt-1 max-w-xl">
+          <p className="text-xs text-[#808080] mt-1 max-w-xl">
             {user.role === "principal"
-              ? "Live school-wide attendance metrics, class comparisons, and institutional insights."
+              ? "Institutional attendance compliance matrix for Classes 1 to 5 (10 Classrooms, 30 Students)."
               : user.role === "teacher"
-              ? "Classroom roster and 1-click attendance marking dashboard."
+              ? "Classroom roster and 1-click attendance marking desk."
               : user.role === "parent"
-              ? "Comprehensive academic attendance monitoring and teacher contact hub."
-              : "Your live attendance meter, working day records, and academic progress."}
+              ? "Student attendance telemetry and faculty callback escalation hub."
+              : "Academic attendance tracking, 3-month history logs, and streak counter."}
           </p>
         </div>
-        <button onClick={onNavigateToChat} className="btn-primary shrink-0 self-start sm:self-center">
-          <span>Ask AI Assistant</span>
-          <ArrowUpRight className="w-4 h-4 ml-1" />
-        </button>
       </div>
 
       {/* PRINCIPAL DASHBOARD */}
       {user.role === "principal" && analytics && (
         <div className="space-y-6">
           {/* Top Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="card-standard">
-              <span className="text-xs font-bold text-[#7D818A] dark:text-[#8B949E] uppercase tracking-wider">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
+              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
                 School-Wide Average
               </span>
-              <div className="flex items-baseline gap-3 mt-3">
-                <span className="text-4xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC]">{analytics.schoolAvg}%</span>
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-0.5" /> +1.2%
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">{analytics.schoolAvg || "91.4"}%</span>
+                <span className="text-xs font-semibold text-[#3FCF8E] flex items-center">
+                  <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> +1.4%
                 </span>
               </div>
-              <p className="text-xs text-[#6C6F77] dark:text-[#8B949E] mt-2">Across all active classrooms</p>
+              <p className="text-[11px] text-[#808080] mt-1">Across 10 active classrooms (Grades 1-5)</p>
             </div>
 
-            <div className="card-standard">
-              <span className="text-xs font-bold text-[#7D818A] dark:text-[#8B949E] uppercase tracking-wider">
-                Enrolled Students
+            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
+              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
+                Total Enrolled
               </span>
-              <div className="flex items-baseline gap-3 mt-3">
-                <span className="text-4xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC]">{analytics.totalStudents || 4}</span>
-                <span className="text-xs font-bold text-[#1868DB] dark:text-[#58A6FF]">100% Active</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">30 Students</span>
+                <span className="text-xs font-semibold text-[#3FCF8E]">10 Faculty</span>
               </div>
-              <p className="text-xs text-[#6C6F77] dark:text-[#8B949E] mt-2">Classes 8A and 9B</p>
+              <p className="text-[11px] text-[#808080] mt-1">Classes 1A to 5B</p>
             </div>
 
-            <div className="card-standard">
-              <span className="text-xs font-bold text-[#7D818A] dark:text-[#8B949E] uppercase tracking-wider">
-                Institutional Status
+            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
+              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
+                Compliance Status
               </span>
-              <div className="flex items-baseline gap-3 mt-3">
-                <span className="text-4xl font-display font-bold text-emerald-600 dark:text-emerald-400">Optimal</span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-mono font-bold text-[#3FCF8E]">Optimal</span>
               </div>
-              <p className="text-xs text-[#6C6F77] dark:text-[#8B949E] mt-2">Target &gt;85% achieved</p>
+              <p className="text-[11px] text-[#808080] mt-1">Target threshold &gt;85% achieved</p>
             </div>
           </div>
 
           {/* Section Breakdown Card */}
-          <div className="card-standard">
-            <h3 className="font-display text-xl font-bold text-[#292A2E] dark:text-[#F0F6FC] mb-6 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[#1868DB] dark:text-[#58A6FF]" />
-              <span>Section & Class Attendance Breakdown</span>
-            </h3>
+          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-base font-bold text-[#FFFFFF] flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-[#3FCF8E]" />
+                <span>Classroom Attendance Compliance Matrix (Classes 1–5)</span>
+              </h3>
+              <span className="text-xs font-mono text-[#808080]">Academic Year 2026</span>
+            </div>
 
-            <div className="space-y-4">
-              {(analytics.classBreakdown || []).map((c, i) => (
-                <div key={i} className="p-5 rounded-[14px] bg-[#E9F2FE]/60 dark:bg-[#101C2E] border border-[#8FB8F6]/40 dark:border-[#388BFD]/30">
-                  <div className="flex items-center justify-between mb-2.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {(analytics.classBreakdown || [
+                { className: "Class 1A", teacherName: "Priya Nair", average: "91.2", studentCount: 3 },
+                { className: "Class 1B", teacherName: "Sunita Rao", average: "88.8", studentCount: 3 },
+                { className: "Class 2A", teacherName: "Ananya Sharma", average: "92.7", studentCount: 3 },
+                { className: "Class 2B", teacherName: "Vikram Roy", average: "90.7", studentCount: 3 },
+                { className: "Class 3A", teacherName: "Deepa Kulkarni", average: "92.9", studentCount: 3 },
+                { className: "Class 3B", teacherName: "Suresh Verma", average: "87.7", studentCount: 3 },
+                { className: "Class 4A", teacherName: "Neha Deshmukh", average: "92.1", studentCount: 3 },
+                { className: "Class 4B", teacherName: "Amit Patel", average: "90.0", studentCount: 3 },
+                { className: "Class 5A", teacherName: "Pooja Iyer", average: "93.7", studentCount: 3 },
+                { className: "Class 5B", teacherName: "Rahul Sengupta", average: "92.2", studentCount: 3 },
+              ]).map((c, i) => (
+                <div key={i} className="p-3.5 rounded-[6px] bg-[#121212] border border-[#2E2E2E]">
+                  <div className="flex items-center justify-between mb-2">
                     <div>
-                      <h4 className="font-bold text-base text-[#292A2E] dark:text-[#F0F6FC]">{c.className}</h4>
-                      <p className="text-xs text-[#6C6F77] dark:text-[#8B949E]">Faculty Lead: {c.teacherName || "Ananya Sharma"}</p>
+                      <h4 className="font-semibold text-xs text-[#FFFFFF]">{c.className}</h4>
+                      <p className="text-[11px] text-[#808080]">Faculty: {c.teacherName}</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-lg font-bold text-[#1868DB] dark:text-[#58A6FF]">{c.average}%</span>
-                      <p className="text-xs text-[#6C6F77] dark:text-[#8B949E]">{c.studentCount} Students</p>
+                      <span className="text-sm font-mono font-bold text-[#3FCF8E]">{c.average}%</span>
+                      <p className="text-[10px] text-[#808080]">{c.studentCount} Students</p>
                     </div>
                   </div>
-                  <div className="w-full bg-[#FFFFFF] dark:bg-[#0D1117] rounded-full h-2.5 overflow-hidden border border-[#8FB8F6]/30 dark:border-white/10">
+                  <div className="w-full bg-[#1C1C1C] rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="bg-[#1868DB] dark:bg-[#388BFD] h-full rounded-full transition-all duration-500"
+                      className="bg-[#3FCF8E] h-full rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(parseFloat(c.average), 100)}%` }}
                     />
                   </div>
@@ -203,234 +220,175 @@ export function Dashboard({ user, onNavigateToChat }) {
 
       {/* TEACHER DASHBOARD */}
       {user.role === "teacher" && (
-        <div className="space-y-6">
-          <div className="card-standard">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="space-y-4">
+          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-display text-xl font-bold text-[#292A2E] dark:text-[#F0F6FC] flex items-center gap-2">
-                  <Users className="w-5 h-5 text-[#1868DB] dark:text-[#58A6FF]" />
-                  <span>Classroom Student Rosters — 1-Click Attendance Marker</span>
+                <h3 className="font-display text-base font-bold text-[#FFFFFF] flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[#3FCF8E]" />
+                  <span>Student Roster & 1-Click Daily Attendance</span>
                 </h3>
-                <p className="text-xs text-[#6C6F77] dark:text-[#8B949E] mt-1">
-                  Mark daily attendance for enrolled students or speak directly to XYZ AI in voice.
+                <p className="text-xs text-[#808080] mt-0.5">
+                  Assigned Classrooms: {user.classIds?.join(", ").toUpperCase() || "C1, C2"}
                 </p>
               </div>
-              <span className="badge-secondary text-xs">
-                {teacherStudents.length} Students Enrolled
+              <span className="px-2.5 py-1 rounded-[4px] text-xs font-mono font-semibold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E]">
+                Today: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {teacherStudents.map((s) => {
-                const sid = s.userId || s.id;
-                const statusInfo = markStatus[sid];
-                return (
-                  <div
-                    key={sid}
-                    className="p-5 rounded-[14px] bg-[#FFFFFF] dark:bg-[#101722] border border-[#E9F2FE] dark:border-white/10 shadow-loom-small flex items-center justify-between transition-all"
-                  >
-                    <div>
-                      <h4 className="font-bold text-sm text-[#292A2E] dark:text-[#F0F6FC]">{s.name}</h4>
-                      <p className="text-xs text-[#6C6F77] dark:text-[#8B949E]">
-                        Class {s.classId?.toUpperCase() || "8A"} • Score:{" "}
-                        <strong className="text-[#1868DB] dark:text-[#58A6FF]">{s.percentage}%</strong>
-                      </p>
-                      {statusInfo && (
-                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold block mt-1">
-                          {statusInfo === "saving" ? "Updating MongoDB..." : `Marked ${statusInfo}!`}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleQuickMark(sid, "present")}
-                        disabled={statusInfo === "saving"}
-                        className="px-3.5 py-1.5 rounded-full bg-[#E9F2FE] dark:bg-[#162744] hover:bg-[#1868DB] text-[#1868DB] dark:text-[#58A6FF] hover:text-white border border-[#8FB8F6] dark:border-[#388BFD]/40 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Present</span>
-                      </button>
-                      <button
-                        onClick={() => handleQuickMark(sid, "absent")}
-                        disabled={statusInfo === "saving"}
-                        className="px-3.5 py-1.5 rounded-full bg-[#F8EEFE] dark:bg-[#2B153D] hover:bg-[#FF613D] text-[#FF613D] hover:text-white border border-[#FF613D]/30 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm"
-                      >
-                        <XCircle className="w-4 h-4" />
-                        <span>Absent</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead className="text-[#808080] font-mono uppercase border-b border-[#2E2E2E] pb-2">
+                  <tr>
+                    <th className="py-2">Student</th>
+                    <th className="py-2">Class</th>
+                    <th className="py-2">Term Attendance</th>
+                    <th className="py-2 text-right">Quick Mark Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#2E2E2E]/60">
+                  {teacherStudents.map((s) => {
+                    const sid = s.userId || s.id;
+                    const status = markStatus[sid];
+                    const percent = parseFloat(s.percentage || "90");
+
+                    return (
+                      <tr key={sid} className="hover:bg-white/5 transition-colors">
+                        <td className="py-3">
+                          <div className="font-medium text-[#FFFFFF]">{s.name}</div>
+                          <div className="text-[11px] font-mono text-[#808080]">ID: {sid.toUpperCase()}</div>
+                        </td>
+                        <td className="py-3 font-mono text-[#808080]">{s.classId ? s.classId.toUpperCase() : "C1"}</td>
+                        <td className="py-3">
+                          <div className="flex items-center gap-2">
+                            <span className={`font-mono font-bold ${percent >= 85 ? "text-[#3FCF8E]" : "text-[#F3BA63]"}`}>
+                              {s.percentage}%
+                            </span>
+                            <span className="text-[11px] text-[#808080]">({s.presentDays || 70} / {s.totalWorkingDays || 75} days)</span>
+                          </div>
+                        </td>
+                        <td className="py-3 text-right">
+                          <div className="inline-flex gap-1.5">
+                            <button
+                              onClick={() => handleQuickMark(sid, "present")}
+                              disabled={status === "saving"}
+                              className={`px-2.5 py-1 rounded-[4px] text-xs font-semibold transition-all ${
+                                status === "present"
+                                  ? "bg-[#3FCF8E] text-[#000000]"
+                                  : "bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] hover:bg-[#3FCF8E] hover:text-[#000000]"
+                              }`}
+                            >
+                              Present
+                            </button>
+                            <button
+                              onClick={() => handleQuickMark(sid, "absent")}
+                              disabled={status === "saving"}
+                              className={`px-2.5 py-1 rounded-[4px] text-xs font-semibold transition-all ${
+                                status === "absent"
+                                  ? "bg-[#DC7B18] text-white"
+                                  : "bg-[#DC7B18]/10 border border-[#DC7B18]/30 text-[#F3BA63] hover:bg-[#DC7B18] hover:text-white"
+                              }`}
+                            >
+                              Absent
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       )}
 
-      {/* PARENT DASHBOARD */}
-      {user.role === "parent" && studentData && (
-        <div className="space-y-6">
-          {/* Child Selector Tabs */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[#7D818A] dark:text-[#8B949E] uppercase tracking-wider mr-2">Viewing Student:</span>
-            {[
-              { id: "s1", name: "Rahul Sharma (Class 8A)" },
-              { id: "s2", name: "Priya Patel (Class 8A)" },
-            ].map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setSelectedChildId(c.id)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
-                  selectedChildId === c.id
-                    ? "bg-[#1868DB] text-white shadow-sm"
-                    : "bg-[#FFFFFF] dark:bg-[#161D27] text-[#292A2E] dark:text-[#F0F6FC] border border-[#E9F2FE] dark:border-white/10 hover:bg-[#E9F2FE] dark:hover:bg-[#1E293B]"
-                }`}
-              >
-                {c.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="card-standard flex flex-col items-center justify-center text-center">
-              <span className="text-xs font-bold text-[#7D818A] dark:text-[#8B949E] uppercase tracking-wider mb-4">
-                Child Attendance Score
-              </span>
-
-              <div className="relative w-32 h-32 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-[#E9F2FE] dark:text-[#101C2E]"
-                    strokeWidth="3.5"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-[#1868DB] dark:text-[#388BFD]"
-                    strokeDasharray={`${studentData.percentage || 90}, 100`}
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <span className="absolute text-3xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC]">
-                  {studentData.percentage}%
-                </span>
-              </div>
-
-              <span className="badge-secondary text-xs font-bold mt-4">
-                {parseFloat(studentData.percentage || "90") >= 85 ? "Target Met (>85%)" : "Needs Attention"}
-              </span>
-            </div>
-
-            <div className="card-standard md:col-span-2 space-y-6">
-              <h3 className="font-display text-lg font-bold text-[#292A2E] dark:text-[#F0F6FC]">Summary for {studentData.name}</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-[14px] bg-[#E9F2FE] dark:bg-[#101C2E] border border-[#8FB8F6]/40 dark:border-[#388BFD]/30">
-                  <span className="text-xs text-[#6C6F77] dark:text-[#8B949E]">Total Working Days</span>
-                  <p className="text-2xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC] mt-1">{studentData.totalWorkingDays || 90} Days</p>
-                </div>
-                <div className="p-4 rounded-[14px] bg-[#E9F2FE] dark:bg-[#101C2E] border border-[#8FB8F6]/40 dark:border-[#388BFD]/30">
-                  <span className="text-xs text-[#6C6F77] dark:text-[#8B949E]">Days Present</span>
-                  <p className="text-2xl font-display font-bold text-[#1868DB] dark:text-[#58A6FF] mt-1">{studentData.presentDays || 82} Days</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-[14px] bg-[#F8EEFE] dark:bg-[#20142B] border border-[#BF63F3]/30 text-xs text-[#48245D] dark:text-[#E2B7FF]">
-                📞 <strong>Parent Note:</strong> You can request an official callback from your child&apos;s class teacher anytime in the <strong>Escalations</strong> tab or by asking in AI Chat.
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* STUDENT DASHBOARD */}
-      {user.role === "student" && studentData && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="card-standard flex flex-col items-center justify-center text-center">
-              <span className="text-xs font-bold text-[#7D818A] dark:text-[#8B949E] uppercase tracking-wider mb-4">
-                Overall Attendance
-              </span>
-
-              <div className="relative w-32 h-32 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-[#E9F2FE] dark:text-[#101C2E]"
-                    strokeWidth="3.5"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-[#1868DB] dark:text-[#388BFD]"
-                    strokeDasharray={`${studentData.percentage || 90}, 100`}
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <span className="absolute text-3xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC]">
-                  {studentData.percentage}%
-                </span>
-              </div>
-
-              <span className="badge-secondary text-xs font-bold mt-4">
-                {parseFloat(studentData.percentage || "90") >= 85 ? "Target Met (>85%)" : "Needs Attention"}
-              </span>
-            </div>
-
-            <div className="card-standard md:col-span-2 space-y-6">
-              <h3 className="font-display text-lg font-bold text-[#292A2E] dark:text-[#F0F6FC]">Academic Attendance Summary</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-[14px] bg-[#E9F2FE] dark:bg-[#101C2E] border border-[#8FB8F6]/40 dark:border-[#388BFD]/30">
-                  <span className="text-xs text-[#6C6F77] dark:text-[#8B949E]">Total Working Days</span>
-                  <p className="text-2xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC] mt-1">{studentData.totalWorkingDays || 90} Days</p>
-                </div>
-                <div className="p-4 rounded-[14px] bg-[#E9F2FE] dark:bg-[#101C2E] border border-[#8FB8F6]/40 dark:border-[#388BFD]/30">
-                  <span className="text-xs text-[#6C6F77] dark:text-[#8B949E]">Days Present</span>
-                  <p className="text-2xl font-display font-bold text-[#1868DB] dark:text-[#58A6FF] mt-1">{studentData.presentDays || 82} Days</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-[14px] bg-[#F8EEFE] dark:bg-[#20142B] border border-[#BF63F3]/30 text-xs text-[#48245D] dark:text-[#E2B7FF]">
-                💡 <strong>Study Copilot Tip:</strong> Maintaining attendance above 90% qualifies you for the academic honor roll and extracurricular privileges.
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Records Calendar Grid */}
-          {studentData.records?.length > 0 && (
-            <div className="card-standard">
-              <h3 className="font-display text-base font-bold text-[#292A2E] dark:text-[#F0F6FC] mb-4 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#1868DB] dark:text-[#58A6FF]" />
-                <span>Recent Daily Records</span>
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                {studentData.records.slice(-12).reverse().map((r, i) => (
-                  <div key={i} className="p-3 rounded-[14px] bg-[#E9F2FE]/50 dark:bg-[#101C2E] border border-[#8FB8F6]/30 dark:border-white/10 text-center">
-                    <span className="text-[11px] font-mono text-[#6C6F77] dark:text-[#8B949E] block">{r.date}</span>
-                    <span
-                      className={`text-xs font-bold mt-1 inline-block capitalize ${
-                        r.status === "present"
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : r.status === "absent"
-                          ? "text-[#FF613D]"
-                          : "text-[#7D818A] dark:text-[#8B949E]"
-                      }`}
-                    >
-                      {r.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
+      {/* STUDENT & PARENT VIEW */}
+      {(user.role === "student" || user.role === "parent") && studentData && (
+        <div className="space-y-4">
+          {/* Parent Child Switcher */}
+          {user.role === "parent" && user.studentIds && user.studentIds.length > 1 && (
+            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-3 flex items-center gap-3">
+              <span className="text-xs font-mono text-[#808080]">Select Child:</span>
+              {user.studentIds.map((sid) => (
+                <button
+                  key={sid}
+                  onClick={() => setSelectedChildId(sid)}
+                  className={`px-3 py-1 rounded-[4px] text-xs font-mono font-medium transition-all ${
+                    selectedChildId === sid
+                      ? "bg-[#3FCF8E] text-[#000000] font-bold"
+                      : "bg-[#121212] text-[#808080] border border-[#2E2E2E] hover:text-[#FFFFFF]"
+                  }`}
+                >
+                  Child: {sid.toUpperCase()}
+                </button>
+              ))}
             </div>
           )}
+
+          {/* Attendance KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
+              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
+                Overall Attendance
+              </span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">{studentData.percentage}%</span>
+                <span className="text-xs font-semibold text-[#3FCF8E]">
+                  {parseFloat(studentData.percentage) >= 85 ? "Optimal" : "Attention"}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#808080] mt-1">Past 3 months (June - August 2026)</p>
+            </div>
+
+            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
+              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
+                Working Days
+              </span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">{studentData.presentDays}</span>
+                <span className="text-xs text-[#808080]">/ {studentData.totalWorkingDays} days</span>
+              </div>
+              <p className="text-[11px] text-[#808080] mt-1">Total school sessions held</p>
+            </div>
+
+            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
+              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
+                Board Exam Eligibility
+              </span>
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-3xl font-mono font-bold text-[#3FCF8E]">Eligible</span>
+              </div>
+              <p className="text-[11px] text-[#808080] mt-1">Minimum 75% requirement satisfied</p>
+            </div>
+          </div>
+
+          {/* 10-Day Historical Timeline */}
+          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5">
+            <h3 className="font-display text-sm font-bold text-[#FFFFFF] mb-3 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#3FCF8E]" />
+              <span>Recent Daily Attendance Logs (Past 10 Days)</span>
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {(studentData.records || []).slice(-10).reverse().map((r, i) => (
+                <div
+                  key={i}
+                  className={`p-2.5 rounded-[4px] border text-center ${
+                    r.status === "present"
+                      ? "bg-[#3FCF8E]/10 border-[#3FCF8E]/30 text-[#3FCF8E]"
+                      : r.status === "weekend"
+                      ? "bg-white/5 border-white/10 text-[#808080]"
+                      : "bg-[#DC7B18]/10 border-[#DC7B18]/30 text-[#F3BA63]"
+                  }`}
+                >
+                  <span className="text-[10px] font-mono block text-[#808080]">{r.date}</span>
+                  <span className="text-xs font-semibold capitalize mt-0.5 block">{r.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>

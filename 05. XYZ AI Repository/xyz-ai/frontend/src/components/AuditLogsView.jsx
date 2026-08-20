@@ -23,15 +23,15 @@ export function AuditLogsView() {
   }, []);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 sm:p-9 max-w-5xl mx-auto w-full space-y-8">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-5xl mx-auto w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-display font-bold text-[#292A2E] dark:text-[#F0F6FC] flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-[#1868DB] dark:text-[#58A6FF]" />
-            <span>Security & RBAC Audit Trail</span>
+          <h2 className="text-xl font-display font-bold text-[#FFFFFF] flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-[#3FCF8E]" />
+            <span>Security & Zero-Trust RBAC Audit Trail</span>
           </h2>
-          <p className="text-sm text-[#6C6F77] dark:text-[#8B949E] mt-1">
-            Immutable system logs recording actor role, tool action, authorization verification, and target entity.
+          <p className="text-xs text-[#808080] mt-0.5">
+            Immutable system records logging actor, tool action, authorization verification, and target entity.
           </p>
         </div>
         <button onClick={fetchLogs} className="btn-secondary text-xs">
@@ -40,45 +40,49 @@ export function AuditLogsView() {
         </button>
       </div>
 
-      <div className="card-standard p-0 overflow-hidden border border-[#E9F2FE] dark:border-white/10">
+      <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#E9F2FE] dark:bg-[#101C2E] text-[#292A2E] dark:text-[#F0F6FC] border-b border-[#8FB8F6]/30 dark:border-white/10">
+          <table className="w-full text-left text-xs font-sans">
+            <thead className="bg-[#121212] text-[#808080] font-mono uppercase border-b border-[#2E2E2E]">
               <tr>
-                <th className="p-4 font-bold">Timestamp</th>
-                <th className="p-4 font-bold">Actor (Role)</th>
-                <th className="p-4 font-bold">Tool Action</th>
-                <th className="p-4 font-bold">Target</th>
-                <th className="p-4 font-bold">RBAC Result</th>
+                <th className="p-3.5 font-medium">Timestamp</th>
+                <th className="p-3.5 font-medium">Actor (Role)</th>
+                <th className="p-3.5 font-medium">Tool Action</th>
+                <th className="p-3.5 font-medium">Target</th>
+                <th className="p-3.5 font-medium">RBAC Result</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E9F2FE] dark:divide-white/5">
+            <tbody className="divide-y divide-[#2E2E2E]/60">
               {logs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-12 text-center text-[#7D818A] dark:text-[#8B949E]">
-                    No tool audit entries recorded yet. Interact with the chat or dashboard to trigger actions.
+                  <td colSpan={5} className="p-8 text-center text-[#808080] font-mono">
+                    No security audit entries recorded yet. Interact with the chat to trigger verified tool actions.
                   </td>
                 </tr>
               ) : (
-                logs.map((l, i) => (
-                  <tr key={i} className="hover:bg-[#E9F2FE]/40 dark:hover:bg-white/5 transition-colors">
-                    <td className="p-4 font-mono text-[#6C6F77] dark:text-[#8B949E]">
-                      {new Date(l.timestamp).toLocaleTimeString()}
+                logs.map((log, i) => (
+                  <tr key={i} className="hover:bg-white/5 transition-colors">
+                    <td className="p-3.5 font-mono text-[#808080]">
+                      {new Date(log.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                     </td>
-                    <td className="p-4">
-                      <strong className="text-[#292A2E] dark:text-[#F0F6FC]">{l.userId}</strong>{" "}
-                      <span className="text-[#6C6F77] dark:text-[#8B949E] capitalize">({l.role})</span>
+                    <td className="p-3.5 font-medium text-[#FFFFFF]">
+                      <span>{log.userId}</span>
+                      <span className="ml-1.5 px-1.5 py-0.5 rounded-[3px] text-[10px] font-mono uppercase bg-white/5 text-[#808080]">
+                        {log.role}
+                      </span>
                     </td>
-                    <td className="p-4 font-mono text-[#1868DB] dark:text-[#58A6FF] font-semibold">{l.action}</td>
-                    <td className="p-4 text-[#292A2E] dark:text-[#F0F6FC]">{l.target || "—"}</td>
-                    <td className="p-4">
-                      {l.success ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
-                          <CheckCircle className="w-3.5 h-3.5" /> Allowed
+                    <td className="p-3.5 font-mono text-[#EDEDED]">{log.action}</td>
+                    <td className="p-3.5 font-mono text-[#808080]">{log.target || "---"}</td>
+                    <td className="p-3.5">
+                      {log.success ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E]">
+                          <CheckCircle className="w-3 h-3" />
+                          <span>AUTHORIZED</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[#FF613D] font-bold">
-                          <XCircle className="w-3.5 h-3.5" /> Denied (403)
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold bg-[#DC7B18]/10 border border-[#DC7B18]/30 text-[#F3BA63]">
+                          <XCircle className="w-3 h-3" />
+                          <span>403 FORBIDDEN</span>
                         </span>
                       )}
                     </td>

@@ -19,8 +19,7 @@ import {
   LogOut,
   Volume2,
   VolumeX,
-  Sun,
-  Moon,
+  Play,
 } from "lucide-react";
 
 function MainApp() {
@@ -56,31 +55,8 @@ function MainApp() {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
-  
-  // Theme state
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("xyz_theme") || "light";
-    }
-    return "light";
-  });
 
   const prevUserIdRef = useRef(null);
-
-  // Apply dark mode class to root HTML
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    localStorage.setItem("xyz_theme", theme);
-  }, [theme]);
-
-  const toggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  }, []);
 
   // Sync language with user profile preference
   useEffect(() => {
@@ -98,142 +74,136 @@ function MainApp() {
     },
     onStart: () => setAvatarState("listening"),
     onEnd: () => setAvatarState("idle"),
+    onError: (err) => {
+      console.warn("Voice input notice:", err);
+      setAvatarState("idle");
+    },
   });
 
-  // Welcome message from AI when user changes
+  // Handle avatar lip-sync / state during voice synthesis
   useEffect(() => {
-    const currentUserId = user?.userId || user?.id;
-    if (user && currentUserId !== prevUserIdRef.current) {
-      prevUserIdRef.current = currentUserId;
-      setMessages([]);
+    if (isSpeaking) {
+      setAvatarState("speaking");
+    } else if (!isListening && !isLoading) {
+      setAvatarState("idle");
+    }
+  }, [isSpeaking, isListening, isLoading]);
+
+  // Persona Initial Greetings
+  const getInitialGreeting = useCallback((u) => {
+    if (!u) return "Welcome to XYZ AI. How may I assist you today?";
+    switch (u.role) {
+      case "student":
+        return `Hello ${u.name}! 👋 I am your friendly Academic Assistant. You can ask me about your daily attendance, term progress, or subject schedules!`;
+      case "parent":
+        return `Namaste ${u.name}. 🙏 I am your Parent Support Assistant. I can help you monitor your child's attendance and connect with faculty.`;
+      case "teacher":
+        return `Good day, ${u.name}. 👩‍🏫 I am your Teaching Assistant. You can tell me to mark attendance (e.g. "Mark Aarav present today") or view class compliance.`;
+      case "principal":
+        return `Greetings, Dr. ${u.name.replace(/^Dr\.\s*/, "")}. 🏛️ I am your Executive Management Assistant. I can generate institutional attendance analytics and highlight risk alerts.`;
+      default:
+        return `Welcome ${u.name}! How may I help you today?`;
+    }
+  }, []);
+
+  // Initialize or reset session on user change
+  useEffect(() => {
+    if (!user) return;
+
+    if (prevUserIdRef.current !== user.id) {
+      prevUserIdRef.current = user.id;
       setSessionId(null);
 
-      const initGreeting = async () => {
-        setIsLoading(true);
-        try {
-          const res = await api.sendChat({
-            message: "Hello",
-            language,
-            userId: currentUserId,
-          });
-          setSessionId(res.sessionId);
-          if (res.reply) {
-            setMessages([
-              {
-                role: "assistant",
-                content: res.reply,
-                toolResult: res.toolResult,
-                timestamp: new Date().toISOString(),
-              },
-            ]);
-          }
-        } catch (e) {
-          setMessages([
-            {
-              role: "assistant",
-              content: `Hello ${user.name}! I am XYZ AI, your school assistant. How can I assist you today?`,
-              timestamp: new Date().toISOString(),
-            },
-          ]);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      initGreeting();
+      setMessages([
+        {
+          id: `greet_${Date.now()}`,
+          sender: "ai",
+          text: getInitialGreeting(user),
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          role: user.role,
+        },
+      ]);
     }
-  }, [user?.id, user?.userId, language, user]);
+  }, [user, getInitialGreeting]);
 
-  const handleSendMessage = useCallback(
-    async (e, overrideText = null) => {
-      if (e) e.preventDefault();
-      const text = (overrideText !== null ? overrideText : inputValue).trim();
-      if (!text || isLoading) return;
+  // Main message dispatch handler
+  const handleSendMessage = async (e, directText = null) => {
+    if (e) e.preventDefault();
+    const textToSend = directText || inputValue;
+    if (!textToSend.trim() || isLoading) return;
 
-      const userMsg = {
-        role: "user",
-        content: text,
-        timestamp: new Date().toISOString(),
+    const userMsg = {
+      id: `usr_${Date.now()}`,
+      sender: "user",
+      text: textToSend.trim(),
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      role: user.role,
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInputValue("");
+    setIsLoading(true);
+    setAvatarState("thinking");
+
+    try {
+      const res = await api.sendMessage({
+        userId: user.id,
+        message: textToSend.trim(),
+        language,
+        sessionId,
+      });
+
+      if (res.sessionId) setSessionId(res.sessionId);
+
+      const aiMsg = {
+        id: `ai_${Date.now()}`,
+        sender: "ai",
+        text: res.reply || "I have processed your request.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        role: user.role,
+        actionExecuted: res.actionExecuted,
+        requiresConfirmation: res.requiresConfirmation,
+        ticketCreated: res.ticketCreated,
+        error: res.error,
       };
 
-      setMessages((prev) => [...prev, userMsg]);
-      setInputValue("");
-      setIsLoading(true);
-      setAvatarState("thinking");
+      setMessages((prev) => [...prev, aiMsg]);
 
-      try {
-        const data = await api.sendChat({
-          message: text,
-          sessionId,
-          language,
-          userId: user?.userId || user?.id,
-        });
-
-        const replyContent = data.reply || "I am processing your request.";
-        const assistantMsg = {
-          role: "assistant",
-          content: replyContent,
-          toolResult: data.toolResult,
-          intent: data.intent,
-          timestamp: new Date().toISOString(),
-        };
-
-        setMessages((prev) => [...prev, assistantMsg]);
-        setSessionId(data.sessionId);
-
-        if (autoVoiceReply && replyContent) {
-          setAvatarState("talking");
-          speak(replyContent, () => setAvatarState("idle"));
-        } else {
-          setAvatarState("idle");
-        }
-      } catch (err) {
-        console.error("Chat error:", err);
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "⚠️ I encountered an error communicating with the server. Please try again.",
-            timestamp: new Date().toISOString(),
-          },
-        ]);
-        setAvatarState("idle");
-      } finally {
-        setIsLoading(false);
+      // Trigger text-to-speech if voice is enabled
+      if (autoVoiceReply && res.reply) {
+        speak(res.reply, language);
       }
-    },
-    [inputValue, isLoading, sessionId, language, user, autoVoiceReply, speak]
-  );
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `err_${Date.now()}`,
+          sender: "ai",
+          text: "⚠️ Communication notice: Unable to reach the server. Please verify your connection.",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          isError: true,
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+      if (!autoVoiceReply) setAvatarState("idle");
+    }
+  };
 
-  const handleSpeakMessage = useCallback(
-    (text) => {
-      setAvatarState("talking");
-      speak(text, () => setAvatarState("idle"));
-    },
-    [speak]
-  );
-
-  // Unauthenticated routing
+  // If user is not logged in, show Supabase-themed Login Screen
   if (!user) {
     if (currentPath === "/demo") {
-      return (
-        <DemoPage
-          onLogin={login}
-          onNavigateHome={() => navigateTo("/")}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
-      );
+      return <DemoPage onNavigateBack={() => navigateTo("/")} />;
     }
     return (
       <LoginScreen
         onLogin={login}
         onNavigateDemo={() => navigateTo("/demo")}
-        theme={theme}
-        onToggleTheme={toggleTheme}
       />
     );
   }
 
+  // Navigation tab items
   const tabs = [
     { id: "chat", label: "AI Assistant", icon: MessageSquare },
     { id: "dashboard", label: "Workspace", icon: LayoutDashboard },
@@ -242,27 +212,27 @@ function MainApp() {
   ];
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#FFFFFF] dark:bg-[#0A0D12] text-[#292A2E] dark:text-[#F0F6FC] transition-colors">
-      {/* Header: 90px height, 36px padding */}
-      <header className="h-[90px] px-4 sm:px-9 bg-[#FFFFFF] dark:bg-[#0D1117] border-b border-[#E9F2FE] dark:border-white/10 shadow-loom-header flex items-center justify-between z-20 shrink-0">
-        {/* Brand & Tabs */}
-        <div className="flex items-center gap-4 sm:gap-10 h-full">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#1868DB] flex items-center justify-center text-white shadow-loom-medium shrink-0">
-              <span className="font-display text-xl font-bold">X</span>
+    <div className="min-h-screen bg-[#121212] text-[#EDEDED] flex flex-col justify-between font-sans selection:bg-[#3FCF8E]/30 selection:text-[#3FCF8E]">
+      {/* Supabase Developer Navbar */}
+      <header className="sticky top-0 z-40 bg-[#121212]/95 border-b border-[#2E2E2E] backdrop-blur-md px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-6 h-full">
+          {/* Brand Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-[4px] bg-[#3FCF8E] flex items-center justify-center text-[#000000] font-display font-extrabold text-sm shadow-sm shrink-0">
+              ⚡
             </div>
-            <div className="hidden sm:block">
-              <span className="font-display font-bold text-2xl text-[#292A2E] dark:text-[#F0F6FC] tracking-tight block leading-none">
+            <div className="flex items-baseline gap-2">
+              <span className="font-display font-bold text-base text-[#FFFFFF] tracking-tight">
                 XYZ AI
               </span>
-              <span className="text-[10px] text-[#7D818A] dark:text-[#8B949E] font-semibold uppercase tracking-wider">
-                School Ecosystem
+              <span className="text-[11px] font-mono text-[#808080] hidden sm:inline">
+                school.erp.v2
               </span>
             </div>
           </div>
 
-          {/* Navigation Tabs (Desktop) */}
-          <nav className="hidden md:flex items-center gap-1 sm:gap-3 h-full">
+          {/* Navigation Tabs */}
+          <nav className="hidden md:flex items-center gap-1 h-full">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -270,13 +240,13 @@ function MainApp() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`h-full flex items-center gap-2 px-3 sm:px-4 text-sm font-sans transition-all relative ${
+                  className={`h-full flex items-center gap-1.5 px-3 text-xs font-medium transition-all relative ${
                     isActive
-                      ? "text-[#1868DB] dark:text-[#58A6FF] font-bold border-b-[3px] border-[#1868DB] dark:border-[#58A6FF]"
-                      : "text-[#292A2E] dark:text-[#8B949E] hover:text-[#1868DB] dark:hover:text-white font-normal"
+                      ? "text-[#3FCF8E] border-b-2 border-[#3FCF8E]"
+                      : "text-[#808080] hover:text-[#EDEDED]"
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5" />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -285,97 +255,94 @@ function MainApp() {
         </div>
 
         {/* Right Action Bar */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2.5">
+          {/* Interactive Demo Link */}
+          <button
+            onClick={() => navigateTo("/demo")}
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs font-medium text-[#EDEDED] bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#3FCF8E]/50 hover:bg-[#242424] transition-all"
+          >
+            <Play className="w-3 h-3 text-[#3FCF8E] fill-[#3FCF8E]" />
+            <span>Demo Mode</span>
+          </button>
+
           {/* Language Selector */}
           <LanguageSelector value={language} onChange={setLanguage} />
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="w-10 h-10 rounded-full border border-[#E9F2FE] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#161D27] text-[#292A2E] dark:text-[#F0F6FC] flex items-center justify-center transition-all shadow-loom-small hover:border-[#8FB8F6] dark:hover:border-white/25"
-            title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
-            {theme === "dark" ? (
-              <Sun className="w-4 h-4 text-[#FFA900]" />
-            ) : (
-              <Moon className="w-4 h-4 text-[#1868DB]" />
-            )}
-          </button>
 
           {/* Voice Toggle */}
           <button
             onClick={() => setAutoVoiceReply(!autoVoiceReply)}
-            className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${
+            className={`w-8 h-8 rounded-[4px] border flex items-center justify-center transition-all ${
               autoVoiceReply
-                ? "bg-[#E9F2FE] dark:bg-[#162744] text-[#1868DB] dark:text-[#58A6FF] border-[#8FB8F6] dark:border-[#388BFD]/40"
-                : "bg-[#FFFFFF] dark:bg-[#161D27] text-[#7D818A] dark:text-[#8B949E] border-[#E9F2FE] dark:border-white/10"
+                ? "bg-[#3FCF8E]/10 text-[#3FCF8E] border-[#3FCF8E]/40"
+                : "bg-[#1C1C1C] text-[#808080] border-[#2E2E2E]"
             }`}
             title={autoVoiceReply ? "Voice enabled" : "Voice muted"}
           >
-            {autoVoiceReply ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            {autoVoiceReply ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
           </button>
 
           {/* User Profile Chip & Persona Switcher */}
           <div className="relative group">
             <button
-              aria-label="User profile & persona options"
-              className="h-10 px-3.5 bg-[#FFFFFF] dark:bg-[#161D27] border border-[#E9F2FE] dark:border-white/10 hover:border-[#8FB8F6] dark:hover:border-white/25 rounded-full shadow-loom-small flex items-center gap-2.5 transition-all cursor-pointer"
+              aria-label="User profile options"
+              className="h-8 px-2.5 bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#3FCF8E]/40 rounded-[4px] flex items-center gap-2 transition-all cursor-pointer"
             >
-              <div className="w-6 h-6 rounded-full bg-[#1868DB] text-white flex items-center justify-center text-xs font-bold shrink-0">
+              <div className="w-5 h-5 rounded-[3px] bg-[#3FCF8E]/20 text-[#3FCF8E] font-bold flex items-center justify-center text-[10px]">
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <div className="text-left hidden md:block">
-                <span className="text-xs font-bold text-[#292A2E] dark:text-[#F0F6FC] block leading-tight truncate max-w-[110px]">
+              <div className="text-left hidden md:block leading-tight">
+                <span className="text-xs font-medium text-[#EDEDED] block truncate max-w-[100px]">
                   {user.name}
                 </span>
-                <span className="text-[10px] text-[#6C6F77] dark:text-[#8B949E] capitalize leading-none block">
+                <span className="text-[10px] text-[#808080] capitalize font-mono block">
                   {user.role}
                 </span>
               </div>
             </button>
 
             {/* Dropdown Menu on Hover / Focus */}
-            <div className="absolute right-0 top-full mt-2 w-64 bg-[#FFFFFF] dark:bg-[#161D27] border border-[#E9F2FE] dark:border-white/10 rounded-[24px] shadow-loom-large p-4 space-y-3 hidden group-hover:block group-focus-within:block z-30 animate-fade-in text-[#292A2E] dark:text-[#F0F6FC]">
-              <div className="pb-2.5 border-b border-[#E9F2FE] dark:border-white/10">
-                <p className="text-xs font-bold text-[#292A2E] dark:text-[#F0F6FC]">{user.name}</p>
-                <p className="text-[11px] text-[#7D818A] dark:text-[#8B949E]">@{user.username} • <span className="capitalize text-[#1868DB] dark:text-[#58A6FF] font-semibold">{user.role}</span></p>
-                {user.classId && <p className="text-[11px] text-[#6C6F77] dark:text-[#8B949E] mt-0.5">Class: {user.classId.toUpperCase()}</p>}
+            <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#1C1C1C] border border-[#2E2E2E] rounded-[6px] shadow-supabase p-3 space-y-2.5 hidden group-hover:block group-focus-within:block z-30 animate-fade-in text-[#EDEDED]">
+              <div className="pb-2 border-b border-[#2E2E2E]">
+                <p className="text-xs font-semibold text-[#FFFFFF]">{user.name}</p>
+                <p className="text-[11px] font-mono text-[#808080]">@{user.username} • <span className="capitalize text-[#3FCF8E]">{user.role}</span></p>
+                {user.classId && <p className="text-[11px] text-[#808080] mt-0.5">Class: {user.classId.toUpperCase()}</p>}
               </div>
 
               <div>
-                <p className="text-[10px] font-bold text-[#7D818A] dark:text-[#8B949E] uppercase tracking-wider mb-2">
-                  Switch Demo Persona:
+                <p className="text-[10px] font-semibold text-[#808080] uppercase tracking-wider mb-1.5">
+                  Quick Switch Persona:
                 </p>
-                <div className="grid grid-cols-1 gap-1">
+                <div className="space-y-1">
                   {[
-                    { u: "Rahul", label: "Rahul Sharma", role: "Student" },
-                    { u: "Meera", label: "Meera Sharma", role: "Parent" },
-                    { u: "AnanyaS", label: "Ananya Sharma", role: "Teacher" },
-                    { u: "Rajesh", label: "Rajesh Kumar", role: "Principal" },
+                    { u: "AaravN", label: "Aarav Nair", role: "Student (1A)" },
+                    { u: "MeeraS", label: "Meera Sharma", role: "Parent (Aditya 2A)" },
+                    { u: "PriyaN", label: "Priya Nair", role: "Teacher (Class 1A)" },
+                    { u: "AnanyaS", label: "Ananya Sharma", role: "Teacher (Class 2A)" },
+                    { u: "Rajesh", label: "Dr. Rajesh Menon", role: "Principal" },
                   ].map((p) => (
                     <button
                       key={p.u}
                       onClick={() => switchRole(p.u)}
-                      className={`w-full text-left px-3 py-1.5 rounded-[12px] text-xs transition-colors flex items-center justify-between ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-[4px] text-xs transition-colors flex items-center justify-between ${
                         user.username === p.u
-                          ? "bg-[#E9F2FE] dark:bg-[#162744] text-[#1868DB] dark:text-[#58A6FF] font-bold"
-                          : "hover:bg-[#E9F2FE]/60 dark:hover:bg-white/5 text-[#292A2E] dark:text-[#F0F6FC]"
+                          ? "bg-[#3FCF8E]/15 text-[#3FCF8E] font-semibold"
+                          : "hover:bg-white/5 text-[#EDEDED]"
                       }`}
                     >
-                      <span>{p.label}</span>
-                      <span className="text-[10px] text-[#7D818A] dark:text-[#8B949E] capitalize">({p.role})</span>
+                      <span className="truncate max-w-[140px]">{p.label}</span>
+                      <span className="text-[10px] text-[#808080]">({p.role.split(" ")[0]})</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#E9F2FE] dark:border-white/10">
+              <div className="pt-2 border-t border-[#2E2E2E]">
                 <button
                   onClick={logout}
-                  className="w-full py-1.5 px-3 rounded-[12px] bg-[#F8EEFE] dark:bg-[#2B153D] hover:bg-[#FF613D] text-[#FF613D] hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-1 px-2.5 rounded-[4px] bg-[#DC7B18]/10 hover:bg-[#DC7B18] text-[#F3BA63] hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Log Out ({user.name.split(" ")[0]})</span>
+                  <LogOut className="w-3 h-3" />
+                  <span>Log Out</span>
                 </button>
               </div>
             </div>
@@ -383,74 +350,63 @@ function MainApp() {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex overflow-hidden bg-[#EFF0FF]/40 dark:bg-[#0A0D12]">
+      {/* Main Interactive Body */}
+      <main className="flex-1 flex flex-col max-w-7xl w-full mx-auto p-3 sm:p-5">
         {activeTab === "chat" && (
-          <>
-            <section className="flex-1 flex flex-col min-w-0 bg-[#FFFFFF] dark:bg-[#0D1117]">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch min-h-[calc(100vh-140px)]">
+            {/* Left: Conversational Stream (8 Cols) */}
+            <div className="lg:col-span-8 flex flex-col bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] overflow-hidden">
               <ChatArea
                 messages={messages}
+                userRole={user.role}
+                userName={user.name}
                 isLoading={isLoading}
-                onSpeak={handleSpeakMessage}
-                onQuickPrompt={(p) => handleSendMessage(null, p)}
-                user={user}
+                onQuickPrompt={(prompt) => handleSendMessage(null, prompt)}
               />
+
               <InputForm
                 value={inputValue}
                 onChange={setInputValue}
                 onSubmit={handleSendMessage}
-                isLoading={isLoading}
-                isListening={isListening}
                 onVoiceClick={isListening ? stopVoice : startVoice}
-                placeholder={`Ask XYZ AI as ${user.name} (${user.role})...`}
+                isListening={isListening}
+                isLoading={isLoading}
+                userRole={user.role}
+                userName={user.name}
               />
-            </section>
-            <AvatarSection
-              avatarState={avatarState}
-              isSpeaking={isSpeaking}
-              user={user}
-            />
-          </>
+            </div>
+
+            {/* Right: Holographic AI Avatar & RBAC Telemetry (4 Cols) */}
+            <div className="lg:col-span-4 flex flex-col gap-4">
+              <AvatarSection
+                avatarState={avatarState}
+                userRole={user.role}
+                userName={user.name}
+                isListening={isListening}
+                isSpeaking={isSpeaking}
+                onMicToggle={isListening ? stopVoice : startVoice}
+              />
+            </div>
+          </div>
         )}
 
-        {activeTab === "dashboard" && (
-          <Dashboard user={user} onNavigateToChat={() => setActiveTab("chat")} />
-        )}
-
+        {activeTab === "dashboard" && <Dashboard user={user} />}
         {activeTab === "escalations" && <EscalationsView user={user} />}
-
         {activeTab === "audit" && <AuditLogsView />}
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden h-16 bg-[#FFFFFF] dark:bg-[#0D1117] border-t border-[#E9F2FE] dark:border-white/10 shadow-lg flex items-center justify-around z-20 shrink-0 px-2">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center justify-center gap-1 py-1 px-3 text-[11px] font-sans transition-all ${
-                isActive ? "text-[#1868DB] dark:text-[#58A6FF] font-bold" : "text-[#7D818A] dark:text-[#8B949E]"
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? "text-[#1868DB] dark:text-[#58A6FF]" : "text-[#7D818A] dark:text-[#8B949E]"}`} />
-              <span>{tab.label.split(" ")[0]}</span>
-            </button>
-          );
-        })}
-      </nav>
+      {/* Supabase Footer */}
+      <footer className="border-t border-[#2E2E2E] py-2.5 px-4 text-center text-xs text-[#808080] font-mono">
+        XYZ AI • Classes 1–5 MongoDB Atlas Connected • Gemini 2.5 Flash NLU • Zero-Trust RBAC
+      </footer>
     </div>
   );
 }
 
-export function App() {
+export default function App() {
   return (
     <AuthProvider>
       <MainApp />
     </AuthProvider>
   );
 }
-
-export default App;

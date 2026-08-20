@@ -5,35 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Academic Portal — School ERP</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; }
-    h1, h2, h3, .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, .font-display { font-family: 'Manrope', sans-serif; }
+    .font-mono { font-family: 'Source Code Pro', monospace; }
   </style>
 </head>
-<body class="bg-[#0A0D12] text-[#F0F6FC] min-h-screen flex flex-col justify-between">
-  <!-- Header -->
-  <header class="border-b border-white/10 bg-[#12171F]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+<body class="bg-[#121212] text-[#EDEDED] min-h-screen flex flex-col justify-between selection:bg-[#3FCF8E]/30 selection:text-[#3FCF8E]">
+  <!-- Supabase Header -->
+  <header class="border-b border-[#2E2E2E] bg-[#121212]/90 backdrop-blur-md sticky top-0 z-40 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-[#1868DB] flex items-center justify-center text-white font-bold text-lg shadow-md">🎓</div>
+        <div class="w-8 h-8 rounded-[4px] bg-[#3FCF8E] flex items-center justify-center text-[#000000] font-bold text-sm shadow-sm">⚡</div>
         <div>
-          <h1 class="font-bold text-base text-white">Student Academic Portal</h1>
-          <p class="text-xs text-[#8B949E]">School ERP Ecosystem • Student Repository</p>
+          <h1 class="font-bold text-sm text-white">Student Academic Portal</h1>
+          <p class="text-[11px] font-mono text-[#808080]">School ERP Ecosystem • Student Repository</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <select id="studentSelect" onchange="loadStudentData()" class="bg-[#161D27] border border-white/10 text-xs text-white rounded-full px-4 py-2 focus:outline-none focus:border-[#1868DB]">
-          <option value="s1">Rahul Sharma (Class 8A)</option>
-          <option value="s2">Priya Patel (Class 8A)</option>
-          <option value="s3">Aarav Singh (Class 9B)</option>
-          <option value="s4">Ananya Roy (Class 8A)</option>
-          <option value="s5">Rohan Gupta (Class 8B)</option>
-          <option value="s6">Sneha Reddy (Class 9A)</option>
-          <option value="s7">Kabir Verma (Class 10A)</option>
+        <select id="studentSelect" onchange="loadStudentData()" class="bg-[#1C1C1C] border border-[#2E2E2E] text-xs text-white rounded-[4px] px-3 py-1.5 focus:outline-none focus:border-[#3FCF8E]">
+          <option value="s1">Aarav Nair (Class 1A)</option>
+          <option value="s4">Ananya Rao (Class 1B)</option>
+          <option value="s7">Aditya Sharma (Class 2A)</option>
+          <option value="s10">Meera Roy (Class 2B)</option>
+          <option value="s13">Tanvi Kulkarni (Class 3A)</option>
+          <option value="s19">Navya Deshmukh (Class 4A)</option>
+          <option value="s25">Isha Iyer (Class 5A)</option>
         </select>
-        <a href="http://localhost:5173" target="_blank" class="px-4 py-2 rounded-full text-xs font-semibold bg-[#1868DB] hover:bg-[#1455B3] text-white transition-all shadow-sm flex items-center gap-1.5">
-          <span>Open Full XYZ AI Suite</span>
+        <a href="http://localhost:5173" target="_blank" class="px-3 py-1.5 rounded-[4px] text-xs font-semibold bg-[#3FCF8E] text-[#000000] hover:bg-[#16B674] transition-all flex items-center gap-1">
+          <span>Full App</span>
           <span>↗</span>
         </a>
       </div>
@@ -41,127 +44,98 @@
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto w-full p-6 space-y-6">
-    <!-- Student Header Card -->
-    <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-      <div class="flex items-center gap-4">
-        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#1868DB] to-[#8FB8F6] flex items-center justify-center text-2xl font-bold text-white shadow-lg" id="avatarLetter">R</div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-2xl font-bold text-white font-display" id="studentName">Rahul Sharma</h2>
-            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#1868DB]/20 text-[#8FB8F6] border border-[#1868DB]/30" id="studentClass">Class 8A</span>
-          </div>
-          <p class="text-xs text-[#8B949E] mt-1">Roll No: <span id="studentRoll">STU-2026-081</span> • Term: Academic Session 2026</p>
-        </div>
+  <main class="max-w-7xl mx-auto w-full p-6 space-y-6">
+    <!-- Hero Banner -->
+    <div class="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div>
+        <span class="px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] uppercase">Student Profile</span>
+        <h2 class="text-2xl font-bold text-white font-display mt-2" id="studentGreeting">Welcome back, Aarav Nair</h2>
+        <p class="text-xs text-[#808080] mt-1" id="studentClass">Class 1A • Roll No: #101 • Primary Language: English</p>
       </div>
 
-      <!-- Quick Metrics -->
-      <div class="grid grid-cols-3 gap-3 w-full md:w-auto">
-        <div class="bg-[#0D1117] border border-white/5 rounded-2xl p-4 text-center min-w-[110px]">
-          <span class="text-[11px] text-[#8B949E] block">Attendance</span>
-          <span class="text-2xl font-bold text-[#8FB8F6]" id="attPercent">91.2%</span>
-          <span class="text-[10px] text-emerald-400 block mt-0.5">● Active Record</span>
+      <div class="flex items-center gap-4 bg-[#121212] p-4 rounded-[6px] border border-[#2E2E2E]">
+        <div class="text-center">
+          <span class="text-[11px] font-mono text-[#808080] block">Attendance Rate</span>
+          <span class="text-2xl font-bold font-mono text-[#3FCF8E]" id="attPercent">94.5%</span>
         </div>
-        <div class="bg-[#0D1117] border border-white/5 rounded-2xl p-4 text-center min-w-[110px]">
-          <span class="text-[11px] text-[#8B949E] block">Days Present</span>
-          <span class="text-2xl font-bold text-white" id="presentDays">82</span>
-          <span class="text-[10px] text-[#8B949E] block mt-0.5">of 90 Days</span>
-        </div>
-        <div class="bg-[#0D1117] border border-white/5 rounded-2xl p-4 text-center min-w-[110px]">
-          <span class="text-[11px] text-[#8B949E] block">Status</span>
-          <span class="text-xs font-bold text-emerald-400 mt-2 block" id="statusBadge">Good Standing</span>
-          <span class="text-[10px] text-[#8B949E] block mt-0.5">> 85% Target</span>
+        <div class="w-px h-8 bg-[#2E2E2E]"></div>
+        <div class="text-center">
+          <span class="text-[11px] font-mono text-[#808080] block">Working Days</span>
+          <span class="text-2xl font-bold font-mono text-white" id="attDays">71/75</span>
         </div>
       </div>
     </div>
 
-    <!-- 2 Column Layout: Timetable & AI Assistant -->
+    <!-- 2 Column Layout: Attendance & Live AI Assistant -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Left: Recent Attendance Timeline & Schedule -->
-      <div class="lg:col-span-7 space-y-6">
-        <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-base text-white flex items-center gap-2">
-              <span>📅</span>
-              <span>Recent Attendance Log</span>
-            </h3>
-            <span class="text-xs text-[#8B949E]">Past 10 School Days</span>
-          </div>
-
-          <div class="space-y-2" id="attendanceList">
-            <!-- Dynamic Records -->
+      <!-- Left: Attendance Logs & Schedule -->
+      <div class="lg:col-span-8 space-y-6">
+        <div class="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-6">
+          <h3 class="font-bold text-sm text-white mb-4 flex items-center gap-2">
+            <span>📅</span>
+            <span>3-Month Daily Attendance History Logs</span>
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="historyLogs">
+            <!-- Rendered by JS -->
           </div>
         </div>
 
-        <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6">
-          <h3 class="font-bold text-base text-white mb-3 flex items-center gap-2">
+        <div class="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-6">
+          <h3 class="font-bold text-sm text-white mb-3 flex items-center gap-2">
             <span>📚</span>
-            <span>Today's Class Timetable</span>
+            <span>Today's Academic Timetable (Classes 1–5)</span>
           </h3>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-            <div class="p-3 bg-[#0D1117] border border-white/5 rounded-xl">
-              <span class="text-[#8B949E] block">Period 1 (08:30)</span>
-              <p class="font-bold text-white mt-1">Mathematics</p>
-              <span class="text-[#8FB8F6]">Room 204</span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 bg-[#121212] rounded-[6px] border border-[#2E2E2E]">
+              <span class="text-[#3FCF8E] font-mono text-[10px] block">09:00 - 10:15 AM</span>
+              <strong class="text-white block mt-0.5">Mathematics & Logic</strong>
+              <span class="text-[#808080] text-[11px]">Teacher Lead • Room 101</span>
             </div>
-            <div class="p-3 bg-[#0D1117] border border-white/5 rounded-xl">
-              <span class="text-[#8B949E] block">Period 2 (09:30)</span>
-              <p class="font-bold text-white mt-1">Physics Lab</p>
-              <span class="text-[#8FB8F6]">Sci Block B</span>
+            <div class="p-3 bg-[#121212] rounded-[6px] border border-[#2E2E2E]">
+              <span class="text-[#3FCF8E] font-mono text-[10px] block">10:30 - 11:45 AM</span>
+              <strong class="text-white block mt-0.5">English Literature</strong>
+              <span class="text-[#808080] text-[11px]">Reading & Grammar</span>
             </div>
-            <div class="p-3 bg-[#0D1117] border border-white/5 rounded-xl">
-              <span class="text-[#8B949E] block">Period 3 (10:45)</span>
-              <p class="font-bold text-white mt-1">English Lit</p>
-              <span class="text-[#8FB8F6]">Room 102</span>
-            </div>
-            <div class="p-3 bg-[#0D1117] border border-white/5 rounded-xl">
-              <span class="text-[#8B949E] block">Period 4 (11:45)</span>
-              <p class="font-bold text-white mt-1">Computer Sci</p>
-              <span class="text-[#8FB8F6]">Lab 1</span>
+            <div class="p-3 bg-[#121212] rounded-[6px] border border-[#2E2E2E]">
+              <span class="text-[#3FCF8E] font-mono text-[10px] block">12:30 - 01:45 PM</span>
+              <strong class="text-white block mt-0.5">Environmental Studies</strong>
+              <span class="text-[#808080] text-[11px]">Science Lab Activity</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right: Embedded Live XYZ AI Student Copilot -->
-      <div class="lg:col-span-5">
-        <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6 flex flex-col h-[560px]">
-          <div class="flex items-center justify-between pb-4 border-b border-white/10">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-full bg-[#1868DB] flex items-center justify-center text-sm font-bold text-white">✨</div>
+      <!-- Right: Embedded Student AI Assistant -->
+      <div class="lg:col-span-4">
+        <div class="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5 flex flex-col h-[560px]">
+          <div class="flex items-center justify-between pb-3 border-b border-[#2E2E2E]">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-[3px] bg-[#3FCF8E] flex items-center justify-center text-xs font-bold text-[#000000]">⚡</div>
               <div>
-                <h3 class="font-bold text-sm text-white">XYZ AI Academic Copilot</h3>
-                <span class="text-[11px] text-emerald-400 flex items-center gap-1">● Live Gemini 2.5 NLU</span>
+                <h3 class="font-bold text-xs text-white">Student AI Copilot</h3>
+                <span class="text-[10px] text-[#3FCF8E]">● Live Gemini 2.5 NLU</span>
               </div>
             </div>
-            <select id="langSelect" class="bg-[#0D1117] border border-white/10 text-[11px] text-white rounded-lg px-2.5 py-1">
-              <option value="en">English</option>
-              <option value="hi">हिन्दी (Hindi)</option>
-              <option value="ta">தமிழ் (Tamil)</option>
-              <option value="te">తెలుగు (Telugu)</option>
-              <option value="mr">मराठी (Marathi)</option>
-              <option value="bn">বাংলা (Bengali)</option>
-            </select>
           </div>
 
-          <!-- Chat Messages Box -->
-          <div id="chatMessages" class="flex-1 overflow-y-auto py-4 space-y-3 pr-1 text-xs">
-            <div class="bg-[#1868DB]/10 border border-[#1868DB]/20 rounded-2xl p-3.5 text-[#F0F6FC]">
-              👋 Hey <strong id="greetingName">Rahul</strong>! I'm your AI Academic Copilot. Ask me:
-              <ul class="list-disc pl-4 mt-2 space-y-1 text-[#8B949E]">
+          <!-- Chat Messages -->
+          <div id="chatMessages" class="flex-1 overflow-y-auto py-3 space-y-2.5 text-xs">
+            <div class="bg-[#121212] border border-[#2E2E2E] rounded-[6px] p-3 text-[#EDEDED]">
+              👋 Hello! Ask me anything:
+              <ul class="list-disc pl-4 mt-1.5 space-y-1 text-[#808080]">
                 <li>"What is my attendance percentage?"</li>
-                <li>"Did I miss any classes this week?"</li>
-                <li>"Request a callback from my teacher"</li>
+                <li>"Am I eligible for term exams?"</li>
+                <li>"I want to request a callback from my teacher"</li>
               </ul>
             </div>
           </div>
 
           <!-- Chat Input -->
-          <div class="pt-3 border-t border-white/10 flex gap-2">
-            <input type="text" id="chatInput" placeholder="Ask your academic assistant..." 
+          <div class="pt-3 border-t border-[#2E2E2E] flex gap-2">
+            <input type="text" id="chatInput" placeholder="Ask AI assistant..." 
                    onkeydown="if(event.key==='Enter') sendMessage()"
-                   class="flex-1 bg-[#0D1117] border border-white/15 text-xs text-white rounded-full px-4 py-2.5 focus:outline-none focus:border-[#1868DB]" />
-            <button onclick="sendMessage()" class="px-4 py-2.5 bg-[#1868DB] hover:bg-[#1455B3] text-white rounded-full text-xs font-semibold transition-all">
+                   class="flex-1 bg-[#121212] border border-[#2E2E2E] text-xs text-white rounded-[4px] px-3 py-2 focus:outline-none focus:border-[#3FCF8E]" />
+            <button onclick="sendMessage()" class="px-3 py-2 bg-[#3FCF8E] hover:bg-[#16B674] text-[#000000] rounded-[4px] text-xs font-semibold transition-all">
               Send
             </button>
           </div>
@@ -171,67 +145,49 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-white/10 py-4 px-6 text-center text-xs text-[#8B949E]">
+  <footer class="border-t border-[#2E2E2E] py-3 px-6 text-center text-xs font-mono text-[#808080]">
     School ERP Ecosystem • Student Repository Portal • Connected to Live XYZ AI API
   </footer>
 
   <script>
-    const studentDataMap = {
-      s1: { name: "Rahul Sharma", class: "Class 8A", roll: "STU-2026-081", percent: "91.2%", present: 82, target: 90 },
-      s2: { name: "Priya Patel", class: "Class 8A", roll: "STU-2026-082", percent: "87.4%", present: 78, target: 90 },
-      s3: { name: "Aarav Singh", class: "Class 9B", roll: "STU-2026-091", percent: "94.8%", present: 85, target: 90 },
-      s4: { name: "Ananya Roy", class: "Class 8A", roll: "STU-2026-084", percent: "89.6%", present: 80, target: 90 },
-      s5: { name: "Rohan Gupta", class: "Class 8B", roll: "STU-2026-085", percent: "92.5%", present: 83, target: 90 },
-      s6: { name: "Sneha Reddy", class: "Class 9A", roll: "STU-2026-092", percent: "96.0%", present: 86, target: 90 },
-      s7: { name: "Kabir Verma", class: "Class 10A", roll: "STU-2026-101", percent: "78.4%", present: 70, target: 90 },
+    const studentData = {
+      s1: { name: "Aarav Nair", class: "Class 1A", percent: "94.5%", days: "71/75" },
+      s4: { name: "Ananya Rao", class: "Class 1B", percent: "96.0%", days: "72/75" },
+      s7: { name: "Aditya Sharma", class: "Class 2A", percent: "95.5%", days: "72/75" },
+      s10: { name: "Meera Roy", class: "Class 2B", percent: "91.0%", days: "68/75" },
+      s13: { name: "Tanvi Kulkarni", class: "Class 3A", percent: "94.8%", days: "71/75" },
+      s19: { name: "Navya Deshmukh", class: "Class 4A", percent: "92.8%", days: "70/75" },
+      s25: { name: "Isha Iyer", class: "Class 5A", percent: "96.8%", days: "73/75" },
     };
 
-    async function loadStudentData() {
+    function loadStudentData() {
       const sid = document.getElementById("studentSelect").value;
-      const data = studentDataMap[sid] || studentDataMap.s1;
+      const s = studentData[sid] || studentData.s1;
 
-      document.getElementById("studentName").innerText = data.name;
-      document.getElementById("greetingName").innerText = data.name.split(" ")[0];
-      document.getElementById("studentClass").innerText = data.class;
-      document.getElementById("studentRoll").innerText = data.roll;
-      document.getElementById("avatarLetter").innerText = data.name.charAt(0);
-      document.getElementById("attPercent").innerText = data.percent;
-      document.getElementById("presentDays").innerText = data.present;
+      document.getElementById("studentGreeting").innerText = `Welcome back, ${s.name}`;
+      document.getElementById("studentClass").innerText = `${s.class} • Enrolled in School ERP`;
+      document.getElementById("attPercent").innerText = s.percent;
+      document.getElementById("attDays").innerText = s.days;
 
-      // Try fetching live data from Backend API
-      try {
-        const res = await fetch(`http://localhost:4000/api/attendance/${sid}`);
-        if (res.ok) {
-          const apiData = await res.json();
-          if (apiData.percentage) document.getElementById("attPercent").innerText = apiData.percentage + "%";
-          if (apiData.presentDays) document.getElementById("presentDays").innerText = apiData.presentDays;
-        }
-      } catch (e) {
-        console.log("Using local student cache:", e.message);
-      }
-
-      renderTimeline(data.percent);
+      renderHistory();
     }
 
-    function renderTimeline(percentStr) {
-      const val = parseFloat(percentStr);
-      const isGood = val >= 85;
-      const badge = document.getElementById("statusBadge");
-      badge.innerText = isGood ? "Good Standing" : "Attendance Warning";
-      badge.className = isGood ? "text-xs font-bold text-emerald-400 mt-2 block" : "text-xs font-bold text-amber-400 mt-2 block";
+    function renderHistory() {
+      const container = document.getElementById("historyLogs");
+      container.innerHTML = "";
+      const statuses = ["present", "present", "present", "present", "weekend", "weekend", "present", "present", "present", "present"];
+      const dates = ["Aug 11", "Aug 12", "Aug 13", "Aug 14", "Aug 15", "Aug 16", "Aug 17", "Aug 18", "Aug 19", "Aug 20"];
 
-      const list = document.getElementById("attendanceList");
-      list.innerHTML = "";
-      const dates = ["Today", "Yesterday", "18 Aug", "17 Aug", "16 Aug", "15 Aug (Holiday)", "14 Aug", "13 Aug", "12 Aug", "11 Aug"];
-      dates.forEach((d, idx) => {
-        const isAbsent = !isGood && idx === 1;
-        const isHol = d.includes("Holiday");
-        list.innerHTML += `
-          <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0D1117] border border-white/5">
-            <span class="text-[#F0F6FC] font-medium">${d}</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isHol ? 'bg-purple-500/20 text-purple-300' : isAbsent ? 'bg-rose-500/20 text-rose-300' : 'bg-emerald-500/20 text-emerald-300'}">
-              ${isHol ? 'Holiday' : isAbsent ? 'Absent' : 'Present'}
-            </span>
+      dates.forEach((d, i) => {
+        const st = statuses[i];
+        const isPres = st === "present";
+        const isWk = st === "weekend";
+        container.innerHTML += `
+          <div class="p-2.5 rounded-[4px] border text-center ${
+            isPres ? 'bg-[#3FCF8E]/10 border-[#3FCF8E]/30 text-[#3FCF8E]' : isWk ? 'bg-white/5 border-white/10 text-[#808080]' : 'bg-[#DC7B18]/10 border-[#DC7B18]/30 text-[#F3BA63]'
+          }">
+            <span class="text-[10px] font-mono block text-[#808080]">${d}</span>
+            <span class="text-xs font-semibold capitalize mt-0.5 block">${st}</span>
           </div>
         `;
       });
@@ -239,40 +195,25 @@
 
     async function sendMessage() {
       const input = document.getElementById("chatInput");
-      const msg = input.value.trim();
-      if (!msg) return;
+      const text = input.value.trim();
+      if (!text) return;
       input.value = "";
 
       const sid = document.getElementById("studentSelect").value;
-      const lang = document.getElementById("langSelect").value;
       const chatBox = document.getElementById("chatMessages");
-
-      chatBox.innerHTML += `
-        <div class="bg-[#1868DB] text-white p-3 rounded-2xl max-w-[85%] ml-auto text-right">
-          ${msg}
-        </div>
-      `;
+      chatBox.innerHTML += `<div class="bg-[#3FCF8E] text-[#000000] font-medium p-2.5 rounded-[6px] max-w-[85%] ml-auto text-right">${text}</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // Call XYZ AI Chat Endpoint
       try {
         const res = await fetch("http://localhost:4000/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: sid, message: msg, language: lang })
+          body: JSON.stringify({ userId: sid, message: text, language: "en" })
         });
         const data = await res.json();
-        chatBox.innerHTML += `
-          <div class="bg-[#12171F] border border-white/10 text-[#F0F6FC] p-3 rounded-2xl max-w-[85%] mr-auto space-y-1">
-            <p class="whitespace-pre-wrap">${data.reply || "I have received your request."}</p>
-          </div>
-        `;
-      } catch (err) {
-        chatBox.innerHTML += `
-          <div class="bg-rose-500/10 border border-rose-500/20 text-rose-300 p-3 rounded-2xl max-w-[85%] mr-auto">
-            ⚠️ Could not reach XYZ AI server at localhost:4000. Please make sure backend is running.
-          </div>
-        `;
+        chatBox.innerHTML += `<div class="bg-[#121212] border border-[#2E2E2E] text-[#EDEDED] p-2.5 rounded-[6px] max-w-[85%] mr-auto whitespace-pre-wrap">${data.reply || "Record verified."}</div>`;
+      } catch (e) {
+        chatBox.innerHTML += `<div class="bg-[#DC7B18]/10 border border-[#DC7B18]/30 text-[#F3BA63] p-2.5 rounded-[6px] max-w-[85%] mr-auto">⚠️ Backend API server offline.</div>`;
       }
       chatBox.scrollTop = chatBox.scrollHeight;
     }

@@ -1,101 +1,85 @@
 import { Avatar } from "./Avatar";
-import { ShieldCheck, Database, Cpu } from "lucide-react";
+import { ShieldCheck, Database, Cpu, Mic } from "lucide-react";
 
-export function AvatarSection({ avatarState, isSpeaking, user }) {
-  const getRoleBadge = (role) => {
-    switch (role) {
-      case "student":
-        return "badge-secondary";
-      case "parent":
-        return "badge-primary";
-      case "teacher":
-        return "badge-purple";
-      case "principal":
-        return "badge-warning";
-      default:
-        return "badge-secondary";
-    }
-  };
-
+export function AvatarSection({ avatarState, userRole, userName, isListening, isSpeaking, onMicToggle }) {
   return (
-    <aside className="w-80 flex-shrink-0 p-6 border-l border-[#E9F2FE] dark:border-white/10 bg-[#FFFFFF] dark:bg-[#0D1117] flex flex-col justify-between hidden lg:flex shadow-loom-small">
-      <div>
-        {/* Assistant Header */}
-        <div className="text-center mb-6">
-          <h3 className="font-display text-xl font-bold text-[#292A2E] dark:text-[#F0F6FC]">XYZ Assistant</h3>
-          <p className="text-xs text-[#6C6F77] dark:text-[#8B949E] mt-0.5">School AI Copilot</p>
+    <div className="flex flex-col gap-3 h-full">
+      {/* Avatar Display Card */}
+      <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4 flex flex-col items-center justify-between text-center relative overflow-hidden">
+        {/* State Indicator */}
+        <div className="w-full flex items-center justify-between text-[11px] font-mono pb-2 border-b border-[#2E2E2E]">
+          <span className="text-[#808080]">Avatar Visemes</span>
+          <span
+            className={`px-2 py-0.5 rounded-[4px] font-semibold uppercase ${
+              avatarState === "speaking"
+                ? "bg-[#3FCF8E]/20 text-[#3FCF8E] border border-[#3FCF8E]/40 animate-pulse"
+                : avatarState === "listening"
+                ? "bg-[#DC7B18]/20 text-[#F3BA63] border border-[#DC7B18]/40 animate-pulse"
+                : avatarState === "thinking"
+                ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40"
+                : "bg-white/5 text-[#808080]"
+            }`}
+          >
+            ● {avatarState}
+          </span>
         </div>
 
-        {/* Dynamic Avatar */}
-        <div className="py-3 flex justify-center">
+        {/* Dynamic Holographic Avatar */}
+        <div className="py-4 my-auto flex items-center justify-center">
           <Avatar state={avatarState} isSpeaking={isSpeaking} />
         </div>
 
-        {/* Current Active Persona Card (44px border radius) */}
-        <div className="mt-8 p-6 rounded-[44px] bg-[#E9F2FE] dark:bg-[#131F32] border border-[#8FB8F6]/60 dark:border-[#388BFD]/30 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-[#FFFFFF] dark:bg-[#161D27] border border-[#8FB8F6] dark:border-white/10 flex items-center justify-center text-lg shadow-loom-small">
-              {user?.role === "student" ? "🎓" : user?.role === "parent" ? "👨‍👩‍👧" : user?.role === "teacher" ? "👩‍🏫" : "🏢"}
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-[#292A2E] dark:text-[#F0F6FC]">{user?.name}</h4>
-              <span className={`${getRoleBadge(user?.role)} mt-0.5 capitalize`}>
-                {user?.role || "Student"}
-              </span>
-            </div>
-          </div>
+        {/* Mic Action Button */}
+        <button
+          onClick={onMicToggle}
+          className={`w-full py-2 px-3 rounded-[6px] text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+            isListening
+              ? "bg-[#DC7B18] text-white animate-pulse"
+              : "bg-[#242424] hover:bg-[#2E2E2E] text-[#EDEDED] border border-[#2E2E2E] hover:border-[#3FCF8E]/50"
+          }`}
+        >
+          <Mic className={`w-3.5 h-3.5 ${isListening ? "text-white" : "text-[#3FCF8E]"}`} />
+          <span>{isListening ? "Listening... Click to Stop" : "Click to Speak with Avatar"}</span>
+        </button>
+      </div>
 
-          <div className="space-y-1.5 text-xs text-[#6C6F77] dark:text-[#8B949E] pt-3 border-t border-[#8FB8F6]/40 dark:border-white/10">
-            {user?.classId && (
-              <div className="flex justify-between">
-                <span>Classroom:</span>
-                <strong className="text-[#292A2E] dark:text-[#F0F6FC]">{user.classId.toUpperCase()}</strong>
-              </div>
-            )}
-            {user?.studentIds?.length > 0 && (
-              <div className="flex justify-between">
-                <span>Linked Student:</span>
-                <strong className="text-[#292A2E] dark:text-[#F0F6FC]">{user.studentIds.join(", ")}</strong>
-              </div>
-            )}
-            {user?.classIds?.length > 0 && (
-              <div className="flex justify-between">
-                <span>Assigned Classes:</span>
-                <strong className="text-[#292A2E] dark:text-[#F0F6FC]">{user.classIds.join(", ")}</strong>
-              </div>
-            )}
-          </div>
+      {/* Persona Context Card */}
+      <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4 text-xs space-y-2.5">
+        <div className="flex items-center justify-between pb-2 border-b border-[#2E2E2E]">
+          <span className="font-semibold text-[#FFFFFF]">{userName}</span>
+          <span className="px-2 py-0.5 rounded-[4px] font-mono text-[10px] font-bold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] uppercase">
+            {userRole}
+          </span>
         </div>
 
-        {/* RBAC Security Shield Card */}
-        <div className="mt-4 p-4 rounded-[20px] bg-[#F8EEFE] dark:bg-[#231433] border border-[#BF63F3]/30 text-xs text-[#48245D] dark:text-[#E2B7FF] space-y-1.5">
-          <div className="flex items-center gap-2 font-bold text-[#48245D] dark:text-[#E2B7FF]">
-            <ShieldCheck className="w-4 h-4 text-[#BF63F3]" />
-            <span>RBAC Guard Active</span>
+        <div className="p-2.5 rounded-[6px] bg-[#121212] border border-[#2E2E2E] space-y-1 text-[11px] text-[#808080]">
+          <div className="flex items-center gap-1.5 text-[#3FCF8E] font-medium">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Zero-Trust RBAC Guard Active</span>
           </div>
-          <p className="text-[11px] leading-relaxed text-[#6C6F77] dark:text-[#8B949E]">
-            All inquiries and actions are authorized server-side based on your authenticated role.
+          <p className="leading-tight">
+            Queries and actions are verified against JWT credentials and MongoDB relationship tables.
           </p>
         </div>
-      </div>
 
-      {/* Cloud Engine Telemetry */}
-      <div className="pt-4 border-t border-[#E9F2FE] dark:border-white/10 space-y-2 text-xs text-[#6C6F77] dark:text-[#8B949E]">
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5">
-            <Cpu className="w-3.5 h-3.5 text-[#1868DB] dark:text-[#58A6FF]" />
-            <span>NLU Engine</span>
-          </span>
-          <span className="font-semibold text-[#1868DB] dark:text-[#58A6FF]">Gemini 2.0 / 3.6</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5">
-            <Database className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Database</span>
-          </span>
-          <span className="font-semibold text-emerald-700 dark:text-emerald-400">MongoDB Atlas</span>
+        {/* System Telemetry Specs */}
+        <div className="space-y-1.5 pt-1 text-[11px] font-mono text-[#808080]">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <Cpu className="w-3 h-3 text-[#3FCF8E]" />
+              <span>NLU Engine:</span>
+            </span>
+            <span className="text-[#EDEDED]">Gemini 2.5 Flash</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <Database className="w-3 h-3 text-[#3FCF8E]" />
+              <span>Database:</span>
+            </span>
+            <span className="text-[#3FCF8E]">MongoDB Atlas</span>
+          </div>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Send, Mic, Sparkles } from "lucide-react";
+import { Send, Mic } from "lucide-react";
 
 export function InputForm({
   value,
@@ -8,7 +8,8 @@ export function InputForm({
   isLoading,
   isListening,
   onVoiceClick,
-  placeholder = "Ask about attendance, analytics, or mark records...",
+  userRole = "student",
+  userName = "",
 }) {
   const inputRef = useRef(null);
 
@@ -18,60 +19,70 @@ export function InputForm({
     onSubmit(e);
   };
 
+  const getPlaceholder = () => {
+    if (isListening) return "Listening to your microphone...";
+    switch (userRole) {
+      case "student":
+        return `Ask about your attendance, streak, or subject schedule...`;
+      case "parent":
+        return `Ask about your child's attendance or request teacher callback...`;
+      case "teacher":
+        return `E.g., "Mark Aarav present today" or "Show Class 1A summary"...`;
+      case "principal":
+        return `Query institutional compliance, class averages, or risk flags...`;
+      default:
+        return `Type an inquiry or instruction...`;
+    }
+  };
+
   return (
-    <div className="p-4 sm:p-6 bg-[#FFFFFF] dark:bg-[#0D1117] border-t border-[#E9F2FE] dark:border-white/10 shadow-loom-header">
-      <form onSubmit={handleSubmit} className="flex items-center gap-3 max-w-4xl mx-auto">
+    <div className="p-3 bg-[#121212] border-t border-[#2E2E2E]">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2">
         {/* Voice Input Mic Button */}
         <button
           type="button"
           onClick={onVoiceClick}
           disabled={isLoading}
-          className={`h-12 px-4 rounded-full transition-all duration-200 shrink-0 flex items-center justify-center gap-2 ${
+          className={`h-9 px-3 rounded-[6px] transition-all duration-150 shrink-0 flex items-center justify-center gap-1.5 text-xs font-semibold ${
             isListening
-              ? "bg-[#FF613D] text-white shadow-loom-medium animate-pulse"
-              : "bg-[#FFFFFF] dark:bg-[#161D27] text-[#292A2E] dark:text-[#F0F6FC] border border-[#E9F2FE] dark:border-white/10 hover:bg-[#E9F2FE] dark:hover:bg-[#1E293B] hover:border-[#8FB8F6] dark:hover:border-white/20 shadow-loom-small"
+              ? "bg-[#DC7B18] text-white animate-pulse"
+              : "bg-[#1C1C1C] text-[#3FCF8E] border border-[#2E2E2E] hover:border-[#3FCF8E]/50 hover:bg-[#242424]"
           }`}
-          title={isListening ? "Listening... Click to stop" : "Voice Input"}
+          title={isListening ? "Listening... Click to stop" : "Speak with Voice"}
         >
-          <Mic className={`w-5 h-5 ${isListening ? "text-white" : "text-[#1868DB] dark:text-[#58A6FF]"}`} />
-          <span className="text-xs font-semibold hidden sm:inline">
+          <Mic className={`w-3.5 h-3.5 ${isListening ? "text-white" : "text-[#3FCF8E]"}`} />
+          <span className="hidden sm:inline">
             {isListening ? "Listening..." : "Voice"}
           </span>
         </button>
 
-        {/* Input Text Box (48px height, 14px radius) */}
+        {/* Input Text Box */}
         <div className="relative flex-1">
           <input
             ref={inputRef}
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={isListening ? "Listening to your voice..." : placeholder}
+            placeholder={getPlaceholder()}
             disabled={isLoading}
-            className="w-full h-12 rounded-[14px] px-4 py-3 bg-[#FFFFFF] dark:bg-[#161D27] text-[#292A2E] dark:text-[#F0F6FC] border border-[#7D818A] dark:border-white/15 text-sm placeholder:text-[#8C8F97] dark:placeholder:text-[#6E7681] focus:outline-none focus:border-[#1868DB] dark:focus:border-[#388BFD] focus:border-2 focus:ring-4 focus:ring-[#1868DB]/10 dark:focus:ring-[#388BFD]/20 shadow-sm transition-all"
+            className="w-full h-9 rounded-[6px] px-3 bg-[#1C1C1C] text-[#FFFFFF] border border-[#2E2E2E] text-xs placeholder:text-[#808080] focus:outline-none focus:border-[#3FCF8E] focus:ring-1 focus:ring-[#3FCF8E]/30 transition-all font-sans"
           />
         </div>
 
-        {/* Send Button (Pill shape) */}
+        {/* Send Button */}
         <button
           type="submit"
           disabled={isLoading || !value.trim()}
-          className="btn-primary h-12 px-6 rounded-full shrink-0 flex items-center gap-2"
-          title="Send message"
+          className="btn-primary h-9 px-4 rounded-[6px] shrink-0 flex items-center gap-1.5 text-xs font-semibold"
+          title="Send query"
         >
           <span>Send</span>
-          {isLoading ? (
-            <Sparkles className="w-4 h-4 animate-spin text-white" />
-          ) : (
-            <Send className="w-4 h-4 text-white" />
-          )}
+          <Send className="w-3 h-3" />
         </button>
       </form>
-
-      <div className="text-center mt-2.5">
-        <span className="text-xs text-[#7D818A] dark:text-[#8B949E] font-sans font-normal">
-          AI School Copilot • 11 Languages • Server-side Verified RBAC
-        </span>
+      <div className="flex items-center justify-between mt-1.5 px-1 text-[10px] font-mono text-[#808080]">
+        <span>AI School Copilot • 11 Languages • Server-Verified RBAC</span>
+        <span>Press Enter ↵ to send</span>
       </div>
     </div>
   );
