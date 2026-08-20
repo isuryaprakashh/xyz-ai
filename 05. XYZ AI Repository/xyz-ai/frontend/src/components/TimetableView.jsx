@@ -101,32 +101,27 @@ export function TimetableView({ user, onNavigateToAttendance }) {
     if (!markingClassId) return;
     setSavingAttendance(true);
     try {
-      const studentStatuses = Object.entries(rosterStatuses).map(([studentId, status]) => ({
+      const records = Object.entries(rosterStatuses).map(([studentId, status]) => ({
         studentId,
         status,
       }));
-      await api.markClassAttendance({
-        classId: markingClassId,
-        date: "today",
-        studentStatuses,
+      await api.markClassAttendance(markingClassId, {
+        date: new Date().toISOString().split("T")[0],
+        records,
       });
-      setSuccessToast(`Attendance for ${markingClassId.toUpperCase()} saved successfully!`);
-      setTimeout(() => setSuccessToast(""), 3000);
+      setSuccessToast(`Attendance posted for Class ${markingClassId.toUpperCase()}!`);
       setMarkingClassId(null);
+      setTimeout(() => setSuccessToast(""), 3500);
     } catch (err) {
-      alert("Failed to save attendance: " + err.message);
+      alert("Failed to save class attendance: " + err.message);
     } finally {
       setSavingAttendance(false);
     }
   };
 
-  const activePeriods = (() => {
-    if (!timetableData?.schedule) return [];
-    const daySchedule = timetableData.schedule.find((s) => s.day === selectedDay);
-    return daySchedule?.periods || [];
-  })();
-
   const todayName = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const activeSchedule = timetableData?.schedule || timetableData || {};
+  const activePeriods = activeSchedule[selectedDay] || [];
 
   return (
     <div className="flex-1 overflow-y-auto p-5 sm:p-8 max-w-6xl mx-auto w-full space-y-6 animate-fade-in">
@@ -137,15 +132,15 @@ export function TimetableView({ user, onNavigateToAttendance }) {
             <Calendar className="w-5 h-5 text-accent" />
             <h2 className="text-lg font-bold text-text-primary">
               {user.role === "teacher"
-                ? "My Teaching Schedule"
+                ? "Faculty Teaching Schedule"
                 : user.role === "principal"
-                ? "School Master Timetable"
-                : "Class Timetable"}
+                ? "Master Timetable Explorer"
+                : "Academic Class Timetable"}
             </h2>
           </div>
           <p className="text-sm text-text-tertiary mt-0.5">
             {user.role === "teacher"
-              ? "View your assigned classes, subject periods, and mark classroom attendance."
+              ? "Your weekly period schedule, assigned classrooms, and 1-click class attendance."
               : user.role === "principal"
               ? "Inspect and manage weekly class schedules and teacher assignments across Grades 1–5."
               : user.role === "parent"
@@ -156,7 +151,7 @@ export function TimetableView({ user, onNavigateToAttendance }) {
 
         {/* Parent Child Switcher */}
         {user.role === "parent" && user.studentIds && user.studentIds.length > 1 && (
-          <div className="flex items-center gap-2 card p-1.5 self-start sm:self-center">
+          <div className="flex items-center gap-2 card p-1.5 self-start sm:self-center border-pink-100">
             <span className="text-xs text-text-tertiary px-2">Child:</span>
             {user.studentIds.map((sid) => (
               <button
@@ -164,8 +159,8 @@ export function TimetableView({ user, onNavigateToAttendance }) {
                 onClick={() => setSelectedChildId(sid)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold uppercase transition-all ${
                   selectedChildId === sid
-                    ? "bg-accent text-white"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-accent text-white shadow-pink"
+                    : "text-text-secondary hover:text-accent-dark"
                 }`}
               >
                 {sid}
@@ -177,7 +172,7 @@ export function TimetableView({ user, onNavigateToAttendance }) {
 
       {/* Success Toast */}
       {successToast && (
-        <div className="p-3.5 rounded-xl bg-accent-light border border-emerald-200 text-accent-dark text-sm flex items-center gap-2 animate-slide-up">
+        <div className="p-3.5 rounded-xl bg-pink-50 border border-pink-200 text-accent-dark text-sm flex items-center gap-2 animate-slide-up shadow-sm">
           <CheckCircle2 className="w-4 h-4 text-accent" />
           <span className="font-semibold">{successToast}</span>
         </div>
@@ -185,18 +180,18 @@ export function TimetableView({ user, onNavigateToAttendance }) {
 
       {/* Principal Selectors */}
       {(user.role === "principal" || user.role === "admin") && (
-        <div className="card p-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="card p-4 flex flex-wrap items-center justify-between gap-4 border-pink-100 shadow-card">
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-text-tertiary uppercase tracking-wider">
               Filter By:
             </span>
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex bg-pink-50/70 border border-pink-100 rounded-lg p-1">
               <button
                 onClick={() => setViewMode("class")}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   viewMode === "class"
-                    ? "bg-white text-text-primary shadow-sm"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-white text-accent-dark shadow-sm border border-pink-100 font-bold"
+                    : "text-text-secondary hover:text-accent-dark"
                 }`}
               >
                 Classroom
@@ -210,8 +205,8 @@ export function TimetableView({ user, onNavigateToAttendance }) {
                 }}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                   viewMode === "teacher"
-                    ? "bg-white text-text-primary shadow-sm"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "bg-white text-accent-dark shadow-sm border border-pink-100 font-bold"
+                    : "text-text-secondary hover:text-accent-dark"
                 }`}
               >
                 Teacher
@@ -264,15 +259,15 @@ export function TimetableView({ user, onNavigateToAttendance }) {
               onClick={() => setSelectedDay(day)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all shrink-0 flex items-center gap-2 ${
                 isSelected
-                  ? "bg-text-primary text-white shadow-sm"
-                  : "card-hover text-text-secondary hover:text-text-primary"
+                  ? "bg-text-primary text-white shadow-sm font-semibold"
+                  : "card-hover text-text-secondary hover:text-accent-dark"
               }`}
             >
               <span>{day}</span>
               {isToday && (
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                    isSelected ? "bg-accent text-white" : "badge-green"
+                  className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase ${
+                    isSelected ? "bg-accent text-white" : "badge-pink"
                   }`}
                 >
                   Today
@@ -285,12 +280,12 @@ export function TimetableView({ user, onNavigateToAttendance }) {
 
       {/* Timetable Period List */}
       {loading ? (
-        <div className="card p-12 flex items-center justify-center gap-2.5 text-text-secondary text-sm">
+        <div className="card p-12 flex items-center justify-center gap-2.5 text-text-secondary text-sm border-pink-100">
           <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           <span>Loading schedule...</span>
         </div>
       ) : activePeriods.length === 0 ? (
-        <div className="card p-10 text-center text-sm text-text-tertiary">
+        <div className="card p-10 text-center text-sm text-text-tertiary border-pink-100">
           No periods scheduled for {selectedDay}.
         </div>
       ) : (
@@ -298,12 +293,12 @@ export function TimetableView({ user, onNavigateToAttendance }) {
           {activePeriods.map((p, idx) => (
             <div
               key={idx}
-              className="card-hover p-4.5 flex flex-col justify-between relative overflow-hidden group"
+              className="card-hover p-4.5 flex flex-col justify-between relative overflow-hidden group border-pink-100"
             >
               {/* Top Row: Period Badge & Time */}
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-lg bg-accent-light text-accent-dark font-bold text-xs flex items-center justify-center">
+                  <span className="w-7 h-7 rounded-lg bg-pink-100 text-accent-dark font-bold text-xs flex items-center justify-center border border-pink-200">
                     P{p.periodNumber}
                   </span>
                   <span className="text-xs font-semibold text-text-primary">{p.subject}</span>
@@ -316,12 +311,12 @@ export function TimetableView({ user, onNavigateToAttendance }) {
               </div>
 
               {/* Middle Row: Faculty & Classroom */}
-              <div className="flex items-center justify-between text-xs text-text-secondary pt-2 border-t border-border/60">
+              <div className="flex items-center justify-between text-xs text-text-secondary pt-2 border-t border-pink-100">
                 <div className="flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-accent" />
                   <span>{p.teacherName || "Faculty"}</span>
                   {p.className && (
-                    <span className="badge-gray ml-1 text-[10px] font-semibold">
+                    <span className="badge-pink ml-1 text-[10px] font-semibold">
                       {p.className}
                     </span>
                   )}
@@ -335,7 +330,7 @@ export function TimetableView({ user, onNavigateToAttendance }) {
 
               {/* Teacher Quick Attendance Button */}
               {user.role === "teacher" && p.classId && (
-                <div className="mt-3 pt-2.5 border-t border-border/40 flex items-center justify-between">
+                <div className="mt-3 pt-2.5 border-t border-pink-100 flex items-center justify-between">
                   <span className="text-[11px] text-text-tertiary">
                     Class: <strong className="text-text-primary">{p.className || p.classId.toUpperCase()}</strong>
                   </span>
@@ -356,8 +351,8 @@ export function TimetableView({ user, onNavigateToAttendance }) {
       {/* Quick Mark Class Attendance Modal */}
       {markingClassId && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-border rounded-2xl p-6 max-w-lg w-full shadow-modal animate-scale-in space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div className="bg-white border border-pink-200 rounded-2xl p-6 max-w-lg w-full shadow-modal animate-scale-in space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-pink-100">
               <div>
                 <h3 className="font-bold text-base text-text-primary">
                   Post Attendance: {markingClassId.toUpperCase()}
@@ -368,14 +363,14 @@ export function TimetableView({ user, onNavigateToAttendance }) {
               </div>
               <button
                 onClick={() => setMarkingClassId(null)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 text-text-secondary transition-colors"
+                className="p-1.5 rounded-lg hover:bg-pink-50 text-text-secondary transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Quick Bulk Actions */}
-            <div className="flex items-center justify-between text-xs bg-gray-50 p-2.5 rounded-xl border border-border">
+            <div className="flex items-center justify-between text-xs bg-pink-50/60 p-2.5 rounded-xl border border-pink-200">
               <span className="text-text-secondary font-medium">Quick Preset:</span>
               <div className="flex gap-2">
                 <button
@@ -385,7 +380,7 @@ export function TimetableView({ user, onNavigateToAttendance }) {
                     classRoster.forEach((s) => (allPresent[s.id || s.userId] = "present"));
                     setRosterStatuses(allPresent);
                   }}
-                  className="px-2.5 py-1 rounded-md bg-accent-light text-accent-dark font-semibold text-xs hover:bg-accent hover:text-white transition-colors"
+                  className="px-2.5 py-1 rounded-md bg-accent text-white font-semibold text-xs shadow-pink transition-colors"
                 >
                   Mark All Present
                 </button>
@@ -404,7 +399,7 @@ export function TimetableView({ user, onNavigateToAttendance }) {
             </div>
 
             {/* Student Roster List */}
-            <div className="max-h-72 overflow-y-auto divide-y divide-border/60">
+            <div className="max-h-72 overflow-y-auto divide-y divide-pink-100">
               {classRoster.map((s) => {
                 const sid = s.id || s.userId;
                 const status = rosterStatuses[sid] || "present";
@@ -421,8 +416,8 @@ export function TimetableView({ user, onNavigateToAttendance }) {
                         onClick={() => setRosterStatuses((prev) => ({ ...prev, [sid]: "present" }))}
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                           status === "present"
-                            ? "bg-accent text-white shadow-sm"
-                            : "bg-gray-100 text-text-secondary hover:bg-gray-200"
+                            ? "bg-accent text-white shadow-pink"
+                            : "bg-pink-50 text-accent-dark border border-pink-200 hover:bg-accent hover:text-white"
                         }`}
                       >
                         Present
@@ -433,7 +428,7 @@ export function TimetableView({ user, onNavigateToAttendance }) {
                         className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                           status === "absent"
                             ? "bg-danger text-white shadow-sm"
-                            : "bg-gray-100 text-text-secondary hover:bg-gray-200"
+                            : "bg-danger-light text-danger border border-red-200 hover:bg-danger hover:text-white"
                         }`}
                       >
                         Absent
@@ -445,7 +440,7 @@ export function TimetableView({ user, onNavigateToAttendance }) {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-pink-100">
               <button
                 type="button"
                 onClick={() => setMarkingClassId(null)}

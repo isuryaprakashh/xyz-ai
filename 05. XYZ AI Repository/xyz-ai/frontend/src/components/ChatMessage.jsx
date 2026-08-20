@@ -19,8 +19,8 @@ export function ChatMessage({ message, onSpeak, onQuickAction }) {
       <div
         className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
           isUser
-            ? "bg-text-primary text-white"
-            : "bg-accent-light text-accent"
+            ? "bg-text-primary text-white shadow-sm"
+            : "bg-pink-100 text-accent border border-pink-200 shadow-pink"
         }`}
       >
         {isUser ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
@@ -39,14 +39,14 @@ export function ChatMessage({ message, onSpeak, onQuickAction }) {
         <div
           className={`px-4 py-3 text-sm leading-relaxed ${
             isUser
-              ? "bg-text-primary text-white rounded-2xl rounded-tr-md"
-              : "card rounded-2xl rounded-tl-md"
+              ? "bg-text-primary text-white rounded-2xl rounded-tr-md shadow-sm"
+              : "card border-pink-100 shadow-card rounded-2xl rounded-tl-md"
           }`}
         >
           {isUser ? (
             <p className="whitespace-pre-wrap">{textContent}</p>
           ) : (
-            <div className="prose prose-sm max-w-none text-text-primary space-y-1.5 [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&_strong]:text-text-primary [&_a]:text-accent">
+            <div className="prose prose-sm max-w-none text-text-primary space-y-1.5 [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&_strong]:text-text-primary [&_a]:text-accent [&_a]:font-semibold">
               <ReactMarkdown>{textContent}</ReactMarkdown>
             </div>
           )}
@@ -73,7 +73,7 @@ export function ChatMessage({ message, onSpeak, onQuickAction }) {
           {!isUser && message.ticketCreated && (
             <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 text-xs">
               <CheckCircle2 className="w-4 h-4 text-accent" />
-              <span className="font-medium text-accent-dark">
+              <span className="font-semibold text-accent-dark">
                 Ticket #{message.ticketCreated.ticketId || "TKT-2001"} created
               </span>
             </div>
@@ -85,7 +85,7 @@ export function ChatMessage({ message, onSpeak, onQuickAction }) {
           <div className="flex items-center gap-1 mt-1 px-1 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity">
             <button
               onClick={handleCopy}
-              className="p-1.5 text-text-tertiary hover:text-text-primary rounded-md hover:bg-gray-100 transition-colors"
+              className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-pink-50 transition-colors"
               title="Copy response"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-accent" /> : <Copy className="w-3.5 h-3.5" />}
@@ -93,7 +93,7 @@ export function ChatMessage({ message, onSpeak, onQuickAction }) {
             {onSpeak && (
               <button
                 onClick={() => onSpeak(textContent)}
-                className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-gray-100 transition-colors"
+                className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-pink-50 transition-colors"
                 title="Listen"
               >
                 <Volume2 className="w-3.5 h-3.5" />

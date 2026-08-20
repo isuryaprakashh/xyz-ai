@@ -3,9 +3,9 @@ import { ShieldCheck, Cpu, Database, Mic, MicOff } from "lucide-react";
 
 export function AvatarSection({ avatarState, userRole, userName, isListening, isSpeaking, onMicToggle }) {
   const stateColors = {
-    speaking: "badge-green",
+    speaking: "badge-pink",
     listening: "badge-yellow",
-    thinking: "badge-blue",
+    thinking: "badge-pink",
     idle: "badge-gray",
   };
 
@@ -32,7 +32,7 @@ export function AvatarSection({ avatarState, userRole, userName, isListening, is
           className={`w-full py-2.5 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 ${
             isListening
               ? "bg-danger text-white animate-pulse"
-              : "bg-gray-100 hover:bg-gray-200 text-text-primary"
+              : "bg-pink-50 hover:bg-pink-100 text-accent-dark border border-pink-200"
           }`}
         >
           {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4 text-accent" />}
@@ -44,10 +44,10 @@ export function AvatarSection({ avatarState, userRole, userName, isListening, is
       <div className="card p-5 space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-text-primary">{userName}</span>
-          <span className="badge-green capitalize text-[11px]">{userRole}</span>
+          <span className="badge-pink capitalize text-[11px]">{userRole}</span>
         </div>
 
-        <div className="p-3 rounded-xl bg-body border border-border space-y-1.5 text-xs text-text-secondary">
+        <div className="p-3 rounded-xl bg-pink-50/50 border border-pink-200/60 space-y-1.5 text-xs text-text-secondary">
           <div className="flex items-center gap-2 text-accent font-medium">
             <ShieldCheck className="w-4 h-4" />
             <span>RBAC Guard Active</span>

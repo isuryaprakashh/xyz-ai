@@ -19,7 +19,7 @@ export function ChatArea({ messages, isLoading, onSpeak, onQuickPrompt, user }) 
         return [
           { text: "What is my timetable today?", icon: "📅" },
           { text: "What is my overall attendance percentage?", icon: "📊" },
-          { text: "I want to speak with my class teacher", icon: "👨‍🏫" },
+          { text: "I want to speak with my class teacher", icon: "👩‍🏫" },
         ];
       case "parent":
         return [
@@ -52,7 +52,7 @@ export function ChatArea({ messages, isLoading, onSpeak, onQuickPrompt, user }) 
       {messages.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center text-center py-12 animate-fade-in">
           {/* Hero */}
-          <div className="w-14 h-14 rounded-2xl bg-accent-light flex items-center justify-center mb-5">
+          <div className="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center mb-5 shadow-pink border border-pink-200">
             <Sparkles className="w-7 h-7 text-accent" />
           </div>
           <h2 className="text-2xl font-bold text-text-primary mb-2">
@@ -72,13 +72,13 @@ export function ChatArea({ messages, isLoading, onSpeak, onQuickPrompt, user }) 
                 <button
                   key={idx}
                   onClick={() => onQuickPrompt && onQuickPrompt(p.text)}
-                  className="flex items-center gap-3.5 p-4 card-interactive text-left group"
+                  className="flex items-center gap-3.5 p-4 card-interactive text-left group border-pink-100 hover:border-pink-300"
                 >
                   <span className="text-lg shrink-0">{p.icon}</span>
-                  <span className="flex-1 text-sm text-text-primary group-hover:text-accent transition-colors">
+                  <span className="flex-1 text-sm text-text-primary group-hover:text-accent-dark transition-colors font-medium">
                     {p.text}
                   </span>
-                  <span className="text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-accent font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                     Ask →
                   </span>
                 </button>
@@ -100,14 +100,14 @@ export function ChatArea({ messages, isLoading, onSpeak, onQuickPrompt, user }) 
           {/* Typing Indicator */}
           {isLoading && (
             <div className="flex gap-3 my-4 animate-fade-in">
-              <div className="w-9 h-9 rounded-xl bg-accent-light flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-pink-100 border border-pink-200 flex items-center justify-center shrink-0 shadow-pink">
                 <Sparkles className="w-4.5 h-4.5 text-accent" />
               </div>
-              <div className="card px-5 py-3.5 flex items-center gap-2">
+              <div className="card px-5 py-3.5 flex items-center gap-2 border-pink-100 shadow-card">
                 <span className="w-2 h-2 rounded-full bg-accent animate-dot-pulse" style={{ animationDelay: "0ms" }} />
                 <span className="w-2 h-2 rounded-full bg-accent animate-dot-pulse" style={{ animationDelay: "200ms" }} />
                 <span className="w-2 h-2 rounded-full bg-accent animate-dot-pulse" style={{ animationDelay: "400ms" }} />
-                <span className="text-xs text-text-tertiary ml-2">Thinking...</span>
+                <span className="text-xs text-text-tertiary ml-2 font-medium">Thinking...</span>
               </div>
             </div>
           )}

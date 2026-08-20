@@ -9,8 +9,8 @@ const PERSONAS = [
     role: "Student",
     desc: "View attendance & academic progress",
     icon: GraduationCap,
-    color: "bg-blue-500",
-    lightColor: "bg-blue-50 text-blue-700 border-blue-200",
+    color: "bg-pink-500",
+    lightColor: "bg-pink-50 text-pink-700 border-pink-200",
   },
   {
     u: "surya",
@@ -18,8 +18,8 @@ const PERSONAS = [
     role: "Teacher",
     desc: "Mark attendance & manage classes",
     icon: BookOpen,
-    color: "bg-emerald-500",
-    lightColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    color: "bg-rose-500",
+    lightColor: "bg-rose-50 text-rose-700 border-rose-200",
   },
   {
     u: "yashwanth",
@@ -27,8 +27,8 @@ const PERSONAS = [
     role: "Parent",
     desc: "Track child's attendance & callbacks",
     icon: Users,
-    color: "bg-amber-500",
-    lightColor: "bg-amber-50 text-amber-700 border-amber-200",
+    color: "bg-fuchsia-500",
+    lightColor: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
   },
   {
     u: "akhil",
@@ -36,8 +36,8 @@ const PERSONAS = [
     role: "Principal",
     desc: "School-wide analytics & audit logs",
     icon: Crown,
-    color: "bg-purple-500",
-    lightColor: "bg-purple-50 text-purple-700 border-purple-200",
+    color: "bg-pink-600",
+    lightColor: "bg-pink-100 text-pink-800 border-pink-300",
   },
 ];
 
@@ -107,9 +107,9 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
   return (
     <div className="min-h-screen bg-body flex flex-col">
       {/* Header */}
-      <header className="h-16 px-6 flex items-center justify-between border-b border-border bg-white">
+      <header className="h-16 px-6 flex items-center justify-between border-b border-border bg-white shadow-sm">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-pink">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-[15px] text-text-primary">XYZ AI</span>
@@ -126,8 +126,8 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
           {/* Left: Hero + Persona Cards */}
           <div className="space-y-6 animate-fade-in">
             <div>
-              <div className="badge-green mb-3 inline-flex">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="badge-pink mb-3 inline-flex">
+                <Sparkles className="w-3.5 h-3.5 text-accent" />
                 <span>AI School Assistant</span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-text-primary leading-tight text-balance">
@@ -154,7 +154,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
                     >
                       <div className="flex items-center gap-3 mb-2">
                         <div
-                          className={`w-10 h-10 rounded-xl ${p.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}
+                          className={`w-10 h-10 rounded-xl ${p.color} text-white flex items-center justify-center shadow-pink group-hover:scale-105 transition-transform duration-200`}
                         >
                           <Icon className="w-5 h-5" />
                         </div>
@@ -175,15 +175,15 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
 
           {/* Right: Auth Card */}
           <div className="animate-slide-up" style={{ animationDelay: "100ms" }}>
-            <div className="card p-6 sm:p-8 max-w-md mx-auto">
+            <div className="card p-6 sm:p-8 max-w-md mx-auto shadow-card-hover border-pink-100">
               {/* Mode Switcher */}
-              <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+              <div className="flex bg-pink-50/70 border border-pink-100 rounded-xl p-1 mb-6">
                 <button
                   onClick={() => { setAuthMode("signin"); setError(""); }}
-                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                     authMode === "signin"
-                      ? "bg-white text-text-primary shadow-sm"
-                      : "text-text-secondary hover:text-text-primary"
+                      ? "bg-white text-accent-dark font-semibold shadow-sm border border-pink-100"
+                      : "text-text-secondary hover:text-accent-dark"
                   }`}
                 >
                   <LogIn className="w-4 h-4" />
@@ -191,10 +191,10 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
                 </button>
                 <button
                   onClick={() => { setAuthMode("signup"); setError(""); }}
-                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                     authMode === "signup"
-                      ? "bg-white text-text-primary shadow-sm"
-                      : "text-text-secondary hover:text-text-primary"
+                      ? "bg-white text-accent-dark font-semibold shadow-sm border border-pink-100"
+                      : "text-text-secondary hover:text-accent-dark"
                   }`}
                 >
                   <UserPlus className="w-4 h-4" />
@@ -208,7 +208,7 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
                 </div>
               )}
               {successMsg && (
-                <div className="p-3 rounded-lg bg-accent-light border border-emerald-200 text-accent-dark text-sm mb-4">
+                <div className="p-3 rounded-lg bg-pink-50 border border-pink-200 text-accent-dark text-sm mb-4">
                   {successMsg}
                 </div>
               )}

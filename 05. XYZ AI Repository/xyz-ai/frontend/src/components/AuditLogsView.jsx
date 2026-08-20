@@ -60,11 +60,11 @@ export function AuditLogsView() {
       </div>
 
       {/* Table */}
-      <div className="card overflow-hidden">
+      <div className="card overflow-hidden border-pink-100 shadow-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-border bg-body/50">
+              <tr className="border-b border-border bg-pink-50/40">
                 <th className="table-cell table-header">Timestamp</th>
                 <th className="table-cell table-header">Actor</th>
                 <th className="table-cell table-header">Action</th>
@@ -93,13 +93,13 @@ export function AuditLogsView() {
                     </td>
                     <td className="table-cell">
                       <span className="font-medium text-text-primary">{log.userId}</span>
-                      <span className="badge-gray ml-2 text-[10px] uppercase">{log.role}</span>
+                      <span className="badge-pink ml-2 text-[10px] uppercase font-bold">{log.role}</span>
                     </td>
                     <td className="table-cell text-text-secondary">{log.action}</td>
                     <td className="table-cell text-text-tertiary">{log.target || "—"}</td>
                     <td className="table-cell">
                       {log.success ? (
-                        <span className="badge-green">
+                        <span className="badge-pink">
                           <CheckCircle className="w-3.5 h-3.5" />
                           Authorized
                         </span>

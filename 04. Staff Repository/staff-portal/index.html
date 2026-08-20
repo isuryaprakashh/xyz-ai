@@ -14,19 +14,19 @@
     .font-mono { font-family: 'Source Code Pro', monospace; }
   </style>
 </head>
-<body class="bg-[#121212] text-[#EDEDED] min-h-screen flex flex-col justify-between selection:bg-[#3FCF8E]/30 selection:text-[#3FCF8E]">
+<body class="bg-[#121212] text-[#EDEDED] min-h-screen flex flex-col justify-between selection:bg-[#ec4899]/30 selection:text-[#ec4899]">
   <!-- Header -->
   <header class="border-b border-[#2E2E2E] bg-[#121212]/90 backdrop-blur-md sticky top-0 z-40 px-6 py-3">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-[4px] bg-[#3FCF8E] flex items-center justify-center text-[#000000] font-bold text-sm shadow-sm">⚡</div>
+        <div class="w-8 h-8 rounded-[4px] bg-[#ec4899] flex items-center justify-center text-white font-bold text-sm shadow-sm">⚡</div>
         <div>
           <h1 class="font-bold text-sm text-white">Staff & Teacher Operations Desk</h1>
           <p class="text-[11px] font-mono text-[#808080]">School ERP Ecosystem • Staff Repository</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <select id="teacherSelect" onchange="loadTeacherData()" class="bg-[#1C1C1C] border border-[#2E2E2E] text-xs text-white rounded-[4px] px-3 py-1.5 focus:outline-none focus:border-[#3FCF8E]">
+        <select id="teacherSelect" onchange="loadTeacherData()" class="bg-[#1C1C1C] border border-[#2E2E2E] text-xs text-white rounded-[4px] px-3 py-1.5 focus:outline-none focus:border-[#ec4899]">
           <option value="t1">Priya Nair (Class 1A Lead)</option>
           <option value="t2">Sunita Rao (Class 1B Lead)</option>
           <option value="t3">Ananya Sharma (Class 2A Lead)</option>
@@ -35,7 +35,7 @@
           <option value="t7">Neha Deshmukh (Class 4A Lead)</option>
           <option value="t9">Pooja Iyer (Class 5A Lead)</option>
         </select>
-        <a href="http://localhost:5173" target="_blank" class="px-3 py-1.5 rounded-[4px] text-xs font-semibold bg-[#3FCF8E] text-[#000000] hover:bg-[#16B674] transition-all flex items-center gap-1">
+        <a href="http://localhost:5173" target="_blank" class="px-3 py-1.5 rounded-[4px] text-xs font-semibold bg-[#ec4899] text-white hover:bg-[#db2777] transition-all flex items-center gap-1">
           <span>Full App</span>
           <span>↗</span>
         </a>
@@ -48,13 +48,13 @@
     <!-- Teacher Banner -->
     <div class="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
       <div>
-        <span class="px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] uppercase">Faculty Operations Mode</span>
+        <span class="px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold bg-[#ec4899]/10 border border-[#ec4899]/30 text-[#ec4899] uppercase">Faculty Operations Mode</span>
         <h2 class="text-2xl font-bold text-white font-display mt-2" id="teacherGreeting">Welcome, Priya Nair</h2>
         <p class="text-xs text-[#808080] mt-1" id="assignedClassesDesc">Assigned Classroom: Class 1A</p>
       </div>
 
       <div class="flex items-center gap-3">
-        <span class="px-3 py-1 bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] text-xs rounded-[4px] font-mono font-bold">
+        <span class="px-3 py-1 bg-[#ec4899]/10 border border-[#ec4899]/30 text-[#ec4899] text-xs rounded-[4px] font-mono font-bold">
           Today: 20 Aug 2026
         </span>
       </div>
@@ -111,7 +111,7 @@
                 </div>
                 <p class="text-xs text-[#808080] mt-1">"Requesting teacher callback regarding Kabir's recent sick leave and attendance regularisation."</p>
               </div>
-              <button onclick="resolveTicket('TKT-2001')" class="px-3 py-1.5 bg-[#3FCF8E] hover:bg-[#16B674] text-[#000000] rounded-[4px] text-xs font-semibold transition-all shrink-0">
+              <button onclick="resolveTicket('TKT-2001')" class="px-3 py-1.5 bg-[#ec4899] hover:bg-[#db2777] text-white rounded-[4px] text-xs font-semibold transition-all shrink-0">
                 Mark Resolved
               </button>
             </div>
@@ -124,10 +124,10 @@
         <div class="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5 flex flex-col h-[560px]">
           <div class="flex items-center justify-between pb-3 border-b border-[#2E2E2E]">
             <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded-[3px] bg-[#3FCF8E] flex items-center justify-center text-xs font-bold text-[#000000]">⚡</div>
+              <div class="w-6 h-6 rounded-[3px] bg-[#ec4899] flex items-center justify-center text-xs font-bold text-white">⚡</div>
               <div>
                 <h3 class="font-bold text-xs text-white">Teacher Voice Assistant</h3>
-                <span class="text-[10px] text-[#3FCF8E]">● 1-Click Voice Marking</span>
+                <span class="text-[10px] text-[#ec4899]">● 1-Click Voice Marking</span>
               </div>
             </div>
           </div>
@@ -148,8 +148,8 @@
           <div class="pt-3 border-t border-[#2E2E2E] flex gap-2">
             <input type="text" id="chatInput" placeholder="Mark attendance or query roster..." 
                    onkeydown="if(event.key==='Enter') sendMessage()"
-                   class="flex-1 bg-[#121212] border border-[#2E2E2E] text-xs text-white rounded-[4px] px-3 py-2 focus:outline-none focus:border-[#3FCF8E]" />
-            <button onclick="sendMessage()" class="px-3 py-2 bg-[#3FCF8E] hover:bg-[#16B674] text-[#000000] rounded-[4px] text-xs font-semibold transition-all">
+                   class="flex-1 bg-[#121212] border border-[#2E2E2E] text-xs text-white rounded-[4px] px-3 py-2 focus:outline-none focus:border-[#ec4899]" />
+            <button onclick="sendMessage()" class="px-3 py-2 bg-[#ec4899] hover:bg-[#db2777] text-white rounded-[4px] text-xs font-semibold transition-all">
               Send
             </button>
           </div>
@@ -223,15 +223,15 @@
         tbody.innerHTML += `
           <tr>
             <td class="py-2.5 font-bold text-white">${s.name}</td>
-            <td class="py-2.5 font-mono text-[#3FCF8E] font-semibold">${s.percent}</td>
+            <td class="py-2.5 font-mono text-[#ec4899] font-semibold">${s.percent}</td>
             <td class="py-2.5 text-center">
-              <span id="badge-${s.id}" class="px-2 py-0.5 rounded-[3px] font-mono font-bold text-[10px] ${s.status === 'present' ? 'bg-[#3FCF8E]/10 text-[#3FCF8E] border border-[#3FCF8E]/30' : 'bg-[#DC7B18]/10 text-[#F3BA63] border border-[#DC7B18]/30'}">
+              <span id="badge-${s.id}" class="px-2 py-0.5 rounded-[3px] font-mono font-bold text-[10px] ${s.status === 'present' ? 'bg-[#ec4899]/10 text-[#ec4899] border border-[#ec4899]/30' : 'bg-[#DC7B18]/10 text-[#F3BA63] border border-[#DC7B18]/30'}">
                 ${s.status.toUpperCase()}
               </span>
             </td>
             <td class="py-2.5 text-right">
               <div class="inline-flex gap-1.5">
-                <button onclick="markStudent('${s.id}', '${s.name}', 'present')" class="px-2 py-1 bg-[#3FCF8E]/10 hover:bg-[#3FCF8E] text-[#3FCF8E] hover:text-[#000000] border border-[#3FCF8E]/30 rounded-[4px] text-[10px] font-semibold transition-all">
+                <button onclick="markStudent('${s.id}', '${s.name}', 'present')" class="px-2 py-1 bg-[#ec4899]/10 hover:bg-[#ec4899] text-[#ec4899] hover:text-white border border-[#ec4899]/30 rounded-[4px] text-[10px] font-semibold transition-all">
                   Present
                 </button>
                 <button onclick="markStudent('${s.id}', '${s.name}', 'absent')" class="px-2 py-1 bg-[#DC7B18]/10 hover:bg-[#DC7B18] text-[#F3BA63] hover:text-white border border-[#DC7B18]/30 rounded-[4px] text-[10px] font-semibold transition-all">
@@ -258,10 +258,10 @@
         const badge = document.getElementById(`badge-${studentId}`);
         if (badge) {
           badge.innerText = status.toUpperCase();
-          badge.className = status === 'present' ? 'px-2 py-0.5 rounded-[3px] font-mono font-bold text-[10px] bg-[#3FCF8E]/10 text-[#3FCF8E] border border-[#3FCF8E]/30' : 'px-2 py-0.5 rounded-[3px] font-mono font-bold text-[10px] bg-[#DC7B18]/10 text-[#F3BA63] border border-[#DC7B18]/30';
+          badge.className = status === 'present' ? 'px-2 py-0.5 rounded-[3px] font-mono font-bold text-[10px] bg-[#ec4899]/10 text-[#ec4899] border border-[#ec4899]/30' : 'px-2 py-0.5 rounded-[3px] font-mono font-bold text-[10px] bg-[#DC7B18]/10 text-[#F3BA63] border border-[#DC7B18]/30';
         }
 
-        toast.className = "mt-4 p-2.5 rounded-[4px] text-xs text-center bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] block";
+        toast.className = "mt-4 p-2.5 rounded-[4px] text-xs text-center bg-[#ec4899]/10 border border-[#ec4899]/30 text-[#ec4899] block";
         toast.innerText = `✅ Marked ${studentName} as ${status.toUpperCase()} for today. Database record updated.`;
       } catch (err) {
         toast.className = "mt-4 p-2.5 rounded-[4px] text-xs text-center bg-[#DC7B18]/10 border border-[#DC7B18]/30 text-[#F3BA63] block";
@@ -282,7 +282,7 @@
 
       const tid = document.getElementById("teacherSelect").value;
       const chatBox = document.getElementById("chatMessages");
-      chatBox.innerHTML += `<div class="bg-[#3FCF8E] text-[#000000] font-medium p-2.5 rounded-[6px] max-w-[85%] ml-auto text-right">${text}</div>`;
+      chatBox.innerHTML += `<div class="bg-[#ec4899] text-white font-medium p-2.5 rounded-[6px] max-w-[85%] ml-auto text-right">${text}</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
       try {

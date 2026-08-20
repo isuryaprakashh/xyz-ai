@@ -96,7 +96,7 @@ export function Dashboard({ user }) {
         <div className="space-y-6">
           {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="stat-card stat-card-green pl-6">
+            <div className="stat-card stat-card-pink pl-6">
               <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">
                 School Average
               </p>
@@ -120,7 +120,7 @@ export function Dashboard({ user }) {
               <p className="text-xs text-text-tertiary mt-1">10 Faculty · Classes 1A–5B</p>
             </div>
 
-            <div className="stat-card stat-card-green pl-6">
+            <div className="stat-card stat-card-pink pl-6">
               <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">
                 Compliance Status
               </p>
@@ -132,7 +132,7 @@ export function Dashboard({ user }) {
           </div>
 
           {/* Class Breakdown Matrix */}
-          <div className="card p-6">
+          <div className="card p-6 border-pink-100 shadow-card">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2.5">
                 <BarChart3 className="w-5 h-5 text-accent" />
@@ -140,7 +140,7 @@ export function Dashboard({ user }) {
                   Classroom Attendance Compliance Matrix
                 </h3>
               </div>
-              <span className="badge-gray text-[11px]">Academic Year 2026</span>
+              <span className="badge-pink text-[11px]">Academic Year 2026</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -149,7 +149,7 @@ export function Dashboard({ user }) {
                 return (
                   <div
                     key={i}
-                    className="p-4 rounded-xl bg-body border border-border hover:border-border-hover transition-colors"
+                    className="p-4 rounded-xl bg-pink-50/40 border border-pink-200/60 hover:border-pink-300 hover:bg-pink-50/70 transition-all"
                   >
                     <div className="flex items-center justify-between mb-2.5">
                       <div>
@@ -160,7 +160,7 @@ export function Dashboard({ user }) {
                         <span
                           className={`text-lg font-bold ${
                             pct >= 90
-                              ? "text-accent"
+                              ? "text-accent-dark"
                               : pct >= 85
                               ? "text-amber-600"
                               : "text-danger"
@@ -171,10 +171,14 @@ export function Dashboard({ user }) {
                         <p className="text-[11px] text-text-tertiary">{c.studentCount} students</p>
                       </div>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-white/80 rounded-full h-2 overflow-hidden border border-pink-100">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
-                          pct >= 90 ? "bg-accent" : pct >= 85 ? "bg-amber-500" : "bg-danger"
+                          pct >= 90
+                            ? "bg-gradient-to-r from-pink-500 to-rose-500"
+                            : pct >= 85
+                            ? "bg-amber-500"
+                            : "bg-danger"
                         }`}
                         style={{ width: `${Math.min(pct, 100)}%` }}
                       />
@@ -190,7 +194,7 @@ export function Dashboard({ user }) {
       {/* TEACHER DASHBOARD */}
       {user.role === "teacher" && (
         <div className="space-y-4">
-          <div className="card p-6">
+          <div className="card p-6 border-pink-100 shadow-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
               <div className="flex items-center gap-2.5">
                 <Users className="w-5 h-5 text-accent" />
@@ -217,7 +221,7 @@ export function Dashboard({ user }) {
                     </option>
                   ))}
                 </select>
-                <span className="badge-green text-[11px]">
+                <span className="badge-pink text-[11px]">
                   {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </span>
               </div>
@@ -264,8 +268,8 @@ export function Dashboard({ user }) {
                               disabled={status === "saving"}
                               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 status === "present"
-                                  ? "bg-accent text-white"
-                                  : "bg-accent-light text-accent-dark hover:bg-accent hover:text-white"
+                                  ? "bg-accent text-white shadow-pink"
+                                  : "bg-pink-50 text-accent-dark border border-pink-200 hover:bg-accent hover:text-white"
                               }`}
                             >
                               Present
@@ -276,7 +280,7 @@ export function Dashboard({ user }) {
                               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 status === "absent"
                                   ? "bg-danger text-white"
-                                  : "bg-danger-light text-danger hover:bg-danger hover:text-white"
+                                  : "bg-danger-light text-danger border border-red-200 hover:bg-danger hover:text-white"
                               }`}
                             >
                               Absent
@@ -298,7 +302,7 @@ export function Dashboard({ user }) {
         <div className="space-y-5">
           {/* Parent Child Switcher */}
           {user.role === "parent" && user.studentIds && user.studentIds.length > 1 && (
-            <div className="card p-3 flex items-center gap-3">
+            <div className="card p-3 flex items-center gap-3 border-pink-100">
               <span className="text-sm text-text-secondary">Select child:</span>
               {user.studentIds.map((sid) => (
                 <button
@@ -306,8 +310,8 @@ export function Dashboard({ user }) {
                   onClick={() => setSelectedChildId(sid)}
                   className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     selectedChildId === sid
-                      ? "bg-accent text-white"
-                      : "bg-gray-100 text-text-secondary hover:bg-gray-200"
+                      ? "bg-accent text-white shadow-pink font-semibold"
+                      : "bg-pink-50 text-text-secondary border border-pink-100 hover:bg-pink-100 hover:text-accent-dark"
                   }`}
                 >
                   {sid.toUpperCase()}
@@ -318,7 +322,7 @@ export function Dashboard({ user }) {
 
           {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="stat-card stat-card-green pl-6">
+            <div className="stat-card stat-card-pink pl-6">
               <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">
                 Overall Attendance
               </p>
@@ -326,7 +330,7 @@ export function Dashboard({ user }) {
                 <span className="text-3xl font-bold text-text-primary">{studentData.percentage}%</span>
                 <span
                   className={`badge text-[11px] ${
-                    parseFloat(studentData.percentage) >= 85 ? "badge-green" : "badge-yellow"
+                    parseFloat(studentData.percentage) >= 85 ? "badge-pink" : "badge-yellow"
                   }`}
                 >
                   {parseFloat(studentData.percentage) >= 85 ? "Optimal" : "Attention"}
@@ -346,7 +350,7 @@ export function Dashboard({ user }) {
               <p className="text-xs text-text-tertiary mt-1">Total school sessions held</p>
             </div>
 
-            <div className="stat-card stat-card-green pl-6">
+            <div className="stat-card stat-card-pink pl-6">
               <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">
                 Exam Eligibility
               </p>
@@ -356,7 +360,7 @@ export function Dashboard({ user }) {
           </div>
 
           {/* Attendance Timeline */}
-          <div className="card p-6">
+          <div className="card p-6 border-pink-100 shadow-card">
             <div className="flex items-center gap-2.5 mb-4">
               <Calendar className="w-5 h-5 text-accent" />
               <h3 className="font-bold text-base text-text-primary">Recent Daily Attendance (Past 10 Days)</h3>
@@ -368,9 +372,9 @@ export function Dashboard({ user }) {
                   key={i}
                   className={`p-3 rounded-xl text-center border transition-all hover:scale-[1.02] ${
                     r.status === "present"
-                      ? "bg-accent-light/50 border-accent/20"
+                      ? "bg-pink-50 border-pink-200"
                       : r.status === "weekend"
-                      ? "bg-gray-50 border-border"
+                      ? "bg-white border-border"
                       : "bg-danger-light/50 border-danger/20"
                   }`}
                 >

@@ -69,6 +69,15 @@ export function ManagementView({ user }) {
     setTimeout(() => setToastMessage(""), 3500);
   };
 
+  const resetForm = () => {
+    setFormName("");
+    setFormUsername("");
+    setFormEmail("");
+    setFormClassId("c1");
+    setFormClassIds(["c1"]);
+    setFormPassword("");
+  };
+
   // Add Student
   const handleCreateStudent = async (e) => {
     e.preventDefault();
@@ -120,20 +129,31 @@ export function ManagementView({ user }) {
   };
 
   // Edit User
+  const startEdit = (targetUser) => {
+    setEditingUser(targetUser);
+    setFormName(targetUser.name || "");
+    setFormEmail(targetUser.email || "");
+    setFormClassId(targetUser.classId || "c1");
+    setFormClassIds(targetUser.classIds || ["c1"]);
+  };
+
   const handleUpdateUser = async (e) => {
     e.preventDefault();
     if (!editingUser) return;
     setSubmitting(true);
     try {
-      await api.updateUser(editingUser.userId || editingUser.id, {
+      const updatePayload = {
         name: formName.trim(),
         email: formEmail.trim(),
-        classId: editingUser.role === "student" ? formClassId : undefined,
-        classIds: editingUser.role === "teacher" ? formClassIds : undefined,
-      });
-      showToast(`User ${formName} updated successfully!`);
+      };
+      if (editingUser.role === "student") {
+        updatePayload.classId = formClassId;
+      } else if (editingUser.role === "teacher") {
+        updatePayload.classIds = formClassIds;
+      }
+      await api.updateUser(editingUser.userId || editingUser.id, updatePayload);
+      showToast(`Updated profile for ${editingUser.name}!`);
       setEditingUser(null);
-      resetForm();
       await loadAll();
     } catch (err) {
       alert(err.message || "Failed to update user.");
@@ -148,7 +168,7 @@ export function ManagementView({ user }) {
     setSubmitting(true);
     try {
       await api.deleteUser(deletingUser.userId || deletingUser.id);
-      showToast(`User ${deletingUser.name} removed from the system.`);
+      showToast(`Deleted ${deletingUser.name} from directory.`);
       setDeletingUser(null);
       await loadAll();
     } catch (err) {
@@ -158,38 +178,22 @@ export function ManagementView({ user }) {
     }
   };
 
-  const resetForm = () => {
-    setFormName("");
-    setFormUsername("");
-    setFormEmail("");
-    setFormClassId("c1");
-    setFormClassIds(["c1"]);
-    setFormPassword("");
-  };
-
-  const startEdit = (u) => {
-    setEditingUser(u);
-    setFormName(u.name);
-    setFormUsername(u.username);
-    setFormEmail(u.email || "");
-    setFormClassId(u.classId || "c1");
-    setFormClassIds(u.classIds || ["c1"]);
-  };
-
+  // Filter students
   const filteredStudents = students.filter((s) => {
-    const matchSearch =
-      s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.userId && s.userId.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchClass = classFilter === "all" || s.classId === classFilter;
-    return matchSearch && matchClass;
+    const matchesSearch =
+      s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.username?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesClass = classFilter === "all" || s.classId === classFilter;
+    return matchesSearch && matchesClass;
   });
 
-  const filteredFaculty = faculty.filter(
-    (f) =>
-      f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      f.username.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter faculty
+  const filteredFaculty = faculty.filter((f) => {
+    return (
+      f.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      f.username?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="flex-1 overflow-y-auto p-5 sm:p-8 max-w-6xl mx-auto w-full space-y-6 animate-fade-in">
@@ -213,7 +217,7 @@ export function ManagementView({ user }) {
 
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="p-3.5 rounded-xl bg-accent-light border border-emerald-200 text-accent-dark text-sm flex items-center gap-2 animate-slide-up">
+        <div className="p-3.5 rounded-xl bg-pink-50 border border-pink-200 text-accent-dark text-sm flex items-center gap-2 animate-slide-up shadow-sm">
           <CheckCircle2 className="w-4 h-4 text-accent" />
           <span className="font-semibold">{toastMessage}</span>
         </div>
@@ -226,8 +230,8 @@ export function ManagementView({ user }) {
             onClick={() => setActiveSubTab("students")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
               activeSubTab === "students"
-                ? "bg-accent text-white shadow-sm"
-                : "card-hover text-text-secondary hover:text-text-primary"
+                ? "bg-accent text-white shadow-pink"
+                : "card-hover text-text-secondary hover:text-accent-dark"
             }`}
           >
             <GraduationCap className="w-4 h-4" />
@@ -238,8 +242,8 @@ export function ManagementView({ user }) {
             onClick={() => setActiveSubTab("faculty")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
               activeSubTab === "faculty"
-                ? "bg-accent text-white shadow-sm"
-                : "card-hover text-text-secondary hover:text-text-primary"
+                ? "bg-accent text-white shadow-pink"
+                : "card-hover text-text-secondary hover:text-accent-dark"
             }`}
           >
             <BookOpen className="w-4 h-4" />
@@ -250,8 +254,8 @@ export function ManagementView({ user }) {
             onClick={() => setActiveSubTab("classes")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
               activeSubTab === "classes"
-                ? "bg-accent text-white shadow-sm"
-                : "card-hover text-text-secondary hover:text-text-primary"
+                ? "bg-accent text-white shadow-pink"
+                : "card-hover text-text-secondary hover:text-accent-dark"
             }`}
           >
             <Building className="w-4 h-4" />
@@ -323,11 +327,11 @@ export function ManagementView({ user }) {
 
       {/* ─── STUDENTS TAB ─── */}
       {activeSubTab === "students" && (
-        <div className="card overflow-hidden">
+        <div className="card overflow-hidden border-pink-100 shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-border bg-body/50">
+                <tr className="border-b border-border bg-pink-50/40">
                   <th className="table-cell table-header">Student</th>
                   <th className="table-cell table-header">Username</th>
                   <th className="table-cell table-header">Classroom</th>
@@ -351,7 +355,7 @@ export function ManagementView({ user }) {
                       </td>
                       <td className="table-cell font-mono text-xs text-text-secondary">@{s.username}</td>
                       <td className="table-cell">
-                        <span className="badge-green text-xs font-semibold uppercase">
+                        <span className="badge-pink text-xs font-semibold uppercase">
                           {s.classId || "Class 1A"}
                         </span>
                       </td>
@@ -360,7 +364,7 @@ export function ManagementView({ user }) {
                         <div className="inline-flex gap-1.5">
                           <button
                             onClick={() => startEdit(s)}
-                            className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-gray-100 transition-colors"
+                            className="p-1.5 rounded-lg text-text-secondary hover:text-accent-dark hover:bg-pink-50 transition-colors"
                             title="Edit Student"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -385,11 +389,11 @@ export function ManagementView({ user }) {
 
       {/* ─── FACULTY TAB ─── */}
       {activeSubTab === "faculty" && (
-        <div className="card overflow-hidden">
+        <div className="card overflow-hidden border-pink-100 shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-border bg-body/50">
+                <tr className="border-b border-border bg-pink-50/40">
                   <th className="table-cell table-header">Faculty Lead</th>
                   <th className="table-cell table-header">Username</th>
                   <th className="table-cell table-header">Assigned Classrooms</th>
@@ -415,7 +419,7 @@ export function ManagementView({ user }) {
                       <td className="table-cell">
                         <div className="flex flex-wrap gap-1">
                           {(f.classIds || ["c1"]).map((cid) => (
-                            <span key={cid} className="badge-blue text-[11px] font-semibold uppercase">
+                            <span key={cid} className="badge-pink text-[11px] font-semibold uppercase">
                               {cid}
                             </span>
                           ))}
@@ -426,7 +430,7 @@ export function ManagementView({ user }) {
                         <div className="inline-flex gap-1.5">
                           <button
                             onClick={() => startEdit(f)}
-                            className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-gray-100 transition-colors"
+                            className="p-1.5 rounded-lg text-text-secondary hover:text-accent-dark hover:bg-pink-50 transition-colors"
                             title="Edit Faculty"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -453,10 +457,10 @@ export function ManagementView({ user }) {
       {activeSubTab === "classes" && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {classes.map((c) => (
-            <div key={c.classId || c.id} className="card p-5 space-y-3">
+            <div key={c.classId || c.id} className="card p-5 space-y-3 border-pink-100 shadow-card">
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-base text-text-primary">{c.name}</h4>
-                <span className="badge-gray text-xs font-semibold">{c.grade}</span>
+                <span className="badge-pink text-xs font-semibold">{c.grade}</span>
               </div>
 
               <div className="space-y-1.5 text-xs text-text-secondary">
@@ -481,10 +485,10 @@ export function ManagementView({ user }) {
       {/* ═══ MODAL: ADD STUDENT ═══ */}
       {showAddStudent && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-border rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-border">
+          <div className="bg-white border border-pink-200 rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-pink-100">
               <h3 className="font-bold text-base text-text-primary">Add New Student</h3>
-              <button onClick={() => setShowAddStudent(false)} className="p-1 rounded-lg hover:bg-gray-100 text-text-secondary">
+              <button onClick={() => setShowAddStudent(false)} className="p-1 rounded-lg hover:bg-pink-50 text-text-secondary">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -552,7 +556,7 @@ export function ManagementView({ user }) {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-pink-100">
                 <button type="button" onClick={() => setShowAddStudent(false)} className="btn-ghost">
                   Cancel
                 </button>
@@ -568,10 +572,10 @@ export function ManagementView({ user }) {
       {/* ═══ MODAL: ADD FACULTY ═══ */}
       {showAddFaculty && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-border rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-border">
+          <div className="bg-white border border-pink-200 rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-pink-100">
               <h3 className="font-bold text-base text-text-primary">Add Faculty Member</h3>
-              <button onClick={() => setShowAddFaculty(false)} className="p-1 rounded-lg hover:bg-gray-100 text-text-secondary">
+              <button onClick={() => setShowAddFaculty(false)} className="p-1 rounded-lg hover:bg-pink-50 text-text-secondary">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -630,7 +634,7 @@ export function ManagementView({ user }) {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-pink-100">
                 <button type="button" onClick={() => setShowAddFaculty(false)} className="btn-ghost">
                   Cancel
                 </button>
@@ -646,12 +650,12 @@ export function ManagementView({ user }) {
       {/* ═══ MODAL: EDIT USER ═══ */}
       {editingUser && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-border rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-border">
+          <div className="bg-white border border-pink-200 rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-pink-100">
               <h3 className="font-bold text-base text-text-primary">
                 Edit {editingUser.role === "student" ? "Student" : "Faculty"} Profile
               </h3>
-              <button onClick={() => setEditingUser(null)} className="p-1 rounded-lg hover:bg-gray-100 text-text-secondary">
+              <button onClick={() => setEditingUser(null)} className="p-1 rounded-lg hover:bg-pink-50 text-text-secondary">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -710,7 +714,7 @@ export function ManagementView({ user }) {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-pink-100">
                 <button type="button" onClick={() => setEditingUser(null)} className="btn-ghost">
                   Cancel
                 </button>
@@ -726,7 +730,7 @@ export function ManagementView({ user }) {
       {/* ═══ MODAL: DELETE CONFIRMATION ═══ */}
       {deletingUser && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-border rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
+          <div className="bg-white border border-pink-200 rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
             <div className="flex items-center gap-3 text-danger">
               <AlertTriangle className="w-6 h-6" />
               <h3 className="font-bold text-base text-text-primary">Confirm Deletion</h3>
@@ -736,7 +740,7 @@ export function ManagementView({ user }) {
               Are you sure you want to permanently remove <strong>{deletingUser.name}</strong> (@{deletingUser.username}) from the institutional directory? All associated attendance and session records will be deleted.
             </p>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-pink-100">
               <button
                 type="button"
                 onClick={() => setDeletingUser(null)}

@@ -67,7 +67,7 @@ export function EscalationsView({ user }) {
 
   const statusBadge = (status) => {
     switch (status) {
-      case "resolved": return "badge-green";
+      case "resolved": return "badge-pink";
       case "in_review": return "badge-blue";
       default: return "badge-yellow";
     }
@@ -101,15 +101,15 @@ export function EscalationsView({ user }) {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 w-fit">
+      <div className="flex items-center gap-1 bg-pink-50/70 border border-pink-100 rounded-xl p-1 w-fit">
         {["all", "pending", "resolved"].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3.5 py-1.5 rounded-md text-sm font-medium capitalize transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-sm font-medium capitalize transition-all ${
               filter === f
-                ? "bg-white text-text-primary shadow-sm"
-                : "text-text-secondary hover:text-text-primary"
+                ? "bg-white text-accent-dark font-semibold shadow-sm border border-pink-100"
+                : "text-text-secondary hover:text-accent-dark"
             }`}
           >
             {f}
@@ -125,16 +125,17 @@ export function EscalationsView({ user }) {
       {/* Tickets */}
       {loading ? (
         <div className="flex items-center justify-center p-12 text-sm text-text-secondary">
+          <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin mr-2" />
           Loading tickets...
         </div>
       ) : filteredTickets.length === 0 ? (
-        <div className="card p-10 text-center text-sm text-text-tertiary">
+        <div className="card p-10 text-center text-sm text-text-tertiary border-pink-100">
           No tickets match this filter.
         </div>
       ) : (
         <div className="space-y-3">
           {filteredTickets.map((t) => (
-            <div key={t.ticketId} className="card-hover p-5">
+            <div key={t.ticketId} className="card-hover p-5 border-pink-100 shadow-card">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2.5">
                   <span className="font-bold text-sm text-text-primary">#{t.ticketId}</span>
@@ -148,30 +149,29 @@ export function EscalationsView({ user }) {
                 </div>
               </div>
 
-              <p className="text-sm text-text-secondary leading-relaxed">{t.reason}</p>
+              <p className="text-sm text-text-secondary mb-3 leading-relaxed">{t.reason}</p>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-3 pt-3 border-t border-border text-xs text-text-tertiary">
-                <div className="flex items-center gap-3">
-                  <span>Target: <strong className="text-text-primary capitalize">{t.targetRole}</strong></span>
-                  {t.studentName && <span>Student: <strong className="text-text-primary">{t.studentName}</strong></span>}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-pink-100 text-xs text-text-tertiary">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Created {new Date(t.createdAt).toLocaleDateString()}</span>
+                  {t.studentId && <span>· Student: {t.studentId.toUpperCase()}</span>}
                 </div>
 
-                {(user.role === "teacher" || user.role === "principal" || user.role === "admin") && t.status !== "resolved" && (
+                {/* Status Actions (for teachers/principals) */}
+                {(user.role === "teacher" || user.role === "principal" || user.role === "admin") && (
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleStatusChange(t.ticketId, "in_review")}
+                    <span className="text-text-tertiary">Set status:</span>
+                    <select
+                      value={t.status}
                       disabled={updatingId === t.ticketId}
-                      className="btn-secondary text-xs h-7 px-3"
+                      onChange={(e) => handleStatusChange(t.ticketId, e.target.value)}
+                      className="select py-1 px-2 text-xs w-32"
                     >
-                      In Review
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(t.ticketId, "resolved")}
-                      disabled={updatingId === t.ticketId}
-                      className="btn-primary text-xs h-7 px-3"
-                    >
-                      Resolve
-                    </button>
+                      <option value="pending">Pending</option>
+                      <option value="in_review">In Review</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
                   </div>
                 )}
               </div>
@@ -180,45 +180,50 @@ export function EscalationsView({ user }) {
         </div>
       )}
 
-      {/* Modal */}
+      {/* New Ticket Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-border rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-base text-text-primary">New Support Ticket</h3>
-              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-gray-100 text-text-secondary transition-colors">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white border border-pink-200 rounded-2xl p-6 max-w-md w-full shadow-modal animate-scale-in space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-pink-100">
+              <h3 className="font-bold text-base text-text-primary">Create Escalation Ticket</h3>
+              <button onClick={() => setShowModal(false)} className="p-1 rounded-lg hover:bg-pink-50 text-text-secondary">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreate} className="space-y-4">
+            <form onSubmit={handleCreate} className="space-y-3.5">
               <div>
-                <label className="text-sm font-medium text-text-primary block mb-1.5">Department</label>
-                <select value={targetRole} onChange={(e) => setTargetRole(e.target.value)} className="select">
-                  <option value="teacher">Class Teacher / Faculty</option>
-                  <option value="management">Principal & Management</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-text-primary block mb-1.5">Priority</label>
-                <select value={priority} onChange={(e) => setPriority(e.target.value)} className="select">
-                  <option value="low">Low — General Inquiry</option>
-                  <option value="medium">Medium — Standard Matter</option>
-                  <option value="high">High — Medical / Threshold</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-text-primary block mb-1.5">Description</label>
+                <label className="text-sm font-medium text-text-primary block mb-1">Reason / Issue</label>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="Explain your request..."
+                  placeholder="Describe your query or reason for callback..."
                   rows={3}
                   className="input resize-none"
                   required
                 />
               </div>
-              <div className="flex items-center justify-end gap-2 pt-2">
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-text-primary block mb-1">Target</label>
+                  <select value={targetRole} onChange={(e) => setTargetRole(e.target.value)} className="select">
+                    <option value="teacher">Class Teacher</option>
+                    <option value="principal">Principal</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-text-primary block mb-1">Priority</label>
+                  <select value={priority} onChange={(e) => setPriority(e.target.value)} className="select">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-pink-100">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-ghost">
                   Cancel
                 </button>

@@ -46,7 +46,7 @@ export function InputForm({
           className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
             isListening
               ? "bg-danger text-white shadow-sm animate-pulse"
-              : "bg-gray-100 text-text-secondary hover:bg-gray-200 hover:text-text-primary"
+              : "bg-pink-50 hover:bg-pink-100 text-accent-dark border border-pink-200"
           }`}
           title={isListening ? "Stop listening" : "Voice input"}
         >
@@ -70,7 +70,7 @@ export function InputForm({
         <button
           type="submit"
           disabled={isLoading || !value.trim()}
-          className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shrink-0 hover:bg-accent-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+          className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shrink-0 hover:bg-accent-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-pink"
           title="Send"
         >
           <Send className="w-[18px] h-[18px]" />

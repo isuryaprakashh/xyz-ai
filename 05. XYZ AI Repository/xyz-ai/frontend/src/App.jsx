@@ -210,19 +210,19 @@ function MainApp() {
   ];
 
   const roleColor = {
-    student: "bg-blue-100 text-blue-700",
-    teacher: "bg-emerald-100 text-emerald-700",
-    parent: "bg-amber-100 text-amber-700",
-    principal: "bg-purple-100 text-purple-700",
-    admin: "bg-purple-100 text-purple-700",
+    student: "bg-pink-100 text-pink-700 border border-pink-200",
+    teacher: "bg-rose-100 text-rose-700 border border-rose-200",
+    parent: "bg-fuchsia-100 text-fuchsia-700 border border-fuchsia-200",
+    principal: "bg-pink-100 text-pink-800 border border-pink-300",
+    admin: "bg-pink-100 text-pink-800 border border-pink-300",
   };
 
   const roleInitialBg = {
-    student: "bg-blue-500",
-    teacher: "bg-emerald-500",
-    parent: "bg-amber-500",
-    principal: "bg-purple-500",
-    admin: "bg-purple-500",
+    student: "bg-pink-500",
+    teacher: "bg-rose-500",
+    parent: "bg-fuchsia-500",
+    principal: "bg-pink-600",
+    admin: "bg-pink-600",
   };
 
   return (
@@ -230,7 +230,7 @@ function MainApp() {
       {/* ═══ Mobile Sidebar Overlay ═══ */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+          className="fixed inset-0 bg-black/25 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -244,7 +244,7 @@ function MainApp() {
         {/* Brand */}
         <div className="h-16 px-5 flex items-center justify-between border-b border-border shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-pink">
               <Bot className="w-4.5 h-4.5 text-white" />
             </div>
             <div className="leading-tight">
@@ -254,7 +254,7 @@ function MainApp() {
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 text-text-secondary transition-colors"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-pink-50 text-text-secondary transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -299,7 +299,7 @@ function MainApp() {
               <span>Voice Reply</span>
               <span
                 className={`ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-md ${
-                  autoVoiceReply ? "bg-accent-light text-accent-dark" : "bg-gray-100 text-text-tertiary"
+                  autoVoiceReply ? "bg-accent-light text-accent-dark border border-pink-200" : "bg-gray-100 text-text-tertiary"
                 }`}
               >
                 {autoVoiceReply ? "On" : "Off"}
@@ -326,10 +326,10 @@ function MainApp() {
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-pink-50/70 transition-colors"
             >
               <div
-                className={`w-9 h-9 rounded-lg ${roleInitialBg[user.role] || "bg-gray-400"} text-white font-bold text-sm flex items-center justify-center shrink-0`}
+                className={`w-9 h-9 rounded-lg ${roleInitialBg[user.role] || "bg-pink-400"} text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-pink`}
               >
                 {user.name.charAt(0).toUpperCase()}
               </div>
@@ -346,7 +346,7 @@ function MainApp() {
 
             {/* Dropdown */}
             {userMenuOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-border rounded-xl shadow-modal p-2 animate-scale-in z-30">
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-pink-200 rounded-2xl shadow-modal p-2 animate-scale-in z-30">
                 <p className="px-2.5 py-1.5 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
                   Switch User
                 </p>
@@ -359,8 +359,8 @@ function MainApp() {
                     }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${
                       user.username === p.u || user.username === p.label.toLowerCase()
-                        ? "bg-accent-light/60 text-accent-dark font-semibold"
-                        : "text-text-primary hover:bg-gray-50"
+                        ? "bg-pink-50 text-accent-dark font-semibold border border-pink-100"
+                        : "text-text-primary hover:bg-pink-50/50"
                     }`}
                   >
                     <span className="flex-1 text-left">{p.label}</span>
@@ -388,11 +388,11 @@ function MainApp() {
       {/* ═══ MAIN CONTENT ═══ */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Bar */}
-        <header className="h-16 bg-white border-b border-border px-4 sm:px-6 flex items-center justify-between shrink-0">
+        <header className="h-16 bg-white border-b border-border px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-text-secondary transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-pink-50 text-text-secondary transition-colors"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -461,7 +461,7 @@ function MainApp() {
               </div>
 
               {/* Avatar Sidebar (Desktop) */}
-              <div className="hidden lg:block w-[320px] border-l border-border">
+              <div className="hidden lg:block w-[320px] border-l border-border bg-white/50">
                 <AvatarSection
                   avatarState={avatarState}
                   userRole={user.role}
