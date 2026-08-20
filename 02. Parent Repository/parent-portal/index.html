@@ -3,51 +3,317 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parent Portal — School ERP</title>
+  <title>Parent Portal & Faculty Support — School ERP</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between p-6">
-  <header class="max-w-5xl mx-auto w-full flex items-center justify-between py-4 border-b border-slate-800">
-    <div class="flex items-center gap-2">
-      <span class="text-2xl">👨‍👩‍👧</span>
-      <span class="font-bold text-lg text-white">Parent Portal ERP</span>
+<body class="bg-[#0A0D12] text-[#F0F6FC] min-h-screen flex flex-col justify-between">
+  <!-- Header -->
+  <header class="border-b border-white/10 bg-[#12171F]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-[#BF63F3] flex items-center justify-center text-white font-bold text-lg shadow-md">👨‍👩‍👧</div>
+        <div>
+          <h1 class="font-bold text-base text-white">Parent Portal & Faculty Hub</h1>
+          <p class="text-xs text-[#8B949E]">School ERP Ecosystem • Parent Repository</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <select id="parentSelect" onchange="loadParentData()" class="bg-[#161D27] border border-white/10 text-xs text-white rounded-full px-4 py-2 focus:outline-none focus:border-[#BF63F3]">
+          <option value="p1">Meera Sharma (Child: Rahul, 8A)</option>
+          <option value="p2">Arjun Patel (Child: Priya, 8A)</option>
+          <option value="p3">Sunita Singh (Child: Aarav, 9B)</option>
+          <option value="p4">Ramesh Gupta (Children: Rohan 8B, Ishaan 8B)</option>
+          <option value="p5">Anita Verma (Child: Kabir, 10A)</option>
+        </select>
+        <a href="http://localhost:5173" target="_blank" class="px-4 py-2 rounded-full text-xs font-semibold bg-[#1868DB] hover:bg-[#1455B3] text-white transition-all shadow-sm flex items-center gap-1.5">
+          <span>Open Full Suite</span>
+          <span>↗</span>
+        </a>
+      </div>
     </div>
-    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-semibold">Guardian Access</span>
   </header>
 
-  <main class="max-w-3xl mx-auto w-full text-center space-y-6 my-12">
-    <div class="inline-block p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-4xl mb-2">👨‍👩‍👧</div>
-    <h1 class="text-3xl sm:text-4xl font-extrabold text-white">Parent Support & Monitoring Hub</h1>
-    <p class="text-slate-400 text-sm max-w-lg mx-auto">
-      Track your child's attendance and academic progress with AI updates, or request direct callbacks with teachers.
-    </p>
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto w-full p-6 space-y-6">
+    <!-- Parent & Child Header Banner -->
+    <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-[#BF63F3]/20 text-[#E2B7FF] border border-[#BF63F3]/30">Parent Account Verified</span>
+        <h2 class="text-2xl font-bold text-white font-display mt-2" id="parentGreeting">Welcome, Meera Sharma</h2>
+        <p class="text-xs text-[#8B949E] mt-1" id="linkedDesc">Monitoring enrolled child: Rahul Sharma (Class 8A)</p>
+      </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left my-8">
-      <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl">
-        <span class="text-xs text-slate-400">Linked Student</span>
-        <p class="text-xl font-bold text-white mt-1">Rahul Sharma</p>
-        <span class="text-[11px] text-slate-400">Class 8A</span>
-      </div>
-      <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl">
-        <span class="text-xs text-slate-400">Attendance</span>
-        <p class="text-xl font-bold text-emerald-400 mt-1">91.2%</p>
-        <span class="text-[11px] text-emerald-300">Regular & Punctual</span>
-      </div>
-      <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl">
-        <span class="text-xs text-slate-400">Faculty Callback</span>
-        <p class="text-xl font-bold text-indigo-400 mt-1">Available</p>
-        <span class="text-[11px] text-indigo-300">1-Click Ticket System</span>
+      <!-- Child Selector (for multi-child parents) -->
+      <div class="flex items-center gap-2 bg-[#0D1117] p-2 rounded-2xl border border-white/5" id="childSelectorContainer">
+        <span class="text-xs text-[#8B949E] pl-2">Active Child:</span>
+        <div id="childChips" class="flex gap-2">
+          <!-- Rendered dynamically -->
+        </div>
       </div>
     </div>
 
-    <a href="http://localhost:5173" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm transition-all shadow-lg shadow-indigo-500/25">
-      <span>Open Parent AI Copilot</span>
-      <span>→</span>
-    </a>
+    <!-- Attendance & Callback Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left: Child Stats & Quick Callback Request Form -->
+      <div class="lg:col-span-7 space-y-6">
+        <!-- Stats Card -->
+        <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6">
+          <h3 class="font-bold text-base text-white mb-4 flex items-center gap-2">
+            <span>📊</span>
+            <span>Academic & Attendance Report for <span id="activeChildName" class="text-[#8FB8F6]">Rahul</span></span>
+          </h3>
+
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="p-4 bg-[#0D1117] border border-white/5 rounded-2xl text-center">
+              <span class="text-xs text-[#8B949E] block">Term Attendance</span>
+              <span class="text-2xl font-bold text-[#8FB8F6]" id="childPercent">91.2%</span>
+            </div>
+            <div class="p-4 bg-[#0D1117] border border-white/5 rounded-2xl text-center">
+              <span class="text-xs text-[#8B949E] block">Days Attended</span>
+              <span class="text-2xl font-bold text-white" id="childPresent">82 / 90</span>
+            </div>
+            <div class="p-4 bg-[#0D1117] border border-white/5 rounded-2xl text-center">
+              <span class="text-xs text-[#8B949E] block">Class Teacher</span>
+              <span class="text-sm font-bold text-white mt-1 block" id="childTeacher">Ananya Sharma</span>
+            </div>
+          </div>
+
+          <div id="alertBanner" class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center justify-between">
+            <span>✅ Attendance is well above the required school minimum (85%).</span>
+            <span class="text-[11px] font-bold">Good Standing</span>
+          </div>
+        </div>
+
+        <!-- Request Teacher Callback Escalation Ticket -->
+        <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6">
+          <h3 class="font-bold text-base text-white mb-1 flex items-center gap-2">
+            <span>📞</span>
+            <span>Request Faculty / Management Callback</span>
+          </h3>
+          <p class="text-xs text-[#8B949E] mb-4">Direct human escalation: creates a verified ticket for class teachers or management.</p>
+
+          <form id="escalationForm" onsubmit="submitEscalation(event)" class="space-y-3.5">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-[#8B949E] mb-1">Direct Callback To</label>
+                <select id="escTarget" class="w-full bg-[#0D1117] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-[#BF63F3]">
+                  <option value="teacher">Class Teacher</option>
+                  <option value="management">School Principal / Management</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-[#8B949E] mb-1">Priority Level</label>
+                <select id="escPriority" class="w-full bg-[#0D1117] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:border-[#BF63F3]">
+                  <option value="medium">Medium (Within 24 hours)</option>
+                  <option value="high">High (Urgent academic query)</option>
+                  <option value="low">Low (General inquiry)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-[#8B949E] mb-1">Reason / Note for Faculty</label>
+              <textarea id="escReason" rows="2" placeholder="e.g. Requesting callback regarding recent math test or homework clarification..." required
+                        class="w-full bg-[#0D1117] border border-white/10 rounded-xl p-3 text-xs text-white placeholder:text-[#8B949E] focus:outline-none focus:border-[#BF63F3]"></textarea>
+            </div>
+
+            <button type="submit" id="submitEscBtn" class="w-full py-2.5 bg-[#BF63F3] hover:bg-[#A545DF] text-white rounded-full text-xs font-bold transition-all shadow-md">
+              Submit Official Callback Ticket
+            </button>
+            <div id="escStatusMsg" class="hidden text-xs text-center p-2 rounded-xl"></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Embedded Parent XYZ AI Assistant -->
+      <div class="lg:col-span-5">
+        <div class="bg-[#161D27] border border-white/10 rounded-[32px] p-6 flex flex-col h-[600px]">
+          <div class="flex items-center justify-between pb-4 border-b border-white/10">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-full bg-[#BF63F3] flex items-center justify-center text-sm font-bold text-white">✨</div>
+              <div>
+                <h3 class="font-bold text-sm text-white">XYZ AI Parent Support</h3>
+                <span class="text-[11px] text-emerald-400">● Patient & Caring Mode</span>
+              </div>
+            </div>
+            <select id="langSelect" class="bg-[#0D1117] border border-white/10 text-[11px] text-white rounded-lg px-2.5 py-1">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी (Hindi)</option>
+              <option value="ta">தமிழ் (Tamil)</option>
+              <option value="te">తెలుగు (Telugu)</option>
+              <option value="mr">मराठी (Marathi)</option>
+            </select>
+          </div>
+
+          <!-- Chat Box -->
+          <div id="chatMessages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs">
+            <div class="bg-[#BF63F3]/10 border border-[#BF63F3]/20 rounded-2xl p-3.5 text-[#F0F6FC]">
+              🙏 Hello! I'm your dedicated Parent Support Assistant. Ask me anything:
+              <ul class="list-disc pl-4 mt-2 space-y-1 text-[#8B949E]">
+                <li>"How is my child's attendance this month?"</li>
+                <li>"Connect me with the mathematics teacher"</li>
+                <li>"What are the upcoming parent-teacher dates?"</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="pt-3 border-t border-white/10 flex gap-2">
+            <input type="text" id="chatInput" placeholder="Ask your parent assistant..." 
+                   onkeydown="if(event.key==='Enter') sendMessage()"
+                   class="flex-1 bg-[#0D1117] border border-white/15 text-xs text-white rounded-full px-4 py-2.5 focus:outline-none focus:border-[#BF63F3]" />
+            <button onclick="sendMessage()" class="px-4 py-2.5 bg-[#BF63F3] hover:bg-[#A545DF] text-white rounded-full text-xs font-semibold transition-all">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <footer class="text-center text-xs text-slate-600 py-4 border-t border-slate-900">
-    School ERP Ecosystem • Parent Repository
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-4 px-6 text-center text-xs text-[#8B949E]">
+    School ERP Ecosystem • Parent Repository Portal • Connected to Live XYZ AI API
   </footer>
+
+  <script>
+    const parentMap = {
+      p1: { name: "Meera Sharma", children: [{ id: "s1", name: "Rahul Sharma", class: "Class 8A", percent: "91.2%", present: "82 / 90", teacher: "Ananya Sharma" }] },
+      p2: { name: "Arjun Patel", children: [{ id: "s2", name: "Priya Patel", class: "Class 8A", percent: "87.4%", present: "78 / 90", teacher: "Ananya Sharma" }] },
+      p3: { name: "Sunita Singh", children: [{ id: "s3", name: "Aarav Singh", class: "Class 9B", percent: "94.8%", present: "85 / 90", teacher: "Ananya Sharma" }] },
+      p4: { name: "Ramesh Gupta", children: [
+        { id: "s5", name: "Rohan Gupta", class: "Class 8B", percent: "92.5%", present: "83 / 90", teacher: "Neha Kulkarni" },
+        { id: "s10", name: "Ishaan Joshi", class: "Class 8B", percent: "88.0%", present: "79 / 90", teacher: "Neha Kulkarni" }
+      ]},
+      p5: { name: "Anita Verma", children: [{ id: "s7", name: "Kabir Verma", class: "Class 10A", percent: "78.4%", present: "70 / 90", teacher: "Vikramaditya Roy" }] }
+    };
+
+    let currentChildIndex = 0;
+
+    function loadParentData() {
+      const pid = document.getElementById("parentSelect").value;
+      const pData = parentMap[pid] || parentMap.p1;
+      currentChildIndex = 0;
+
+      document.getElementById("parentGreeting").innerText = `Welcome, ${pData.name}`;
+      
+      const chips = document.getElementById("childChips");
+      chips.innerHTML = "";
+      pData.children.forEach((c, idx) => {
+        chips.innerHTML += `
+          <button onclick="selectChild(${idx})" class="px-3 py-1 rounded-full text-xs font-bold transition-all ${idx === 0 ? 'bg-[#1868DB] text-white' : 'bg-white/10 text-[#8B949E]'}">
+            ${c.name} (${c.class})
+          </button>
+        `;
+      });
+
+      renderChildStats(pData.children[0]);
+    }
+
+    function selectChild(idx) {
+      const pid = document.getElementById("parentSelect").value;
+      const pData = parentMap[pid] || parentMap.p1;
+      currentChildIndex = idx;
+
+      const chips = document.getElementById("childChips").children;
+      for (let i = 0; i < chips.length; i++) {
+        chips[i].className = i === idx ? 'px-3 py-1 rounded-full text-xs font-bold transition-all bg-[#1868DB] text-white' : 'px-3 py-1 rounded-full text-xs font-bold transition-all bg-white/10 text-[#8B949E]';
+      }
+
+      renderChildStats(pData.children[idx]);
+    }
+
+    function renderChildStats(child) {
+      document.getElementById("linkedDesc").innerText = `Monitoring enrolled child: ${child.name} (${child.class})`;
+      document.getElementById("activeChildName").innerText = child.name;
+      document.getElementById("childPercent").innerText = child.percent;
+      document.getElementById("childPresent").innerText = child.present;
+      document.getElementById("childTeacher").innerText = child.teacher;
+
+      const val = parseFloat(child.percent);
+      const banner = document.getElementById("alertBanner");
+      if (val < 85) {
+        banner.className = "p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center justify-between";
+        banner.innerHTML = `<span>⚠️ Attendance is below required 85% threshold. Please speak with faculty.</span><span class="text-[11px] font-bold">Action Needed</span>`;
+      } else {
+        banner.className = "p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center justify-between";
+        banner.innerHTML = `<span>✅ Attendance is well above the required school minimum (85%).</span><span class="text-[11px] font-bold">Good Standing</span>`;
+      }
+    }
+
+    async function submitEscalation(e) {
+      e.preventDefault();
+      const pid = document.getElementById("parentSelect").value;
+      const pData = parentMap[pid] || parentMap.p1;
+      const child = pData.children[currentChildIndex];
+
+      const targetRole = document.getElementById("escTarget").value;
+      const priority = document.getElementById("escPriority").value;
+      const reason = document.getElementById("escReason").value.trim();
+
+      const btn = document.getElementById("submitEscBtn");
+      const msg = document.getElementById("escStatusMsg");
+      btn.innerText = "Submitting Ticket...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("http://localhost:4000/api/escalation/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requesterId: pid,
+            role: "parent",
+            targetRole,
+            studentId: child.id,
+            reason: `[${priority.toUpperCase()}] ${reason}`
+          })
+        });
+        const data = await res.json();
+        msg.className = "text-xs text-center p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 block";
+        msg.innerText = `✅ Callback Ticket #${data.ticketId || 'TKT-' + Math.floor(1000 + Math.random()*9000)} generated successfully! Faculty has been notified.`;
+        document.getElementById("escReason").value = "";
+      } catch (err) {
+        msg.className = "text-xs text-center p-3 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 block";
+        msg.innerText = "⚠️ Could not connect to API server at localhost:4000.";
+      } finally {
+        btn.innerText = "Submit Official Callback Ticket";
+        btn.disabled = false;
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+
+      const pid = document.getElementById("parentSelect").value;
+      const lang = document.getElementById("langSelect").value;
+      const chatBox = document.getElementById("chatMessages");
+
+      chatBox.innerHTML += `<div class="bg-[#BF63F3] text-white p-3 rounded-2xl max-w-[85%] ml-auto text-right">${text}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch("http://localhost:4000/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: pid, message: text, language: lang })
+        });
+        const data = await res.json();
+        chatBox.innerHTML += `<div class="bg-[#12171F] border border-white/10 text-[#F0F6FC] p-3 rounded-2xl max-w-[85%] mr-auto whitespace-pre-wrap">${data.reply || "Message received."}</div>`;
+      } catch (e) {
+        chatBox.innerHTML += `<div class="bg-rose-500/10 border border-rose-500/20 text-rose-300 p-3 rounded-2xl max-w-[85%] mr-auto">⚠️ Backend API server offline.</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    loadParentData();
+  </script>
 </body>
 </html>
