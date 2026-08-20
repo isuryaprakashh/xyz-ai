@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Send, Mic } from "lucide-react";
+import { Send, Mic, MicOff } from "lucide-react";
 
 export function InputForm({
   value,
@@ -20,43 +20,40 @@ export function InputForm({
   };
 
   const getPlaceholder = () => {
-    if (isListening) return "Listening to your microphone...";
+    if (isListening) return "Listening...";
     switch (userRole) {
       case "student":
-        return `Ask about your attendance, streak, or subject schedule...`;
+        return "Ask about your attendance, schedule, or teachers...";
       case "parent":
-        return `Ask about your child's attendance or request teacher callback...`;
+        return "Ask about your child's attendance or request a callback...";
       case "teacher":
-        return `E.g., "Mark Aarav present today" or "Show Class 1A summary"...`;
+        return 'E.g., "Mark Jeevan present today" or "Class 1A summary"';
       case "principal":
-        return `Query institutional compliance, class averages, or risk flags...`;
+        return "Query school analytics, compliance, or risk flags...";
       default:
-        return `Type an inquiry or instruction...`;
+        return "Type your message...";
     }
   };
 
   return (
-    <div className="p-3 bg-[#121212] border-t border-[#2E2E2E]">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
-        {/* Voice Input Mic Button */}
+    <div className="p-4 bg-white border-t border-border">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
+        {/* Mic Button */}
         <button
           type="button"
           onClick={onVoiceClick}
           disabled={isLoading}
-          className={`h-9 px-3 rounded-[6px] transition-all duration-150 shrink-0 flex items-center justify-center gap-1.5 text-xs font-semibold ${
+          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
             isListening
-              ? "bg-[#DC7B18] text-white animate-pulse"
-              : "bg-[#1C1C1C] text-[#3FCF8E] border border-[#2E2E2E] hover:border-[#3FCF8E]/50 hover:bg-[#242424]"
+              ? "bg-danger text-white shadow-sm animate-pulse"
+              : "bg-gray-100 text-text-secondary hover:bg-gray-200 hover:text-text-primary"
           }`}
-          title={isListening ? "Listening... Click to stop" : "Speak with Voice"}
+          title={isListening ? "Stop listening" : "Voice input"}
         >
-          <Mic className={`w-3.5 h-3.5 ${isListening ? "text-white" : "text-[#3FCF8E]"}`} />
-          <span className="hidden sm:inline">
-            {isListening ? "Listening..." : "Voice"}
-          </span>
+          {isListening ? <MicOff className="w-[18px] h-[18px]" /> : <Mic className="w-[18px] h-[18px]" />}
         </button>
 
-        {/* Input Text Box */}
+        {/* Input */}
         <div className="relative flex-1">
           <input
             ref={inputRef}
@@ -65,7 +62,7 @@ export function InputForm({
             onChange={(e) => onChange(e.target.value)}
             placeholder={getPlaceholder()}
             disabled={isLoading}
-            className="w-full h-9 rounded-[6px] px-3 bg-[#1C1C1C] text-[#FFFFFF] border border-[#2E2E2E] text-xs placeholder:text-[#808080] focus:outline-none focus:border-[#3FCF8E] focus:ring-1 focus:ring-[#3FCF8E]/30 transition-all font-sans"
+            className="input pr-4"
           />
         </div>
 
@@ -73,17 +70,12 @@ export function InputForm({
         <button
           type="submit"
           disabled={isLoading || !value.trim()}
-          className="btn-primary h-9 px-4 rounded-[6px] shrink-0 flex items-center gap-1.5 text-xs font-semibold"
-          title="Send query"
+          className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center shrink-0 hover:bg-accent-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+          title="Send"
         >
-          <span>Send</span>
-          <Send className="w-3 h-3" />
+          <Send className="w-[18px] h-[18px]" />
         </button>
       </form>
-      <div className="flex items-center justify-between mt-1.5 px-1 text-[10px] font-mono text-[#808080]">
-        <span>AI School Copilot • 11 Languages • Server-Verified RBAC</span>
-        <span>Press Enter ↵ to send</span>
-      </div>
     </div>
   );
 }

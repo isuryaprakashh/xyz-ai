@@ -1,16 +1,51 @@
 import { useState } from "react";
-import { Sparkles, ShieldCheck, UserPlus, LogIn, CheckCircle2, Play, Cpu, Lock, Check } from "lucide-react";
+import { Sparkles, LogIn, UserPlus, GraduationCap, BookOpen, Users, Crown, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+
+const PERSONAS = [
+  {
+    u: "jeevan",
+    label: "Jeevan",
+    role: "Student",
+    desc: "View attendance & academic progress",
+    icon: GraduationCap,
+    color: "bg-blue-500",
+    lightColor: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  {
+    u: "surya",
+    label: "Surya Prakash",
+    role: "Teacher",
+    desc: "Mark attendance & manage classes",
+    icon: BookOpen,
+    color: "bg-emerald-500",
+    lightColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  {
+    u: "yashwanth",
+    label: "Yashwanth",
+    role: "Parent",
+    desc: "Track child's attendance & callbacks",
+    icon: Users,
+    color: "bg-amber-500",
+    lightColor: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  {
+    u: "akhil",
+    label: "Akhil",
+    role: "Principal",
+    desc: "School-wide analytics & audit logs",
+    icon: Crown,
+    color: "bg-purple-500",
+    lightColor: "bg-purple-50 text-purple-700 border-purple-200",
+  },
+];
 
 export function LoginScreen({ onLogin, onNavigateDemo }) {
   const { register } = useAuth();
-  const [authMode, setAuthMode] = useState("signin"); // 'signin' | 'signup'
-  
-  // Login state
+  const [authMode, setAuthMode] = useState("signin");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  
-  // Register state
   const [regName, setRegName] = useState("");
   const [regUsername, setRegUsername] = useState("");
   const [regEmail, setRegEmail] = useState("");
@@ -18,7 +53,6 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
   const [regRole, setRegRole] = useState("student");
   const [regClassId, setRegClassId] = useState("c1");
   const [regStudentId, setRegStudentId] = useState("jeevan");
-  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -64,247 +98,190 @@ export function LoginScreen({ onLogin, onNavigateDemo }) {
     }
   };
 
-  const handleDemoQuickLogin = (uname, pwd = uname) => {
+  const handleDemoQuickLogin = (uname) => {
     setUsername(uname);
-    setPassword(pwd);
-    onLogin(uname, pwd);
+    setPassword(uname);
+    onLogin(uname, uname);
   };
 
   return (
-    <div className="min-h-screen bg-[#121212] text-[#EDEDED] flex flex-col justify-between p-4 sm:p-8 max-w-7xl mx-auto w-full font-sans">
+    <div className="min-h-screen bg-body flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between pb-4 border-b border-[#2E2E2E]">
+      <header className="h-16 px-6 flex items-center justify-between border-b border-border bg-white">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-[4px] bg-[#3FCF8E] flex items-center justify-center text-[#000000] font-display font-extrabold text-sm shadow-sm">
-            ⚡
+          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="font-display font-bold text-lg text-[#FFFFFF]">XYZ AI</span>
+          <span className="font-bold text-[15px] text-text-primary">XYZ AI</span>
         </div>
-        
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={onNavigateDemo}
-            className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5"
-          >
-            <Play className="w-3 h-3 fill-[#000000]" />
-            <span>Interactive Demo</span>
-          </button>
-        </div>
+        <button onClick={onNavigateDemo} className="btn-secondary text-sm">
+          <span>Interactive Demo</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </header>
 
-      {/* Main Container */}
-      <main className="py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Left Hero */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] text-xs font-mono">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>School ERP Copilot • MongoDB Atlas Live • Gemini 2.5 NLU</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-[#FFFFFF] leading-tight">
-            Human-like AI Assistant for the Modern School ERP.
-          </h1>
-
-          <p className="text-xs sm:text-sm text-[#808080] leading-relaxed max-w-xl">
-            Conversational attendance lookup, automated faculty rosters, parent communication hubs, and executive analytics powered by Google Gemini NLU and MongoDB Atlas.
-          </p>
-
-          {/* Feature Highlights Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 max-w-xl">
-            <div className="p-3.5 rounded-[6px] bg-[#1C1C1C] border border-[#2E2E2E] space-y-1">
-              <div className="flex items-center gap-2 font-semibold text-xs text-[#3FCF8E]">
-                <Cpu className="w-3.5 h-3.5" />
-                <span>Multilingual Voice AI</span>
+      {/* Main */}
+      <main className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-[1040px] grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* Left: Hero + Persona Cards */}
+          <div className="space-y-6 animate-fade-in">
+            <div>
+              <div className="badge-green mb-3 inline-flex">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>AI School Assistant</span>
               </div>
-              <p className="text-[11px] text-[#808080]">
-                Native voice recognition and speech across 11 Indian and global languages.
+              <h1 className="text-3xl sm:text-4xl font-bold text-text-primary leading-tight text-balance">
+                Your intelligent school companion, built for everyone.
+              </h1>
+              <p className="text-text-secondary text-[15px] mt-3 max-w-md leading-relaxed">
+                Conversational attendance, voice operations, and smart faculty communication — powered by AI.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-[6px] bg-[#1C1C1C] border border-[#2E2E2E] space-y-1">
-              <div className="flex items-center gap-2 font-semibold text-xs text-[#3FCF8E]">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Zero-Trust Server-Side RBAC</span>
-              </div>
-              <p className="text-[11px] text-[#808080]">
-                Strict role authorization boundaries with Principal-only audit logs.
+            {/* Quick Login Persona Cards */}
+            <div>
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3">
+                Quick sign-in
               </p>
+              <div className="grid grid-cols-2 gap-3">
+                {PERSONAS.map((p) => {
+                  const Icon = p.icon;
+                  return (
+                    <button
+                      key={p.u}
+                      onClick={() => handleDemoQuickLogin(p.u)}
+                      className="card-interactive p-4 text-left group"
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div
+                          className={`w-10 h-10 rounded-xl ${p.color} text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200`}
+                        >
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-text-primary">{p.label}</p>
+                          <p className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${p.lightColor} inline-block`}>
+                            {p.role}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-text-tertiary">{p.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Quick Demo Selectors */}
-          <div className="pt-2">
-            <p className="text-[11px] font-mono text-[#808080] uppercase tracking-wider mb-2">
-              1-Click Instant Persona Sign-In:
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-2xl">
-              {[
-                { u: "jeevan", label: "jeevan", role: "Student (Class 1A)" },
-                { u: "surya", label: "surya prakash", role: "Faculty / Teacher" },
-                { u: "yashwanth", label: "yashwanth", role: "Parent (Jeevan)" },
-                { u: "akhil", label: "akhil", role: "Principal (Admin)" },
-              ].map((p) => (
+          {/* Right: Auth Card */}
+          <div className="animate-slide-up" style={{ animationDelay: "100ms" }}>
+            <div className="card p-6 sm:p-8 max-w-md mx-auto">
+              {/* Mode Switcher */}
+              <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
                 <button
-                  key={p.u}
-                  onClick={() => handleDemoQuickLogin(p.u)}
-                  className="p-3 rounded-[6px] bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#3FCF8E] text-left transition-all group cursor-pointer"
+                  onClick={() => { setAuthMode("signin"); setError(""); }}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-1.5 ${
+                    authMode === "signin"
+                      ? "bg-white text-text-primary shadow-sm"
+                      : "text-text-secondary hover:text-text-primary"
+                  }`}
                 >
-                  <span className="font-semibold text-xs text-[#FFFFFF] group-hover:text-[#3FCF8E] block truncate font-mono">
-                    {p.label}
-                  </span>
-                  <span className="text-[10px] font-mono text-[#808080] block mt-0.5">
-                    {p.role}
-                  </span>
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign In</span>
                 </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Auth Card */}
-        <div className="lg:col-span-5">
-          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-6 shadow-supabase">
-            {/* Mode Switcher */}
-            <div className="flex border-b border-[#2E2E2E] pb-3 mb-4">
-              <button
-                onClick={() => setAuthMode("signin")}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-[4px] transition-all flex items-center justify-center gap-1.5 ${
-                  authMode === "signin"
-                    ? "bg-[#3FCF8E]/15 text-[#3FCF8E] border border-[#3FCF8E]/30"
-                    : "text-[#808080] hover:text-[#EDEDED]"
-                }`}
-              >
-                <LogIn className="w-3 h-3" />
-                <span>Sign In</span>
-              </button>
-              <button
-                onClick={() => setAuthMode("signup")}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-[4px] transition-all flex items-center justify-center gap-1.5 ${
-                  authMode === "signup"
-                    ? "bg-[#3FCF8E]/15 text-[#3FCF8E] border border-[#3FCF8E]/30"
-                    : "text-[#808080] hover:text-[#EDEDED]"
-                }`}
-              >
-                <UserPlus className="w-3 h-3" />
-                <span>Register Account</span>
-              </button>
-            </div>
-
-            {error && (
-              <div className="p-2.5 rounded-[4px] bg-[#DC7B18]/10 border border-[#DC7B18]/30 text-[#F3BA63] text-xs mb-3">
-                {error}
-              </div>
-            )}
-            {successMsg && (
-              <div className="p-2.5 rounded-[4px] bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] text-xs mb-3">
-                {successMsg}
-              </div>
-            )}
-
-            {authMode === "signin" ? (
-              <form onSubmit={handleLoginSubmit} className="space-y-3">
-                <div>
-                  <label className="text-[11px] font-mono text-[#808080] block mb-1">Username:</label>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. jeevan, surya, yashwanth, akhil"
-                    className="input-supabase w-full"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-mono text-[#808080] block mb-1">Password:</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="input-supabase w-full"
-                    required
-                  />
-                  <span className="text-[10px] font-mono text-[#808080] mt-1 block">Credentials: username & password are identical</span>
-                </div>
-
                 <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full mt-2"
+                  onClick={() => { setAuthMode("signup"); setError(""); }}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-1.5 ${
+                    authMode === "signup"
+                      ? "bg-white text-text-primary shadow-sm"
+                      : "text-text-secondary hover:text-text-primary"
+                  }`}
                 >
-                  {loading ? "Authenticating..." : "Sign In to ERP Portal"}
+                  <UserPlus className="w-4 h-4" />
+                  <span>Register</span>
                 </button>
-              </form>
-            ) : (
-              <form onSubmit={handleRegisterSubmit} className="space-y-2.5">
-                <div>
-                  <label className="text-[11px] font-mono text-[#808080] block mb-0.5">Full Name:</label>
-                  <input
-                    type="text"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    placeholder="e.g. Surya Prakash"
-                    className="input-supabase w-full"
-                    required
-                  />
-                </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-2">
+              {error && (
+                <div className="p-3 rounded-lg bg-danger-light border border-red-200 text-danger text-sm mb-4">
+                  {error}
+                </div>
+              )}
+              {successMsg && (
+                <div className="p-3 rounded-lg bg-accent-light border border-emerald-200 text-accent-dark text-sm mb-4">
+                  {successMsg}
+                </div>
+              )}
+
+              {authMode === "signin" ? (
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div>
-                    <label className="text-[11px] font-mono text-[#808080] block mb-0.5">Username:</label>
+                    <label className="text-sm font-medium text-text-primary block mb-1.5">Username</label>
                     <input
                       type="text"
-                      value={regUsername}
-                      onChange={(e) => setRegUsername(e.target.value)}
-                      placeholder="surya"
-                      className="input-supabase w-full"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="e.g. jeevan, surya, akhil"
+                      className="input"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-mono text-[#808080] block mb-0.5">Role:</label>
-                    <select
-                      value={regRole}
-                      onChange={(e) => setRegRole(e.target.value)}
-                      className="input-supabase w-full"
-                    >
-                      <option value="student">Student</option>
-                      <option value="parent">Parent</option>
-                      <option value="teacher">Teacher</option>
-                      <option value="principal">Principal</option>
-                    </select>
+                    <label className="text-sm font-medium text-text-primary block mb-1.5">Password</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="input"
+                      required
+                    />
+                    <p className="text-xs text-text-tertiary mt-1.5">
+                      Hint: password is the same as your username
+                    </p>
                   </div>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-mono text-[#808080] block mb-0.5">Password:</label>
-                  <input
-                    type="password"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="input-supabase w-full"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full mt-2"
-                >
-                  {loading ? "Registering..." : "Create Account"}
-                </button>
-              </form>
-            )}
+                  <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+                    {loading ? "Signing in..." : "Sign In"}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-text-primary block mb-1">Full Name</label>
+                    <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="e.g. Surya Prakash" className="input" required />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-sm font-medium text-text-primary block mb-1">Username</label>
+                      <input type="text" value={regUsername} onChange={(e) => setRegUsername(e.target.value)} placeholder="surya" className="input" required />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-text-primary block mb-1">Role</label>
+                      <select value={regRole} onChange={(e) => setRegRole(e.target.value)} className="select">
+                        <option value="student">Student</option>
+                        <option value="parent">Parent</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="principal">Principal</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-text-primary block mb-1">Password</label>
+                    <input type="password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} placeholder="••••••••" className="input" required />
+                  </div>
+                  <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+                    {loading ? "Creating account..." : "Create Account"}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#2E2E2E] py-3 text-center text-xs font-mono text-[#808080]">
-        XYZ AI • Classes 1–5 MongoDB Connected • Production Ready
+      <footer className="py-4 text-center text-xs text-text-tertiary border-t border-border bg-white">
+        XYZ AI — School ERP Assistant • MongoDB Atlas • Gemini NLU
       </footer>
     </div>
   );

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../utils/api";
-import { BarChart3, Users, CheckCircle, XCircle, TrendingUp, ArrowUpRight, Calendar, AlertTriangle } from "lucide-react";
+import { BarChart3, Users, TrendingUp, Calendar, CheckCircle, XCircle, ArrowUpRight } from "lucide-react";
 
-export function Dashboard({ user, onNavigateToChat }) {
+export function Dashboard({ user }) {
   const [analytics, setAnalytics] = useState(null);
   const [studentData, setStudentData] = useState(null);
   const [teacherStudents, setTeacherStudents] = useState([]);
@@ -27,65 +27,34 @@ export function Dashboard({ user, onNavigateToChat }) {
       } else if (user.role === "teacher") {
         const studentsRes = await api.getUsersByRole("student");
         const list = studentsRes.users || [];
-        
         const withAttendance = await Promise.all(
           list.map(async (s) => {
             const sid = s.userId || s.id;
             try {
               const att = await api.getStudentAttendance(sid);
-              return {
-                ...s,
-                percentage: att.percentage || "90.0",
-                presentDays: att.presentDays || 0,
-                totalWorkingDays: att.totalWorkingDays || 0,
-                records: att.records || [],
-              };
-            } catch (e) {
-              return {
-                ...s,
-                percentage: "90.0",
-                presentDays: 0,
-                totalWorkingDays: 0,
-                records: [],
-              };
+              return { ...s, percentage: att.percentage || "90.0", presentDays: att.presentDays || 0, totalWorkingDays: att.totalWorkingDays || 0, records: att.records || [] };
+            } catch {
+              return { ...s, percentage: "90.0", presentDays: 0, totalWorkingDays: 0, records: [] };
             }
           })
         );
         setTeacherStudents(withAttendance);
       }
     } catch (err) {
-      console.warn("Failed to load dashboard data:", err);
+      console.warn("Dashboard load error:", err);
     } finally {
       setLoading(false);
     }
   }, [user, selectedChildId]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   const handleQuickMark = async (studentId, status) => {
     try {
       setMarkStatus((prev) => ({ ...prev, [studentId]: "saving" }));
       await api.markAttendance({ studentId, date: "today", status });
       setMarkStatus((prev) => ({ ...prev, [studentId]: status }));
-      
-      setTeacherStudents((prev) =>
-        prev.map((s) => {
-          if ((s.userId || s.id) === studentId) {
-            return {
-              ...s,
-              percentage: status === "present" ? "95.0" : "85.0",
-            };
-          }
-          return s;
-        })
-      );
-
-      setTimeout(() => {
-        setMarkStatus((prev) => ({ ...prev, [studentId]: null }));
-        loadData();
-      }, 2000);
+      setTimeout(() => { setMarkStatus((prev) => ({ ...prev, [studentId]: null })); loadData(); }, 2000);
     } catch (err) {
       alert(err.message || "Failed to mark attendance.");
       setMarkStatus((prev) => ({ ...prev, [studentId]: "error" }));
@@ -95,90 +64,58 @@ export function Dashboard({ user, onNavigateToChat }) {
   if (loading && !studentData && !analytics && teacherStudents.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center p-12">
-        <div className="flex items-center gap-2.5 text-[#3FCF8E]">
-          <div className="w-5 h-5 border-2 border-[#3FCF8E] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-mono text-[#EDEDED]">Loading telemetry metrics...</span>
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm text-text-secondary">Loading dashboard...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 max-w-6xl mx-auto w-full space-y-6">
-      {/* Supabase Developer Banner */}
-      <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-semibold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] uppercase">
-              {user.role} workspace
-            </span>
-            <span className="text-[11px] font-mono text-[#808080]">
-              connected: mongodb-atlas
-            </span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-display font-bold text-[#FFFFFF]">
-            {user.name}
-          </h2>
-          <p className="text-xs text-[#808080] mt-1 max-w-xl">
-            {user.role === "principal"
-              ? "Institutional attendance compliance matrix for Classes 1 to 5 (10 Classrooms, 30 Students)."
-              : user.role === "teacher"
-              ? "Classroom roster and 1-click attendance marking desk."
-              : user.role === "parent"
-              ? "Student attendance telemetry and faculty callback escalation hub."
-              : "Academic attendance tracking, 3-month history logs, and streak counter."}
-          </p>
-        </div>
-      </div>
-
+    <div className="flex-1 overflow-y-auto p-5 sm:p-8 max-w-6xl mx-auto w-full space-y-6 animate-fade-in">
       {/* PRINCIPAL DASHBOARD */}
       {user.role === "principal" && analytics && (
         <div className="space-y-6">
-          {/* Top Metrics Cards */}
+          {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
-              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
-                School-Wide Average
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">{analytics.schoolAvg || "91.4"}%</span>
-                <span className="text-xs font-semibold text-[#3FCF8E] flex items-center">
-                  <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> +1.4%
+            <div className="stat-card stat-card-green pl-6">
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">School Average</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-text-primary">{analytics.schoolAvg || "91.4"}%</span>
+                <span className="text-xs font-semibold text-accent flex items-center">
+                  <ArrowUpRight className="w-3.5 h-3.5" /> +1.4%
                 </span>
               </div>
-              <p className="text-[11px] text-[#808080] mt-1">Across 10 active classrooms (Grades 1-5)</p>
+              <p className="text-xs text-text-tertiary mt-1">Across 10 classrooms</p>
             </div>
 
-            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
-              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
-                Total Enrolled
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">30 Students</span>
-                <span className="text-xs font-semibold text-[#3FCF8E]">10 Faculty</span>
+            <div className="stat-card stat-card-blue pl-6">
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">Total Enrolled</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-text-primary">30</span>
+                <span className="text-sm text-text-secondary">Students</span>
               </div>
-              <p className="text-[11px] text-[#808080] mt-1">Classes 1A to 5B</p>
+              <p className="text-xs text-text-tertiary mt-1">10 Faculty · Classes 1A–5B</p>
             </div>
 
-            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
-              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
-                Compliance Status
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-3xl font-mono font-bold text-[#3FCF8E]">Optimal</span>
+            <div className="stat-card stat-card-green pl-6">
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">Compliance</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-accent">Optimal</span>
               </div>
-              <p className="text-[11px] text-[#808080] mt-1">Target threshold &gt;85% achieved</p>
+              <p className="text-xs text-text-tertiary mt-1">Target &gt;85% achieved</p>
             </div>
           </div>
 
-          {/* Section Breakdown Card */}
-          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-base font-bold text-[#FFFFFF] flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-[#3FCF8E]" />
-                <span>Classroom Attendance Compliance Matrix (Classes 1–5)</span>
-              </h3>
-              <span className="text-xs font-mono text-[#808080]">Academic Year 2026</span>
+          {/* Class Breakdown */}
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2.5">
+                <BarChart3 className="w-5 h-5 text-accent" />
+                <h3 className="font-bold text-base text-text-primary">Classroom Attendance Matrix</h3>
+              </div>
+              <span className="badge-gray text-[11px]">Academic Year 2026</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -193,26 +130,31 @@ export function Dashboard({ user, onNavigateToChat }) {
                 { className: "Class 4B", teacherName: "Amit Patel", average: "90.0", studentCount: 3 },
                 { className: "Class 5A", teacherName: "Pooja Iyer", average: "93.7", studentCount: 3 },
                 { className: "Class 5B", teacherName: "Rahul Sengupta", average: "92.2", studentCount: 3 },
-              ]).map((c, i) => (
-                <div key={i} className="p-3.5 rounded-[6px] bg-[#121212] border border-[#2E2E2E]">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h4 className="font-semibold text-xs text-[#FFFFFF]">{c.className}</h4>
-                      <p className="text-[11px] text-[#808080]">Faculty: {c.teacherName}</p>
+              ]).map((c, i) => {
+                const pct = parseFloat(c.average);
+                return (
+                  <div key={i} className="p-4 rounded-xl bg-body border border-border hover:border-border-hover transition-colors">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div>
+                        <h4 className="font-semibold text-sm text-text-primary">{c.className}</h4>
+                        <p className="text-xs text-text-tertiary">{c.teacherName}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`text-lg font-bold ${pct >= 90 ? "text-accent" : pct >= 85 ? "text-amber-600" : "text-danger"}`}>
+                          {c.average}%
+                        </span>
+                        <p className="text-[11px] text-text-tertiary">{c.studentCount} students</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <span className="text-sm font-mono font-bold text-[#3FCF8E]">{c.average}%</span>
-                      <p className="text-[10px] text-[#808080]">{c.studentCount} Students</p>
+                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${pct >= 90 ? "bg-accent" : pct >= 85 ? "bg-amber-500" : "bg-danger"}`}
+                        style={{ width: `${Math.min(pct, 100)}%` }}
+                      />
                     </div>
                   </div>
-                  <div className="w-full bg-[#1C1C1C] rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className="bg-[#3FCF8E] h-full rounded-full transition-all duration-300"
-                      style={{ width: `${Math.min(parseFloat(c.average), 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -221,62 +163,63 @@ export function Dashboard({ user, onNavigateToChat }) {
       {/* TEACHER DASHBOARD */}
       {user.role === "teacher" && (
         <div className="space-y-4">
-          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-display text-base font-bold text-[#FFFFFF] flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#3FCF8E]" />
-                  <span>Student Roster & 1-Click Daily Attendance</span>
-                </h3>
-                <p className="text-xs text-[#808080] mt-0.5">
-                  Assigned Classrooms: {user.classIds?.join(", ").toUpperCase() || "C1, C2"}
-                </p>
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2.5">
+                <Users className="w-5 h-5 text-accent" />
+                <div>
+                  <h3 className="font-bold text-base text-text-primary">Student Roster</h3>
+                  <p className="text-xs text-text-tertiary">
+                    Assigned: {user.classIds?.join(", ").toUpperCase() || "C1, C2"}
+                  </p>
+                </div>
               </div>
-              <span className="px-2.5 py-1 rounded-[4px] text-xs font-mono font-semibold bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E]">
-                Today: {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              <span className="badge-green text-[11px]">
+                {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead className="text-[#808080] font-mono uppercase border-b border-[#2E2E2E] pb-2">
-                  <tr>
-                    <th className="py-2">Student</th>
-                    <th className="py-2">Class</th>
-                    <th className="py-2">Term Attendance</th>
-                    <th className="py-2 text-right">Quick Mark Action</th>
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="table-cell table-header">Student</th>
+                    <th className="table-cell table-header">Class</th>
+                    <th className="table-cell table-header">Attendance</th>
+                    <th className="table-cell table-header text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#2E2E2E]/60">
+                <tbody>
                   {teacherStudents.map((s) => {
                     const sid = s.userId || s.id;
                     const status = markStatus[sid];
-                    const percent = parseFloat(s.percentage || "90");
-
+                    const pct = parseFloat(s.percentage || "90");
                     return (
-                      <tr key={sid} className="hover:bg-white/5 transition-colors">
-                        <td className="py-3">
-                          <div className="font-medium text-[#FFFFFF]">{s.name}</div>
-                          <div className="text-[11px] font-mono text-[#808080]">ID: {sid.toUpperCase()}</div>
+                      <tr key={sid} className="table-row border-b border-border/50 last:border-0">
+                        <td className="table-cell">
+                          <p className="font-medium text-text-primary">{s.name}</p>
+                          <p className="text-xs text-text-tertiary">{sid.toUpperCase()}</p>
                         </td>
-                        <td className="py-3 font-mono text-[#808080]">{s.classId ? s.classId.toUpperCase() : "C1"}</td>
-                        <td className="py-3">
+                        <td className="table-cell text-text-secondary">{s.classId?.toUpperCase() || "C1"}</td>
+                        <td className="table-cell">
                           <div className="flex items-center gap-2">
-                            <span className={`font-mono font-bold ${percent >= 85 ? "text-[#3FCF8E]" : "text-[#F3BA63]"}`}>
+                            <span className={`font-bold ${pct >= 85 ? "text-accent-dark" : "text-amber-600"}`}>
                               {s.percentage}%
                             </span>
-                            <span className="text-[11px] text-[#808080]">({s.presentDays || 70} / {s.totalWorkingDays || 75} days)</span>
+                            <span className="text-xs text-text-tertiary">
+                              ({s.presentDays || 0}/{s.totalWorkingDays || 0})
+                            </span>
                           </div>
                         </td>
-                        <td className="py-3 text-right">
-                          <div className="inline-flex gap-1.5">
+                        <td className="table-cell text-right">
+                          <div className="inline-flex gap-2">
                             <button
                               onClick={() => handleQuickMark(sid, "present")}
                               disabled={status === "saving"}
-                              className={`px-2.5 py-1 rounded-[4px] text-xs font-semibold transition-all ${
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 status === "present"
-                                  ? "bg-[#3FCF8E] text-[#000000]"
-                                  : "bg-[#3FCF8E]/10 border border-[#3FCF8E]/30 text-[#3FCF8E] hover:bg-[#3FCF8E] hover:text-[#000000]"
+                                  ? "bg-accent text-white"
+                                  : "bg-accent-light text-accent-dark hover:bg-accent hover:text-white"
                               }`}
                             >
                               Present
@@ -284,10 +227,10 @@ export function Dashboard({ user, onNavigateToChat }) {
                             <button
                               onClick={() => handleQuickMark(sid, "absent")}
                               disabled={status === "saving"}
-                              className={`px-2.5 py-1 rounded-[4px] text-xs font-semibold transition-all ${
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                 status === "absent"
-                                  ? "bg-[#DC7B18] text-white"
-                                  : "bg-[#DC7B18]/10 border border-[#DC7B18]/30 text-[#F3BA63] hover:bg-[#DC7B18] hover:text-white"
+                                  ? "bg-danger text-white"
+                                  : "bg-danger-light text-danger hover:bg-danger hover:text-white"
                               }`}
                             >
                               Absent
@@ -306,85 +249,81 @@ export function Dashboard({ user, onNavigateToChat }) {
 
       {/* STUDENT & PARENT VIEW */}
       {(user.role === "student" || user.role === "parent") && studentData && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Parent Child Switcher */}
           {user.role === "parent" && user.studentIds && user.studentIds.length > 1 && (
-            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-3 flex items-center gap-3">
-              <span className="text-xs font-mono text-[#808080]">Select Child:</span>
+            <div className="card p-3 flex items-center gap-3">
+              <span className="text-sm text-text-secondary">Select child:</span>
               {user.studentIds.map((sid) => (
                 <button
                   key={sid}
                   onClick={() => setSelectedChildId(sid)}
-                  className={`px-3 py-1 rounded-[4px] text-xs font-mono font-medium transition-all ${
+                  className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     selectedChildId === sid
-                      ? "bg-[#3FCF8E] text-[#000000] font-bold"
-                      : "bg-[#121212] text-[#808080] border border-[#2E2E2E] hover:text-[#FFFFFF]"
+                      ? "bg-accent text-white"
+                      : "bg-gray-100 text-text-secondary hover:bg-gray-200"
                   }`}
                 >
-                  Child: {sid.toUpperCase()}
+                  {sid.toUpperCase()}
                 </button>
               ))}
             </div>
           )}
 
-          {/* Attendance KPI Cards */}
+          {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
-              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
-                Overall Attendance
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">{studentData.percentage}%</span>
-                <span className="text-xs font-semibold text-[#3FCF8E]">
+            <div className="stat-card stat-card-green pl-6">
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">Overall Attendance</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-text-primary">{studentData.percentage}%</span>
+                <span className={`badge text-[11px] ${parseFloat(studentData.percentage) >= 85 ? "badge-green" : "badge-yellow"}`}>
                   {parseFloat(studentData.percentage) >= 85 ? "Optimal" : "Attention"}
                 </span>
               </div>
-              <p className="text-[11px] text-[#808080] mt-1">Past 3 months (June - August 2026)</p>
+              <p className="text-xs text-text-tertiary mt-1">Past 3 months</p>
             </div>
 
-            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
-              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
-                Working Days
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-3xl font-mono font-bold text-[#FFFFFF]">{studentData.presentDays}</span>
-                <span className="text-xs text-[#808080]">/ {studentData.totalWorkingDays} days</span>
+            <div className="stat-card stat-card-blue pl-6">
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">Working Days</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-text-primary">{studentData.presentDays}</span>
+                <span className="text-sm text-text-secondary">/ {studentData.totalWorkingDays}</span>
               </div>
-              <p className="text-[11px] text-[#808080] mt-1">Total school sessions held</p>
+              <p className="text-xs text-text-tertiary mt-1">Total sessions held</p>
             </div>
 
-            <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-4">
-              <span className="text-[11px] font-mono text-[#808080] uppercase tracking-wider block">
-                Board Exam Eligibility
-              </span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-3xl font-mono font-bold text-[#3FCF8E]">Eligible</span>
-              </div>
-              <p className="text-[11px] text-[#808080] mt-1">Minimum 75% requirement satisfied</p>
+            <div className="stat-card stat-card-green pl-6">
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1">Exam Eligibility</p>
+              <span className="text-3xl font-bold text-accent">Eligible</span>
+              <p className="text-xs text-text-tertiary mt-1">Min 75% requirement met</p>
             </div>
           </div>
 
-          {/* 10-Day Historical Timeline */}
-          <div className="bg-[#1C1C1C] border border-[#2E2E2E] rounded-[8px] p-5">
-            <h3 className="font-display text-sm font-bold text-[#FFFFFF] mb-3 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#3FCF8E]" />
-              <span>Recent Daily Attendance Logs (Past 10 Days)</span>
-            </h3>
+          {/* Attendance Timeline */}
+          <div className="card p-6">
+            <div className="flex items-center gap-2.5 mb-4">
+              <Calendar className="w-5 h-5 text-accent" />
+              <h3 className="font-bold text-base text-text-primary">Recent Attendance</h3>
+            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
               {(studentData.records || []).slice(-10).reverse().map((r, i) => (
                 <div
                   key={i}
-                  className={`p-2.5 rounded-[4px] border text-center ${
+                  className={`p-3 rounded-xl text-center border transition-all hover:scale-[1.02] ${
                     r.status === "present"
-                      ? "bg-[#3FCF8E]/10 border-[#3FCF8E]/30 text-[#3FCF8E]"
+                      ? "bg-accent-light/50 border-accent/20"
                       : r.status === "weekend"
-                      ? "bg-white/5 border-white/10 text-[#808080]"
-                      : "bg-[#DC7B18]/10 border-[#DC7B18]/30 text-[#F3BA63]"
+                      ? "bg-gray-50 border-border"
+                      : "bg-danger-light/50 border-danger/20"
                   }`}
                 >
-                  <span className="text-[10px] font-mono block text-[#808080]">{r.date}</span>
-                  <span className="text-xs font-semibold capitalize mt-0.5 block">{r.status}</span>
+                  <span className="text-[11px] text-text-tertiary block">{r.date}</span>
+                  <span className={`text-xs font-semibold capitalize block mt-0.5 ${
+                    r.status === "present" ? "text-accent-dark" : r.status === "weekend" ? "text-text-tertiary" : "text-danger"
+                  }`}>
+                    {r.status}
+                  </span>
                 </div>
               ))}
             </div>

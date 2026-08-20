@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Bot, User, Volume2, Copy, Check, CheckCircle2, XCircle } from "lucide-react";
+import { Bot, User, Volume2, Copy, Check, CheckCircle2, Sparkles } from "lucide-react";
 
 export function ChatMessage({ message, onSpeak, onQuickAction }) {
   const [copied, setCopied] = useState(false);
@@ -14,87 +14,89 @@ export function ChatMessage({ message, onSpeak, onQuickAction }) {
   };
 
   return (
-    <div className={`flex gap-3 my-3 animate-fade-in ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Avatar Icon */}
+    <div className={`flex gap-3 animate-fade-in ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+      {/* Avatar */}
       <div
-        className={`w-7 h-7 rounded-[4px] flex items-center justify-center shrink-0 text-xs font-bold ${
+        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
           isUser
-            ? "bg-[#3FCF8E] text-[#000000]"
-            : "bg-[#1C1C1C] border border-[#2E2E2E] text-[#3FCF8E]"
+            ? "bg-text-primary text-white"
+            : "bg-accent-light text-accent"
         }`}
       >
-        {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5 text-[#3FCF8E]" />}
+        {isUser ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
       </div>
 
-      {/* Message Bubble Container */}
-      <div className={`flex flex-col max-w-[85%] sm:max-w-[78%] ${isUser ? "items-end" : "items-start"}`}>
-        {/* Author Label & Time */}
-        <div className="flex items-center gap-1.5 mb-1 px-1 text-[11px] font-mono text-[#808080]">
-          <span className="font-medium text-[#EDEDED]">{isUser ? "You" : "XYZ AI Assistant"}</span>
-          <span>•</span>
+      {/* Message Content */}
+      <div className={`flex flex-col max-w-[80%] sm:max-w-[72%] ${isUser ? "items-end" : "items-start"}`}>
+        {/* Author + Time */}
+        <div className="flex items-center gap-1.5 mb-1 px-1 text-[11px] text-text-tertiary">
+          <span className="font-medium text-text-secondary">{isUser ? "You" : "XYZ AI"}</span>
+          <span>·</span>
           <span>{message.timestamp || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         </div>
 
         {/* Bubble */}
         <div
-          className={`p-3.5 rounded-[6px] text-xs leading-relaxed ${
+          className={`px-4 py-3 text-sm leading-relaxed ${
             isUser
-              ? "bg-[#3FCF8E] text-[#000000] font-medium shadow-sm"
-              : "bg-[#1C1C1C] border border-[#2E2E2E] text-[#EDEDED] shadow-sm"
+              ? "bg-text-primary text-white rounded-2xl rounded-tr-md"
+              : "card rounded-2xl rounded-tl-md"
           }`}
         >
           {isUser ? (
             <p className="whitespace-pre-wrap">{textContent}</p>
           ) : (
-            <div className="prose prose-invert max-w-none text-xs leading-relaxed space-y-1.5">
+            <div className="prose prose-sm max-w-none text-text-primary space-y-1.5 [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&_strong]:text-text-primary [&_a]:text-accent">
               <ReactMarkdown>{textContent}</ReactMarkdown>
             </div>
           )}
 
-          {/* Action Confirmation Chip */}
+          {/* Confirmation Actions */}
           {!isUser && message.requiresConfirmation && (
-            <div className="mt-2.5 pt-2.5 border-t border-[#2E2E2E] flex items-center gap-2">
+            <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
               <button
                 onClick={() => onQuickAction && onQuickAction("Yes, submit call request now.")}
-                className="px-2.5 py-1 rounded-[4px] bg-[#3FCF8E] text-[#000000] font-semibold text-[11px] hover:bg-[#16B674] transition-all"
+                className="btn-primary text-xs h-8 px-3"
               >
                 Confirm & Request
               </button>
               <button
                 onClick={() => onQuickAction && onQuickAction("Cancel")}
-                className="px-2.5 py-1 rounded-[4px] bg-[#121212] border border-[#2E2E2E] text-[#808080] hover:text-[#FFFFFF] text-[11px] transition-all"
+                className="btn-secondary text-xs h-8 px-3"
               >
                 Dismiss
               </button>
             </div>
           )}
 
-          {/* Structured Ticket Badge */}
+          {/* Ticket Badge */}
           {!isUser && message.ticketCreated && (
-            <div className="mt-2 pt-2 border-t border-[#2E2E2E] flex items-center gap-2 text-[11px] font-mono text-[#3FCF8E]">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Ticket #{message.ticketCreated.ticketId || "TKT-2001"} Logged in Database</span>
+            <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 text-xs">
+              <CheckCircle2 className="w-4 h-4 text-accent" />
+              <span className="font-medium text-accent-dark">
+                Ticket #{message.ticketCreated.ticketId || "TKT-2001"} created
+              </span>
             </div>
           )}
         </div>
 
-        {/* Bubble Actions */}
+        {/* Actions */}
         {!isUser && (
-          <div className="flex items-center gap-1.5 mt-1 px-1">
+          <div className="flex items-center gap-1 mt-1 px-1 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity">
             <button
               onClick={handleCopy}
-              className="p-1 text-[#808080] hover:text-[#EDEDED] rounded transition-colors"
+              className="p-1.5 text-text-tertiary hover:text-text-primary rounded-md hover:bg-gray-100 transition-colors"
               title="Copy response"
             >
-              {copied ? <Check className="w-3 h-3 text-[#3FCF8E]" /> : <Copy className="w-3 h-3" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-accent" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
             {onSpeak && (
               <button
                 onClick={() => onSpeak(textContent)}
-                className="p-1 text-[#808080] hover:text-[#3FCF8E] rounded transition-colors"
-                title="Listen voice"
+                className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-gray-100 transition-colors"
+                title="Listen"
               >
-                <Volume2 className="w-3 h-3" />
+                <Volume2 className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
