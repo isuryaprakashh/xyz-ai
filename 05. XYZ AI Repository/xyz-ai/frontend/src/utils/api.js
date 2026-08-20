@@ -45,6 +45,11 @@ export const api = {
   getUsersByRole: (role) => apiRequest(`/api/users?role=${role}`),
 
   // Chat
+  sendMessage: ({ message, sessionId, language, userId }) =>
+    apiRequest("/api/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, sessionId, language, userId }),
+    }),
   sendChat: ({ message, sessionId, language, userId }) =>
     apiRequest("/api/chat", {
       method: "POST",

@@ -82,7 +82,7 @@ You MUST ALWAYS respond with ONLY a valid JSON object matching this schema (no m
   "directResponse": "string in ${targetLang} if intent is general_query, else null"
 }`;
 
-      const modelNames = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-flash", "gemini-pro"];
+      const modelNames = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"];
       let lastErr = null;
 
       for (const modelName of modelNames) {
@@ -124,7 +124,7 @@ You MUST ALWAYS respond with ONLY a valid JSON object matching this schema (no m
       const targetLang = LANGUAGE_NAMES[language] || "English";
       const persona = PERSONA_PROMPTS[userRole] || PERSONA_PROMPTS.student;
 
-      const modelNames = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-flash", "gemini-pro"];
+      const modelNames = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash"];
       let lastErr = null;
 
       for (const modelName of modelNames) {
